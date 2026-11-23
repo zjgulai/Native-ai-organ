@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from html import escape
 
-from site_data import BOOK, CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS
+from site_data import BOOK, CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS, BOOK2, BRAND2_CONTENT
 from site_data import FIG_OUT, FIG_SRC, SITE_NAME
 
 # ------------------------------------------------------------- inline md-lite
@@ -117,6 +117,8 @@ def nav_html(base: str, current: str) -> str:
         ("index.html", "全书地图", "index"),
         ("chapters/index.html", "章节解读", "chapters"),
         ("concepts/index.html", "概念索引", "concepts"),
+        ("brand2/index.html", "品牌书·弱品牌强品牌", "brand2"),
+        ("synthesis.html", "两书合璧", "synthesis"),
         ("pilot.html", "从书到试点", "pilot"),
         ("tools/index.html", "工具箱", "tools"),
         ("terms.html", "术语表", "terms"),
@@ -171,6 +173,39 @@ def sidebar_html(base: str, current_slug: str = "") -> str:
     return "".join(out)
 
 
+def sidebar_html_b2(base: str, current_slug: str = "") -> str:
+    """Left directory for book 2 pages: two parts, deep reads linked, rest to map."""
+    part_names = {"renzhi": "第一部分 · 数字时代品牌新认知（1–11）",
+                  "xingdong": "第二部分 · 数字时代品牌增长新行动（12–25）"}
+    out = ['<aside class="dir" aria-label="品牌书目录">',
+           '<div class="dir-search"><label for="dir-search">搜索目录</label>',
+           '<input id="dir-search" type="search" placeholder="章节、概念…" autocomplete="off"></div>']
+    for part in BOOK2["parts"]:
+        out.append(f'<div class="dir-group"><h4>{escape(part_names[part["key"]])}</h4>')
+        for c in BOOK2["chapters"]:
+            if c["part"] != part["key"]:
+                continue
+            deep = c.get("deep")
+            if deep and deep in BRAND2_CONTENT:
+                href = f'{base}brand2/{deep}.html'
+                cur = ' aria-current="page"' if deep == current_slug else ""
+                hay = f'第{c["no"]}章 {c["title"]}'
+                out.append(f'<a href="{href}"{cur} data-search="{escape(hay, quote=True)}">'
+                           f'<span class="no">{c["no"]}</span>{escape(c["title"])}'
+                           f'<span class="soon" style="border-color:var(--r-blue);color:var(--r-blue)">精读</span></a>')
+            else:
+                href = f'{base}brand2/index.html#ch-{c["no"]}'
+                hay = f'第{c["no"]}章 {c["title"]}'
+                out.append(f'<a href="{href}" data-search="{escape(hay, quote=True)}">'
+                           f'<span class="no">{c["no"]}</span>{escape(c["title"])}</a>')
+        out.append('</div>')
+    out.append('<div class="dir-group"><h4>整合</h4>')
+    out.append(f'<a href="{base}synthesis.html" data-search="两书合璧 整合 品牌 增长">两书合璧 · 整合页</a>')
+    out.append(f'<a href="{base}index.html" data-search="第一本书 AI Native 组织">← 返回第一本书</a>')
+    out.append('</div><p class="dir-empty" hidden>没有匹配的目录项。</p></aside>')
+    return "".join(out)
+
+
 def ptoc_html(headings: list[tuple[str, str]]) -> str:
     if not headings:
         return ""
@@ -194,8 +229,8 @@ def page_shell(title: str, base: str, current: str, body: str,
 {body}
 <footer class="footer"><div class="wrap">
 <div class="col"><h4>{SITE_NAME}</h4><p>《AI Native 组织：从思考到实践》深度解读笔记。个人精读库，内容为原创蒸馏与短引用，非原书转载。</p></div>
-<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}pilot.html">从书到试点</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}terms.html">方案术语表</a><br><a href="{base}about.html">关于</a></p></div>
-<div class="col"><h4>原书</h4><p>{escape(BOOK['title'])}<br>{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])}</p></div>
+<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}brand2/index.html">品牌书·弱品牌强品牌</a><br><a href="{base}synthesis.html">两书合璧</a><br><a href="{base}pilot.html">从书到试点</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}terms.html">方案术语表</a><br><a href="{base}about.html">关于</a></p></div>
+<div class="col"><h4>原书</h4><p>{escape(BOOK['title'])}<br>{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])}<br><br>{escape(BOOK2['title'])}<br>{escape(BOOK2['author'])} 著 · {escape(BOOK2['publisher'])} · {escape(BOOK2['isbn'])}</p></div>
 </div><div class="wrap legal">本站内容为读书笔记性质的 transformative use；图像裁自原书 PDF 供个人精读参考。引用规范见<a href="{base}about.html">关于页</a>。</div></footer>
 <script src="{base}assets/site.js" defer></script>
 </body></html>"""
@@ -203,11 +238,11 @@ def page_shell(title: str, base: str, current: str, body: str,
 
 def reader_page(base: str, current_slug: str, article_inner: str,
                 headings: list, title: str, desc: str,
-                nav_current: str = "chapters") -> str:
+                nav_current: str = "chapters", sidebar: str | None = None) -> str:
     body = (
         '<main class="reader">'
         '<button class="menu-toggle mobile-dir-btn" aria-expanded="false">目录</button>'
-        + sidebar_html(base, current_slug)
+        + (sidebar if sidebar is not None else sidebar_html(base, current_slug))
         + f'<article class="article" id="article">{article_inner}</article>'
         + ptoc_html(headings)
         + '</main>'

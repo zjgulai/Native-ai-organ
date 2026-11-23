@@ -2,9 +2,11 @@
 import re
 from html import escape
 
-from site_data import (BOOK, CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS,
-                       TERMS, PILOT, FIG_SRC, SITE_NAME)
-from site_render import (inline, render_blocks, page_shell, reader_page)
+from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
+                       CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS,
+                       TERMS, PILOT, SYNTHESIS, FIG_SRC, SITE_NAME)
+from site_render import (inline, render_blocks, page_shell, reader_page,
+                         sidebar_html_b2)
 
 
 def chapter_headings(blocks: list) -> list[tuple[str, str]]:
@@ -90,6 +92,124 @@ def render_chapters_index(base: str) -> str:
                       "AI Native 组织章节深度解读目录")
 
 
+# ------------------------------------------------------------- book 2 pages
+
+def _b2_chapter_meta(deep_slug: str) -> dict:
+    return next(c for c in BOOK2["chapters"] if c.get("deep") == deep_slug)
+
+
+def render_b2_chapter_page(deep_slug: str, base: str) -> str:
+    doc = BRAND2_CONTENT[deep_slug]
+    c = _b2_chapter_meta(deep_slug)
+    blocks = doc["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    idx = next(i for i, x in enumerate(BRAND2_DEEP) if x["deep"] == deep_slug)
+    prev_c = BRAND2_DEEP[idx - 1] if idx > 0 else None
+    next_c = BRAND2_DEEP[idx + 1] if idx + 1 < len(BRAND2_DEEP) else None
+    pager = '<nav class="pager">'
+    pager += (f'<a href="{base}brand2/{prev_c["deep"]}.html"><span class="dir-label">← 上一篇精读</span>'
+              f'<span class="ttl">第 {prev_c["no"]} 章 · {escape(prev_c["title"])}</span></a>' if prev_c
+              else '<span></span>')
+    pager += (f'<a class="next" href="{base}brand2/{next_c["deep"]}.html"><span class="dir-label">下一篇精读 →</span>'
+              f'<span class="ttl">第 {next_c["no"]} 章 · {escape(next_c["title"])}</span></a>' if next_c
+              else '<span></span>')
+    pager += '</nav>'
+    chars = sum(len(str(v)) for b in blocks for v in b.values())
+    minutes = max(8, round(chars / 900))
+    inner = (
+        f'<div class="crumb"><a href="{base}index.html">首页</a><span>/</span>'
+        f'<a href="{base}brand2/index.html">品牌书·弱品牌强品牌</a><span>/</span>'
+        f'<span>第 {c["no"]} 章</span></div>'
+        f'<div class="cat">{escape(BOOK2["short_title"])} · 第 {c["no"]} 章 · 精读</div>'
+        f'<h1>{escape(c["title"])}</h1>'
+        f'<p class="lead">{inline(doc.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>原书页码 <b>{escape(c.get("pages", "—"))}</b></span>'
+        f'<span>约 <b>{minutes}</b> 分钟读完</span>'
+        f'<span>全书进度 <b>{c["no"]} / 25</b></span>'
+        '<span>状态 <b>深度解读已发布</b></span></div></div>'
+        + body_html + pager
+    )
+    title = f'第{c["no"]}章 {c["title"]}'
+    return reader_page(base, deep_slug, inner, heads, title,
+                       doc.get("lead", "")[:120], nav_current="brand2",
+                       sidebar=sidebar_html_b2(base, deep_slug))
+
+
+def _b2_row(c: dict, base: str) -> str:
+    anchor = f' id="ch-{c["no"]}"'
+    deep = c.get("deep")
+    if deep and deep in BRAND2_CONTENT:
+        return (f'<div class="ch-item live"{anchor}>'
+                f'<span class="no">{c["no"]}</span>'
+                f'<span class="t"><a href="{base}brand2/{deep}.html">{escape(c["title"])}</a>'
+                f'<small>{escape(c.get("essence", ""))}</small></span>'
+                f'<span class="st">精读已发布 · {c.get("pages", "—")}页</span></div>')
+    return (f'<div class="ch-item"{anchor}>'
+            f'<span class="no">{c["no"]}</span>'
+            f'<span class="t">{escape(c["title"])}<small>{escape(c.get("essence", ""))}</small></span>'
+            f'<span class="st"><span class="soon">框架索引</span></span></div>')
+
+
+def render_b2_index(base: str) -> str:
+    paths = "".join(
+        f'<div class="path-card"><h4>{escape(p["name"])}</h4><p>{escape(p["desc"])}</p>'
+        f'<div class="path-seq">{escape(p["seq"])}</div></div>'
+        for p in BOOK2["reading_paths"])
+    grouped = []
+    for part in BOOK2["parts"]:
+        part_rows = "".join(_b2_row(c, base) for c in BOOK2["chapters"]
+                            if c["part"] == part["key"])
+        grouped.append(
+            f'<h3 style="margin:30px 0 4px">{escape(part["name"])}</h3>'
+            f'<p style="font-size:13px;color:#8a97a8;margin:0 0 10px">{escape(part["desc"])} · 第 {escape(part["chapters"])} 章</p>'
+            f'<div class="ch-list">{part_rows}</div>')
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>品牌书·弱品牌强品牌</span></div>'
+        '<div class="cat">BOOK TWO · BRAND GROWTH</div>'
+        f'<h1>{escape(BOOK2["title"])}</h1>'
+        f'<p class="lead">{escape(BOOK2.get("thesis", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>作者 <b>{escape(BOOK2["author"])}</b></span>'
+        f'<span>出版社 <b>{escape(BOOK2["publisher"])}</b></span>'
+        f'<span>ISBN <b>{escape(BOOK2["isbn"])}</b></span>'
+        f'<span>出版 <b>{escape(BOOK2.get("pub_date", "2022.1"))}</b></span>'
+        f'<span>正文 <b>{BOOK2.get("pages", "185")} 页</b></span>'
+        f'<span>精读 <b>{len(BRAND2_DEEP)} / 25 章</b></span></div></div>'
+        f'<div class="note" style="margin:18px 0">{escape(BOOK2.get("source_note", ""))}本站对该书采用「全书地图 + 战略章节精读」结构：25 章全部收录为框架索引，其中 {len(BRAND2_DEEP)} 个对跨境电商品牌域最关键的章节提供与第一本书同规格的深度解读（含实践映射）。</div>'
+        + "".join(grouped)
+        + '<h2 style="margin-top:44px">三条阅读路径</h2>'
+        + f'<div class="path-grid" style="margin-top:14px">{paths}</div>'
+        + '<div class="cta-card" style="margin-top:34px"><div><span class="idx">SYNTHESIS</span>'
+        '<h3>两书合璧：AI Native 组织 × 品牌增长方法论</h3>'
+        '<p>两本书的分工、五层结合点、智能中枢能力清单、FLOW-09 品效边界工程化与 Momcozy 诊断速览——整合方案的总入口。</p></div>'
+        + f'<a class="go" href="{base}synthesis.html">打开合璧页 →</a></div>'
+    )
+    return page_shell(f'{BOOK2["short_title"]} · 全书地图', base, "brand2", inner,
+                      BOOK2.get("thesis", "")[:120])
+
+
+def render_synthesis(base: str) -> str:
+    blocks = SYNTHESIS["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>两书合璧</span></div>'
+        '<div class="cat">SYNTHESIS · BRIDGE</div>'
+        f'<h1>{escape(SYNTHESIS["title"])}</h1>'
+        f'<p class="lead">{inline(SYNTHESIS.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创整合 · 非原书内容</b></span>'
+        f'<span>约 <b>{SYNTHESIS.get("minutes", "15")}</b> 分钟读完</span>'
+        '<span>覆盖 <b>两书 40 章框架</b></span></div></div>'
+        + body_html)
+    return reader_page(base, "", inner, heads, SYNTHESIS["title"],
+                       SYNTHESIS.get("lead", "")[:120], nav_current="synthesis")
+
+
 def render_home(base: str) -> str:
     parts = [
         ("上篇", "道", "理解 AI Native 组织的底层逻辑：知识如何路由、主体如何切换、增长在哪里裂缝。", "ch01-xinxi-luyou,ch02-zhuanti-qiehuan,ch03-xiaolv-yuzengzhang"),
@@ -168,6 +288,12 @@ def render_home(base: str) -> str:
     path_html = '<div class="path-grid">' + "".join(
         f'<div class="path-card"><h4>{escape(n)}</h4><p>{escape(d)}</p>'
         f'<div class="path-seq">{escape(seq)}</div></div>' for n, d, seq in paths) + '</div>'
+    b2_deep_rows = "".join(
+        f'<div class="ch-item live"><span class="no">{c["no"]}</span>'
+        f'<span class="t"><a href="{base}brand2/{c["deep"]}.html">{escape(c["title"])}</a>'
+        f'<small>{escape(c.get("essence", ""))}</small></span>'
+        f'<span class="st">精读</span></div>'
+        for c in BRAND2_DEEP)
     body = hero + f"""
 <section class="section"><div class="wrap">
 <h2>全书地图</h2>
@@ -180,6 +306,18 @@ def render_home(base: str) -> str:
 <h3 style="margin:34px 0 6px">三条推荐阅读路径</h3>
 {path_html}</div></section>
 <section class="section"><div class="wrap">
+<h2>第二本书：《{escape(BOOK2["short_title"])}》</h2>
+<p class="sec-sub">品牌域的业务方法论——与第一本书正交互补：书一回答 Agent 组织怎么建，书二回答品牌增长该干什么、干得好是什么样。本站采用「全书地图 + 战略章节精读」结构。</p>
+<div class="cta-card">
+<div><span class="idx">BOOK TWO</span><h3>{escape(BOOK2["title"])}</h3>
+<p>{escape(BOOK2["author"])} 著 · {escape(BOOK2["publisher"])} · {escape(BOOK2["isbn"])} · 正文 {BOOK2.get("pages", "185")} 页 · {escape(BOOK2.get("thesis", ""))}</p></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<a class="go" href="{base}brand2/index.html">品牌书全书地图 →</a>
+<a class="go" href="{base}synthesis.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">两书合璧 →</a></div></div>
+<h3 style="margin:26px 0 6px">精选精读（{len(BRAND2_DEEP)} / 25 章）</h3>
+<div class="ch-list">{b2_deep_rows}</div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {25 - len(BRAND2_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}brand2/index.html" style="color:var(--r-blue)">品牌书全书地图</a>。</p></div></section>
+<section class="section tint"><div class="wrap">
 <div class="cta-card">
 <div><span class="idx">BRIDGE</span><h3>从书到试点：品牌域试点操作序列</h3>
 <p>读完全书之后第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。</p></div>
@@ -330,8 +468,10 @@ def render_about(base: str) -> str:
 </ul>
 <h2 id="s-about-2">版权说明</h2>
 <p>原书 © {escape(BOOK['author'])}，{escape(BOOK['publisher'])} 出版，ISBN {escape(BOOK['isbn'])}。本站内容仅供个人精读与小范围分享；如需公开传播，请先获得著作权人许可。本站不主张对原书文字与插图的权利。</p>
-<h2 id="s-about-3">实践映射说明</h2>
-<p>每篇解读末尾的「实践映射」将书中框架对照作者本人的 AI 组织变革设计项目（约 50 个 AI 岗位、八阶段协同、Policy Gate 授权体系），属于本站原创的二次创作，与原书作者无关。</p>
-<h2 id="s-about-4">技术</h2>
+<h2 id="s-about-3">第二本书说明</h2>
+<p>《{escape(BOOK2["title"])}》（{escape(BOOK2["author"])} 著，{escape(BOOK2["publisher"])}，ISBN {escape(BOOK2["isbn"])}）为扫描影印版 PDF，无正式文本层。本站对其采用「全书地图 + 战略章节精读」结构：25 章框架索引基于 OCR 辅助精读，引用页码以原书为准、短语以扫描页核对为准；8 篇精读为原创蒸馏重写，与第一本书同一内容政策。两书整合见<a href="{base}synthesis.html">两书合璧</a>页。</p>
+<h2 id="s-about-4">实践映射说明</h2>
+<p>每篇解读末尾的「实践映射」将书中框架对照作者本人的 AI 组织变革设计项目（约 50 个 AI 岗位、八阶段协同、Policy Gate 授权体系、FLOW-09 品牌资产经营），属于本站原创的二次创作，与原书作者无关。</p>
+<h2 id="s-about-5">技术</h2>
 <p>纯静态站：Python 标准库构建（<code>build.py</code>），无前端框架与构建依赖；内容为 JSON 数据，页面为构建期渲染的 HTML；交互（目录筛选、本页目录、工具勾选）为渐进增强，不影响无 JS 阅读。</p>"""
     return page_shell("关于本站", base, "about", inner, "关于本站与引用规范")

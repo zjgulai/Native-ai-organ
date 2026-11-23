@@ -62,12 +62,16 @@ def build(check: bool = False) -> int:
     write_page("about.html", P.render_about(""))
     write_page("terms.html", P.render_terms(""))
     write_page("pilot.html", P.render_pilot(""))
+    write_page("synthesis.html", P.render_synthesis(""))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))
     write_page("tools/index.html", P.render_tools_index("../"))
+    write_page("brand2/index.html", P.render_b2_index("../"))
     for c in D.CHAPTERS:
         if c["slug"] in D.CHAPTER_CONTENT:
             write_page(f"chapters/{c['slug']}.html", P.render_chapter_page(c, "../"))
+    for c in D.BRAND2_DEEP:
+        write_page(f"brand2/{c['deep']}.html", P.render_b2_chapter_page(c["deep"], "../"))
     for t in D.TOOLS:
         write_page(f"tools/{t['slug']}.html", P.render_tool_page(t, "../"))
 
