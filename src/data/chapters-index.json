@@ -1,0 +1,17 @@
+[
+  {"slug": "prologue", "no": "序", "part_key": "prologue", "part_name": "序章", "title": "凌晨三点的 Agent", "pages": "1–13", "minutes": 12},
+  {"slug": "ch01-xinxi-luyou", "no": "01", "part_key": "dao", "part_name": "上篇 · 道", "title": "两千年的信息路由", "pages": "14–26", "minutes": 14},
+  {"slug": "ch02-zhuanti-qiehuan", "no": "02", "part_key": "dao", "part_name": "上篇 · 道", "title": "做事主体的切换", "pages": "27–41", "minutes": 16},
+  {"slug": "ch03-xiaolv-yuzengzhang", "no": "03", "part_key": "dao", "part_name": "上篇 · 道", "title": "效率与增长的裂缝", "pages": "42–55", "minutes": 15},
+  {"slug": "ch04-zhishi-bianma", "no": "04", "part_key": "shu", "part_name": "中篇 · 术", "title": "知识编码：把公司写成 AI 读得懂的样子", "pages": "56–69", "minutes": 15},
+  {"slug": "ch05-mubiao-yu-bianjie", "no": "05", "part_key": "shu", "part_name": "中篇 · 术", "title": "目标与边界：人机分工的第一性原理", "pages": "70–85", "minutes": 16},
+  {"slug": "ch06-zhixu-jinhua", "no": "06", "part_key": "shu", "part_name": "中篇 · 术", "title": "持续进化：从知识库到飞轮", "pages": "86–101", "minutes": 17},
+  {"slug": "ch07-jiaose-yu-jiagou", "no": "07", "part_key": "shu", "part_name": "中篇 · 术", "title": "角色与架构：层级之后的组织", "pages": "102–121", "minutes": 20},
+  {"slug": "ch08-agent-pingtai", "no": "08", "part_key": "qi", "part_name": "下篇 · 器", "title": "从数据中台到 Agent 平台", "pages": "122–158", "minutes": 30},
+  {"slug": "ch09-xinren-gongcheng", "no": "09", "part_key": "qi", "part_name": "下篇 · 器", "title": "信任的工程", "pages": "159–177", "minutes": 18},
+  {"slug": "ch10-wenhua", "no": "10", "part_key": "qi", "part_name": "下篇 · 器", "title": "文化：不需要分发的上下文", "pages": "178–190", "minutes": 14},
+  {"slug": "ch11-zhuanxing-luxian", "no": "11", "part_key": "qi", "part_name": "下篇 · 器", "title": "转型路线图", "pages": "191–211", "minutes": 20},
+  {"slug": "ch12-hangye-xinbo", "no": "12", "part_key": "qi", "part_name": "下篇 · 器", "title": "行业的心跳", "pages": "212–230", "minutes": 18},
+  {"slug": "ch13-geren-xuanze", "no": "13", "part_key": "qi", "part_name": "下篇 · 器", "title": "个人的选择", "pages": "231–245", "minutes": 14},
+  {"slug": "epilogue", "no": "终", "part_key": "end", "part_name": "终章", "title": "写给 CEO 的信", "pages": "246–252", "minutes": 8}
+]
