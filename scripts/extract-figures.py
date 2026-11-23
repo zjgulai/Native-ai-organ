@@ -36,6 +36,10 @@ CLUSTER_GAP = 14.0
 PAD = 10.0
 LABEL_MARGIN = 6.0
 
+# SVG subtrees that never render visible geometry on the page itself
+SKIP_TAGS = {"defs", "clipPath", "mask", "filter", "title", "desc",
+             "metadata", "style", "symbol"}
+
 
 def run(cmd: list[str]) -> None:
     proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -153,20 +157,29 @@ def collect_page_elements(svg_path: Path) -> tuple[list, list, tuple[float, floa
     page_w = float(root.get("width", "0").replace("pt", ""))
     page_h = float(root.get("height", "0").replace("pt", ""))
 
+    # Index every id'd element so non-glyph <use> references (figure symbols
+    # such as <g id="source-N">) can be resolved back to their geometry.
+    id_map = {}
+    for el in root.iter():
+        eid = el.get("id")
+        if eid:
+            id_map[eid] = el
+
     art: list[tuple[float, float, float, float]] = []   # vector drawing boxes (pt)
     labels: list[tuple[float, float]] = []               # text-glyph anchor points (pt)
 
     def local(tag: str) -> str:
         return tag.rsplit("}", 1)[-1]
 
-    def walk(el, matrix):
+    XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
+
+    def handle(el, matrix, depth=0):
         tag = local(el.tag)
-        m = mat_mul(matrix, parse_transform(el.get("transform")))
-        if tag == "defs":
+        if tag in SKIP_TAGS:
             return
+        m = mat_mul(matrix, parse_transform(el.get("transform")))
         if tag == "path":
-            d = el.get("d", "")
-            pts = path_points(d)
+            pts = path_points(el.get("d", ""))
             bb = bbox_of_points(pts)
             if bb:
                 art.append(transform_bbox(m, bb))
@@ -182,13 +195,30 @@ def collect_page_elements(svg_path: Path) -> tuple[list, list, tuple[float, floa
             except ValueError:
                 pass
         elif tag == "use":
-            x = float(el.get("x", 0) or 0); y = float(el.get("y", 0) or 0)
-            px, py = mat_pt(m, x, y)
-            labels.append((px, py))
+            href = el.get(XLINK_HREF) or el.get("href") or ""
+            ref_id = href.lstrip("#")
+            if ref_id.startswith("glyph"):
+                try:
+                    x = float(el.get("x", 0) or 0)
+                    y = float(el.get("y", 0) or 0)
+                    px, py = mat_pt(m, x, y)
+                    labels.append((px, py))
+                except ValueError:
+                    pass
+            elif depth < 4 and ref_id in id_map:
+                # Figure symbol: x/y act as a translate appended after the
+                # element's own transform list (applied to content first).
+                try:
+                    ux = float(el.get("x", 0) or 0)
+                    uy = float(el.get("y", 0) or 0)
+                except ValueError:
+                    ux = uy = 0.0
+                content_m = mat_mul(m, (1.0, 0.0, 0.0, 1.0, ux, uy))
+                handle(id_map[ref_id], content_m, depth + 1)
         for child in el:
-            walk(child, m)
+            handle(child, m, depth)
 
-    walk(root, (1.0, 0.0, 0.0, 1.0, 0.0, 0.0))
+    handle(root, (1.0, 0.0, 0.0, 1.0, 0.0, 0.0))
     return art, labels, (page_w, page_h)
 
 
@@ -346,22 +376,35 @@ def extract_figure(pdf: Path, page_no: int, fig_id: str,
         pool = big if big else clusters
 
         if cap_y is not None and len(pool) > 1:
-            # choose cluster whose vertical center is nearest the caption
-            def cy(cl):
-                _, y0, _, y1 = union_box(cl)
-                return (y0 + y1) / 2
-            chosen = min(pool, key=lambda c: abs(cy(c) - cap_y))
+            # choose cluster whose vertical span is nearest the caption;
+            # interval distance (not center distance) so stacked figures on
+            # one page each pick their own cluster
+            def cdist(cl):
+                _, cy0, _, cy1 = union_box(cl)
+                if cap_y < cy0:
+                    return cy0 - cap_y
+                if cap_y > cy1:
+                    return cap_y - cy1
+                return 0.0
+            chosen = min(pool, key=cdist)
         else:
             chosen = max(pool, key=cluster_area)
 
         x0, y0, x1, y1 = union_box(chosen)
         # expand to include text labels whose anchor sits inside padded box
         ex0, ey0, ex1, ey1 = x0 - PAD, y0 - PAD, x1 + PAD, y1 + PAD
+        # when the "图 X-Y" caption marker sits at/below the art cluster, the
+        # caption block (marker + descriptive line) must not be swallowed
+        cap_below = cap_y is not None and cap_y > y1 - PAD
         for (lx, ly) in labels:
+            if cap_below and ly > cap_y - 8:
+                continue
             if ex0 - LABEL_MARGIN <= lx <= ex1 + LABEL_MARGIN and \
                ey0 - LABEL_MARGIN <= ly <= ey1 + LABEL_MARGIN:
                 ex0, ey0 = min(ex0, lx - 12), min(ey0, ly - 12)
                 ex1, ey1 = max(ex1, lx + 12), max(ey1, ly + 12)
+        if cap_below:
+            ey1 = min(ey1, cap_y - 6)
         # clamp to page
         ex0, ey0 = max(0, ex0), max(0, ey0)
         ex1, ey1 = min(pw, ex1), min(ph, ey1)

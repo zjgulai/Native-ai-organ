@@ -1,4 +1,292 @@
 {
+  "fig-0-1": {
+    "page": 12,
+    "chapter": 0,
+    "num": 1,
+    "caption": "人类对这件事的第一次参与，是阅读。",
+    "status": "ok",
+    "pdf_box_pt": [
+      43.3,
+      93.1,
+      374.4,
+      273.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 94,
+    "caption_y": 279.1656,
+    "file": "fig-0-1.webp",
+    "bytes": 39048
+  },
+  "fig-0-2": {
+    "page": 17,
+    "chapter": 0,
+    "num": 2,
+    "caption": "标准化冻结答案，语义协调只冻结上下文——质量、规模、速度第一次",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      194.8,
+      364.8,
+      382.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 44,
+    "caption_y": 388.2382,
+    "file": "fig-0-2.webp",
+    "bytes": 51340
+  },
+  "fig-0-3": {
+    "page": 20,
+    "chapter": 0,
+    "num": 3,
+    "caption": "可编码的上下文交给协调体；价值、情景与意义，回到人类的调适核。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      245.7,
+      372.9,
+      449.9
+    ],
+    "clusters": 2,
+    "chosen_cluster": 31,
+    "caption_y": 455.9006,
+    "file": "fig-0-3.webp",
+    "bytes": 31616
+  },
+  "fig-1-1": {
+    "page": 25,
+    "chapter": 1,
+    "num": 1,
+    "caption": "组织架构图看似是权力结构图，而实际是一张信息路由图。",
+    "status": "ok",
+    "pdf_box_pt": [
+      36.3,
+      69.5,
+      365.3,
+      250.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 102,
+    "caption_y": 256.17719999999997,
+    "file": "fig-1-1.webp",
+    "bytes": 24348
+  },
+  "fig-1-2": {
+    "page": 30,
+    "chapter": 1,
+    "num": 2,
+    "caption": "新技术的红利，从来不在技术里，而在为它重新设计的组织里。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      177.9,
+      373.9,
+      378.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 84,
+    "caption_y": 384.3209,
+    "file": "fig-1-2.webp",
+    "bytes": 27774
+  },
+  "fig-1-3": {
+    "page": 34,
+    "chapter": 1,
+    "num": 3,
+    "caption": "四跳，二十三天，九成衰减——用来做决策的信息，已经不是客户给出",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      143.9,
+      374.1,
+      305.5
+    ],
+    "clusters": 2,
+    "chosen_cluster": 78,
+    "caption_y": 311.4929,
+    "file": "fig-1-3.webp",
+    "bytes": 28056
+  },
+  "fig-2-1": {
+    "page": 39,
+    "chapter": 2,
+    "num": 1,
+    "caption": "你把它当什么，它就只能是什么——认知在哪一层，收益的天花板就钉",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      262.7,
+      364.9,
+      478.6
+    ],
+    "clusters": 2,
+    "chosen_cluster": 27,
+    "caption_y": 484.6416,
+    "file": "fig-2-1.webp",
+    "bytes": 30334
+  },
+  "fig-2-2": {
+    "page": 42,
+    "chapter": 2,
+    "num": 2,
+    "caption": "委托失败是一面镜子，照出的是组织自己从未想清楚的部分。",
+    "status": "ok",
+    "pdf_box_pt": [
+      45.5,
+      101.9,
+      373.0,
+      250.8
+    ],
+    "clusters": 3,
+    "chosen_cluster": 26,
+    "caption_y": 256.7741,
+    "file": "fig-2-2.webp",
+    "bytes": 17914
+  },
+  "fig-2-3": {
+    "page": 44,
+    "chapter": 2,
+    "num": 3,
+    "caption": "主动者升维，被动者出局。",
+    "status": "ok",
+    "pdf_box_pt": [
+      43.6,
+      69.5,
+      375.0,
+      246.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 52,
+    "caption_y": 252.17860000000002,
+    "file": "fig-2-3.webp",
+    "bytes": 27072
+  },
+  "fig-3-1": {
+    "page": 53,
+    "chapter": 3,
+    "num": 1,
+    "caption": "产能在每一个节拍的间隙里排队，排着排着就蒸发了。",
+    "status": "ok",
+    "pdf_box_pt": [
+      34.4,
+      69.5,
+      366.2,
+      229.7
+    ],
+    "clusters": 2,
+    "chosen_cluster": 146,
+    "caption_y": 235.6836,
+    "file": "fig-3-1.webp",
+    "bytes": 31014
+  },
+  "fig-3-2": {
+    "page": 55,
+    "chapter": 3,
+    "num": 2,
+    "caption": "闭环的转速由最慢的一环决定——而最慢的一环，始终是人的协调。",
+    "status": "ok",
+    "pdf_box_pt": [
+      36.0,
+      69.5,
+      365.6,
+      232.1
+    ],
+    "clusters": 2,
+    "chosen_cluster": 99,
+    "caption_y": 238.1205,
+    "file": "fig-3-2.webp",
+    "bytes": 26176
+  },
+  "fig-3-3": {
+    "page": 57,
+    "chapter": 3,
+    "num": 3,
+    "caption": "模型的智商是现成的，团队的默契是长出来的。",
+    "status": "ok",
+    "pdf_box_pt": [
+      36.7,
+      70.8,
+      364.5,
+      269.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 79,
+    "caption_y": 275.2174,
+    "file": "fig-3-3.webp",
+    "bytes": 44304
+  },
+  "fig-3-4": {
+    "page": 58,
+    "chapter": 3,
+    "num": 4,
+    "caption": "能用低台阶解决的，不要上高台阶。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      93.1,
+      374.1,
+      290.8
+    ],
+    "clusters": 2,
+    "chosen_cluster": 33,
+    "caption_y": 296.8108,
+    "file": "fig-3-4.webp",
+    "bytes": 27970
+  },
+  "fig-4-1": {
+    "page": 68,
+    "chapter": 4,
+    "num": 1,
+    "caption": "同一份知识，躺在文档里是成本，接入闭环里是资产。",
+    "status": "ok",
+    "pdf_box_pt": [
+      44.6,
+      69.5,
+      373.8,
+      213.1
+    ],
+    "clusters": 2,
+    "chosen_cluster": 47,
+    "caption_y": 219.1488,
+    "file": "fig-4-1.webp",
+    "bytes": 26932
+  },
+  "fig-4-2": {
+    "page": 70,
+    "chapter": 4,
+    "num": 2,
+    "caption": "记忆是燃料，Skill 是引擎，进化是保养。",
+    "status": "ok",
+    "pdf_box_pt": [
+      37.9,
+      330.7,
+      374.5,
+      478.8
+    ],
+    "clusters": 3,
+    "chosen_cluster": 27,
+    "caption_y": 484.8106,
+    "file": "fig-4-2.webp",
+    "bytes": 24280
+  },
+  "fig-4-3": {
+    "page": 72,
+    "chapter": 4,
+    "num": 3,
+    "caption": "语义层的意义不是让 Agent 更聪明，是让它不必那么聪明。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      110.0,
+      373.6,
+      315.1
+    ],
+    "clusters": 2,
+    "chosen_cluster": 67,
+    "caption_y": 321.1273,
+    "file": "fig-4-3.webp",
+    "bytes": 31672
+  },
   "fig-5-1": {
     "page": 82,
     "chapter": 5,
@@ -9,13 +297,13 @@
       41.7,
       177.9,
       373.5,
-      374.6
+      372.5
     ],
     "clusters": 2,
     "chosen_cluster": 53,
     "caption_y": 378.5374,
     "file": "fig-5-1.webp",
-    "bytes": 24252
+    "bytes": 24190
   },
   "fig-5-2": {
     "page": 83,
@@ -27,13 +315,13 @@
       33.2,
       286.7,
       364.5,
-      487.2
+      449.2
     ],
     "clusters": 2,
     "chosen_cluster": 36,
     "caption_y": 455.2214,
     "file": "fig-5-2.webp",
-    "bytes": 26134
+    "bytes": 23010
   },
   "fig-5-3": {
     "page": 87,
@@ -45,13 +333,13 @@
       33.2,
       127.0,
       362.7,
-      385.8
+      347.6
     ],
     "clusters": 2,
     "chosen_cluster": 30,
     "caption_y": 353.641,
     "file": "fig-5-3.webp",
-    "bytes": 32402
+    "bytes": 25288
   },
   "fig-5-4": {
     "page": 89,
@@ -63,12 +351,624 @@
       35.8,
       70.4,
       366.0,
-      280.5
+      242.0
     ],
     "clusters": 2,
     "chosen_cluster": 39,
     "caption_y": 248.0355,
     "file": "fig-5-4.webp",
-    "bytes": 36348
+    "bytes": 28842
+  },
+  "fig-6-1": {
+    "page": 98,
+    "chapter": 6,
+    "num": 1,
+    "caption": "单次聪明和复利聪明，短期看不出差别，一年后是两家公司。",
+    "status": "ok",
+    "pdf_box_pt": [
+      44.9,
+      69.5,
+      373.6,
+      256.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 52,
+    "caption_y": 262.1893,
+    "file": "fig-6-1.webp",
+    "bytes": 26008
+  },
+  "fig-6-2": {
+    "page": 99,
+    "chapter": 6,
+    "num": 2,
+    "caption": "死因写着“不好用”，真相是“没人修”。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      127.0,
+      366.4,
+      355.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 70,
+    "caption_y": 361.1731,
+    "file": "fig-6-2.webp",
+    "bytes": 32408
+  },
+  "fig-6-3": {
+    "page": 101,
+    "chapter": 6,
+    "num": 3,
+    "caption": "旧组织中抱怨是情绪，飞轮组织中抱怨是尚待发掘的资产。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      122.7,
+      364.6,
+      314.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 48,
+    "caption_y": 320.3036,
+    "file": "fig-6-3.webp",
+    "bytes": 29084
+  },
+  "fig-6-4": {
+    "page": 107,
+    "chapter": 6,
+    "num": 4,
+    "caption": "维持改变，比创造改变更难。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      76.1,
+      365.1,
+      258.5
+    ],
+    "clusters": 2,
+    "chosen_cluster": 43,
+    "caption_y": 264.4606,
+    "file": "fig-6-4.webp",
+    "bytes": 35422
+  },
+  "fig-7-1": {
+    "page": 116,
+    "chapter": 7,
+    "num": 1,
+    "caption": "岗位回答“我属于哪里”，角色回答“我能贡献什么”。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      160.9,
+      373.2,
+      312.5
+    ],
+    "clusters": 2,
+    "chosen_cluster": 72,
+    "caption_y": 318.5482,
+    "file": "fig-7-1.webp",
+    "bytes": 29598
+  },
+  "fig-7-2": {
+    "page": 118,
+    "chapter": 7,
+    "num": 2,
+    "caption": "被替代的是职能，不是人——路由被拿走，被挤压的本体得到解放。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      160.9,
+      374.5,
+      389.8
+    ],
+    "clusters": 2,
+    "chosen_cluster": 73,
+    "caption_y": 395.7716,
+    "file": "fig-7-2.webp",
+    "bytes": 30596
+  },
+  "fig-7-3": {
+    "page": 120,
+    "chapter": 7,
+    "num": 3,
+    "caption": "组织的形态，第一次可以由业务逻辑决定。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      275.4,
+      375.6,
+      473.5
+    ],
+    "clusters": 2,
+    "chosen_cluster": 135,
+    "caption_y": 479.48199999999997,
+    "file": "fig-7-3.webp",
+    "bytes": 38368
+  },
+  "fig-8-1": {
+    "page": 136,
+    "chapter": 8,
+    "num": 1,
+    "caption": "感、知、行循环：旧闭环以人为中心，新闭环以业务为中心——人从循",
+    "status": "ok",
+    "pdf_box_pt": [
+      44.3,
+      70.8,
+      374.3,
+      269.6
+    ],
+    "clusters": 2,
+    "chosen_cluster": 92,
+    "caption_y": 275.6205,
+    "file": "fig-8-1.webp",
+    "bytes": 31278
+  },
+  "fig-8-2": {
+    "page": 137,
+    "chapter": 8,
+    "num": 2,
+    "caption": "中枢加辐条：中枢管底座，辐条长在业务里——用中枢的底座，“喂”",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      245.7,
+      365.9,
+      466.8
+    ],
+    "clusters": 2,
+    "chosen_cluster": 74,
+    "caption_y": 472.7981,
+    "file": "fig-8-2.webp",
+    "bytes": 29660
+  },
+  "fig-8-3": {
+    "page": 139,
+    "chapter": 8,
+    "num": 3,
+    "caption": "Demo 与平台的鸿沟：演示里统统不存在的关卡，在生产中一道都绕不",
+    "status": "ok",
+    "pdf_box_pt": [
+      37.3,
+      69.5,
+      364.3,
+      316.0
+    ],
+    "clusters": 2,
+    "chosen_cluster": 58,
+    "caption_y": 322.04,
+    "file": "fig-8-3.webp",
+    "bytes": 36230
+  },
+  "fig-8-4": {
+    "page": 140,
+    "chapter": 8,
+    "num": 4,
+    "caption": "平台解剖示意：感知行是能力视图，七个组件是结构视图。能力可以靠",
+    "status": "ok",
+    "pdf_box_pt": [
+      44.5,
+      69.5,
+      374.1,
+      283.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 53,
+    "caption_y": 289.3082,
+    "file": "fig-8-4.webp",
+    "bytes": 41282
+  },
+  "fig-8-5": {
+    "page": 150,
+    "chapter": 8,
+    "num": 5,
+    "caption": "锁与放：用确定性的结构，包住不确定性的核心——哪里该锁、哪里该",
+    "status": "ok",
+    "pdf_box_pt": [
+      43.4,
+      69.5,
+      375.1,
+      319.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 42,
+    "caption_y": 325.2964,
+    "file": "fig-8-5.webp",
+    "bytes": 32800
+  },
+  "fig-8-6": {
+    "page": 151,
+    "chapter": 8,
+    "num": 6,
+    "caption": "四条实现路线：各有各的强项展示——比最弱的一环，不比最炫的那",
+    "status": "ok",
+    "pdf_box_pt": [
+      37.5,
+      69.5,
+      364.1,
+      273.1
+    ],
+    "clusters": 2,
+    "chosen_cluster": 95,
+    "caption_y": 279.1422,
+    "file": "fig-8-6.webp",
+    "bytes": 42006
+  },
+  "fig-8-7": {
+    "page": 157,
+    "chapter": 8,
+    "num": 7,
+    "caption": "Agentic Engine 四层架构：上层会更迭，底层是巨头的战场。我们押在",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      93.1,
+      365.5,
+      328.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 56,
+    "caption_y": 334.2777,
+    "file": "fig-8-7.webp",
+    "bytes": 41354
+  },
+  "fig-8-8": {
+    "page": 166,
+    "chapter": 8,
+    "num": 8,
+    "caption": "一个平台的一天：七个组件在一夜之间逐件亮起——而方向盘从头到尾",
+    "status": "ok",
+    "pdf_box_pt": [
+      43.9,
+      69.5,
+      374.4,
+      233.0
+    ],
+    "clusters": 2,
+    "chosen_cluster": 64,
+    "caption_y": 239.0263,
+    "file": "fig-8-8.webp",
+    "bytes": 33830
+  },
+  "fig-9-1": {
+    "page": 171,
+    "chapter": 9,
+    "num": 1,
+    "caption": "信任不是靠说服建立的，是靠结构保证的。",
+    "status": "ok",
+    "pdf_box_pt": [
+      35.5,
+      69.5,
+      364.9,
+      317.6
+    ],
+    "clusters": 2,
+    "chosen_cluster": 40,
+    "caption_y": 323.558,
+    "file": "fig-9-1.webp",
+    "bytes": 39642
+  },
+  "fig-9-2": {
+    "page": 173,
+    "chapter": 9,
+    "num": 2,
+    "caption": "这条链最危险的地方在于逐级隐形——治理的第一步，是让权力现形。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      110.0,
+      363.5,
+      304.0
+    ],
+    "clusters": 2,
+    "chosen_cluster": 62,
+    "caption_y": 309.9648,
+    "file": "fig-9-2.webp",
+    "bytes": 33466
+  },
+  "fig-9-3": {
+    "page": 178,
+    "chapter": 9,
+    "num": 3,
+    "caption": "敢停，才敢放；刹车可靠，油门才敢踩到底。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      160.9,
+      374.2,
+      349.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 89,
+    "caption_y": 355.3078,
+    "file": "fig-9-3.webp",
+    "bytes": 37962
+  },
+  "fig-10-1": {
+    "page": 191,
+    "chapter": 10,
+    "num": 1,
+    "caption": "文化的两层：表达可以编码复制，源头必须由人持有。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      127.0,
+      366.7,
+      328.6
+    ],
+    "clusters": 2,
+    "chosen_cluster": 42,
+    "caption_y": 334.6476,
+    "file": "fig-10-1.webp",
+    "bytes": 36442
+  },
+  "fig-10-2": {
+    "page": 192,
+    "chapter": 10,
+    "num": 2,
+    "caption": "四种新习惯：在旧组织里是美德，在新组织里是生存条件。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      93.1,
+      374.6,
+      278.0
+    ],
+    "clusters": 2,
+    "chosen_cluster": 48,
+    "caption_y": 284.0094,
+    "file": "fig-10-2.webp",
+    "bytes": 33212
+  },
+  "fig-10-3": {
+    "page": 196,
+    "chapter": 10,
+    "num": 3,
+    "caption": "文化的工程闭环：四件工法→两层载体→一块仪表盘。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      296.6,
+      373.7,
+      507.7
+    ],
+    "clusters": 2,
+    "chosen_cluster": 49,
+    "caption_y": 513.6539,
+    "file": "fig-10-3.webp",
+    "bytes": 39770
+  },
+  "fig-11-1": {
+    "page": 202,
+    "chapter": 11,
+    "num": 1,
+    "caption": "路线图总览：先诊断，再重构流程，然后部署 Agent，最后走向网络。",
+    "status": "ok",
+    "pdf_box_pt": [
+      45.0,
+      69.5,
+      373.5,
+      178.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 50,
+    "caption_y": 184.2592,
+    "file": "fig-11-1.webp",
+    "bytes": 30354
+  },
+  "fig-11-2": {
+    "page": 209,
+    "chapter": 11,
+    "num": 2,
+    "caption": "转型不是一个项目，是一种节奏——波定方向，闭环定节拍。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      313.5,
+      365.4,
+      487.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 107,
+    "caption_y": 493.2978,
+    "file": "fig-11-2.webp",
+    "bytes": 34690
+  },
+  "fig-11-3": {
+    "page": 212,
+    "chapter": 11,
+    "num": 3,
+    "caption": "分型路径二维框架：毛利率决定你走多远，知识存量决定你从哪里走。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      93.1,
+      374.0,
+      322.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 39,
+    "caption_y": 328.30989999999997,
+    "file": "fig-11-3.webp",
+    "bytes": 42112
+  },
+  "fig-11-4": {
+    "page": 218,
+    "chapter": 11,
+    "num": 4,
+    "caption": "最该被关注的，是能力强、治理低的危险区。",
+    "status": "ok",
+    "pdf_box_pt": [
+      44.1,
+      69.5,
+      374.4,
+      274.6
+    ],
+    "clusters": 2,
+    "chosen_cluster": 43,
+    "caption_y": 280.6016,
+    "file": "fig-11-4.webp",
+    "bytes": 28816
+  },
+  "fig-12-1": {
+    "page": 223,
+    "chapter": 12,
+    "num": 1,
+    "caption": "方法论是通用的，落地是行业的。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      143.9,
+      365.8,
+      454.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 90,
+    "caption_y": 460.2927,
+    "file": "fig-12-1.webp",
+    "bytes": 50868
+  },
+  "fig-12-2": {
+    "page": 227,
+    "chapter": 12,
+    "num": 2,
+    "caption": "会呼吸的授权，才配得上有潮汐的生意。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      177.9,
+      366.2,
+      386.5
+    ],
+    "clusters": 2,
+    "chosen_cluster": 34,
+    "caption_y": 392.4762,
+    "file": "fig-12-2.webp",
+    "bytes": 28992
+  },
+  "fig-12-3": {
+    "page": 233,
+    "chapter": 12,
+    "num": 3,
+    "caption": "编码是一场抢救：排期在老师傅退休之后的部分，就是永远失去的部分。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      110.0,
+      365.2,
+      301.2
+    ],
+    "clusters": 2,
+    "chosen_cluster": 18,
+    "caption_y": 307.1509,
+    "file": "fig-12-3.webp",
+    "bytes": 23026
+  },
+  "fig-12-4": {
+    "page": 234,
+    "chapter": 12,
+    "num": 4,
+    "caption": "游戏的飞轮靠数据的规模，软件的飞轮靠案例的深度。",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      228.7,
+      374.5,
+      419.7
+    ],
+    "clusters": 2,
+    "chosen_cluster": 94,
+    "caption_y": 425.6944,
+    "file": "fig-12-4.webp",
+    "bytes": 24394
+  },
+  "fig-12-5": {
+    "page": 237,
+    "chapter": 12,
+    "num": 5,
+    "caption": "五个行业，五个起点——诊断先于路径，行业先于打法。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      93.1,
+      365.5,
+      363.2
+    ],
+    "clusters": 3,
+    "chosen_cluster": 54,
+    "caption_y": 369.2368,
+    "file": "fig-12-5.webp",
+    "bytes": 40732
+  },
+  "fig-12-6": {
+    "page": 237,
+    "chapter": 12,
+    "num": 6,
+    "caption": "把这些问题带走——答完，就是你的行业版路线图。",
+    "status": "ok",
+    "pdf_box_pt": [
+      36.0,
+      401.9,
+      365.4,
+      507.6
+    ],
+    "clusters": 3,
+    "chosen_cluster": 61,
+    "caption_y": 513.5692,
+    "file": "fig-12-6.webp",
+    "bytes": 23608
+  },
+  "fig-13-1": {
+    "page": 243,
+    "chapter": 13,
+    "num": 1,
+    "caption": "预测越便宜，判断越值钱——别站在预测的位置上和机器竞争。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      313.5,
+      365.7,
+      488.0
+    ],
+    "clusters": 2,
+    "chosen_cluster": 20,
+    "caption_y": 494.00509999999997,
+    "file": "fig-13-1.webp",
+    "bytes": 26226
+  },
+  "fig-13-2": {
+    "page": 245,
+    "chapter": 13,
+    "num": 2,
+    "caption": "同样是忙碌的八小时，有人在攒资产，有人攒下的全是依附于流程的负债。",
+    "status": "ok",
+    "pdf_box_pt": [
+      33.2,
+      93.1,
+      366.0,
+      290.9
+    ],
+    "clusters": 2,
+    "chosen_cluster": 29,
+    "caption_y": 296.8567,
+    "file": "fig-13-2.webp",
+    "bytes": 57788
+  },
+  "fig-13-3": {
+    "page": 248,
+    "chapter": 13,
+    "num": 3,
+    "caption": "AI 的能力边界是锯齿状的——它在边界外答错时的自信，和在边界内",
+    "status": "ok",
+    "pdf_box_pt": [
+      41.7,
+      76.1,
+      374.0,
+      289.3
+    ],
+    "clusters": 2,
+    "chosen_cluster": 37,
+    "caption_y": 295.3227,
+    "file": "fig-13-3.webp",
+    "bytes": 39212
   }
 }
