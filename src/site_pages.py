@@ -4,7 +4,7 @@ from html import escape
 
 from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
                        CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS,
-                       TERMS, PILOT, SYNTHESIS, FIG_SRC, SITE_NAME)
+                       TERMS, PILOT, PILOT_ASSETS, SYNTHESIS, FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2)
 
@@ -452,6 +452,33 @@ def render_pilot(base: str) -> str:
         + body_html)
     return reader_page(base, "", inner, heads, PILOT["title"],
                        PILOT.get("lead", "")[:120], nav_current="pilot")
+
+
+def render_pilot_assets(base: str) -> str:
+    groups = []
+    for g in PILOT_ASSETS["groups"]:
+        rows = "".join(
+            f'<tr><td class="term-name"><code>{escape(it["id"])}</code></td>'
+            f'<td><strong>{escape(it["name"])}</strong><br><span style="color:#5b6b7d">{inline(it["desc"])}</span></td>'
+            f'<td style="white-space:nowrap;font-size:12.5px;color:#8a97a8">{escape(it.get("meta", ""))}</td></tr>'
+            for it in g["items"])
+        groups.append(
+            f'<section class="term-group"><h2>{escape(g["group"])} · {len(g["items"])}</h2>'
+            f'<div class="table-wrap"><table class="terms"><tbody>{rows}</tbody></table></div></section>')
+    n = sum(len(g["items"]) for g in PILOT_ASSETS["groups"])
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
+        '<a href="' + base + 'pilot.html">从书到试点</a><span>/</span><span>品牌域试点资产</span></div>'
+        '<div class="cat">PILOT ASSETS</div><h1>' + escape(PILOT_ASSETS["title"]) + '</h1>'
+        f'<p class="lead">{inline(PILOT_ASSETS.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>状态 <b>{escape(PILOT_ASSETS.get("status", ""))}</b></span>'
+        f'<span>资产 <b>{n} 项</b></span>'
+        f'<span>约 <b>{escape(PILOT_ASSETS.get("minutes", "10"))}</b> 分钟读完</span></div></div>'
+        '<div style="margin-top:26px">' + "".join(groups) + '</div>'
+        '<div class="note" style="margin-top:26px">' + inline(PILOT_ASSETS.get("boundary", "")) + '</div>')
+    return page_shell("品牌域试点资产地图", base, "pilot-assets", inner,
+                      "品牌域试点资产地图：FLOW-09 价值流、场景规格、Skill 契约、双层 KPI 与首个 Case 章程")
 
 
 def render_about(base: str) -> str:
