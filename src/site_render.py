@@ -117,7 +117,9 @@ def nav_html(base: str, current: str) -> str:
         ("index.html", "全书地图", "index"),
         ("chapters/index.html", "章节解读", "chapters"),
         ("concepts/index.html", "概念索引", "concepts"),
+        ("pilot.html", "从书到试点", "pilot"),
         ("tools/index.html", "工具箱", "tools"),
+        ("terms.html", "术语表", "terms"),
         ("about.html", "关于", "about"),
     ]
     items = "".join(
@@ -161,7 +163,9 @@ def sidebar_html(base: str, current_slug: str = "") -> str:
         out.append('</div>')
     out.append('<div class="dir-group"><h4>索引</h4>')
     out.append(f'<a href="{base}concepts/index.html" data-search="概念 索引 词条">概念索引（{len(CONCEPTS)}）</a>')
+    out.append(f'<a href="{base}pilot.html" data-search="试点 品牌 跨境电商 操作序列 案例">从书到试点</a>')
     out.append(f'<a href="{base}tools/index.html" data-search="工具 附录 清单">随书工具（{len(TOOLS)}）</a>')
+    out.append(f'<a href="{base}terms.html" data-search="术语 术语表 代号 决策">方案术语表</a>')
     out.append(f'<a href="{base}about.html" data-search="关于 版权 引用">关于与引用规范</a>')
     out.append('</div><p class="dir-empty" hidden>没有匹配的目录项。</p></aside>')
     return "".join(out)
@@ -177,6 +181,8 @@ def ptoc_html(headings: list[tuple[str, str]]) -> str:
 
 def page_shell(title: str, base: str, current: str, body: str,
                desc: str = "", head_extra: str = "") -> str:
+    if not body.lstrip().startswith("<main"):
+        body = f'<div class="wrap page-doc" style="padding:64px 0 90px">{body}</div>'
     return f"""<!doctype html>
 <html lang="zh-CN"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -188,7 +194,7 @@ def page_shell(title: str, base: str, current: str, body: str,
 {body}
 <footer class="footer"><div class="wrap">
 <div class="col"><h4>{SITE_NAME}</h4><p>《AI Native 组织：从思考到实践》深度解读笔记。个人精读库，内容为原创蒸馏与短引用，非原书转载。</p></div>
-<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}about.html">关于</a></p></div>
+<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}pilot.html">从书到试点</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}terms.html">方案术语表</a><br><a href="{base}about.html">关于</a></p></div>
 <div class="col"><h4>原书</h4><p>{escape(BOOK['title'])}<br>{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])}</p></div>
 </div><div class="wrap legal">本站内容为读书笔记性质的 transformative use；图像裁自原书 PDF 供个人精读参考。引用规范见<a href="{base}about.html">关于页</a>。</div></footer>
 <script src="{base}assets/site.js" defer></script>

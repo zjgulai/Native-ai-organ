@@ -1,0 +1,51 @@
+[
+  {"group": "决策编号", "items": [
+    {"term": "D-020", "desc": "约 50 个 AI 岗位是「逻辑岗位分身 + 责任契约」，不是 50 个运行时进程；每张紧耦合场景工单只运行一个 Case Agent，绑定一个主岗位人格并按需加载 Skills，不采用 LLM 多 Agent 路由或岗位 Agent 互聊。"},
+    {"term": "D-021", "desc": "四平面组织视图：经营管理 5、业务运营 35、独立控制 5、数据与 Agent 平台 5。岗位按职责推导，不按传统部门复制 AI 头衔。"},
+    {"term": "D-022", "desc": "每个岗位用五份版本化契约管理：Business、Skill、Runtime、Access、Assurance。不设置上级 Agent，不允许 AI 自发布。"},
+    {"term": "D-023", "desc": "五份契约绑定为不可变 Role Release Bundle，配七状态生命周期；发布即冻结，变更走新版本。"},
+    {"term": "D-024", "desc": "全部 8 条价值流、20 个候选场景统一使用八阶段、产物驱动、门禁推进的协同协议。"},
+    {"term": "D-025", "desc": "每张 Case 只绑定一条主价值流和一个主场景；跨价值流信号拆成共享 correlation_id、状态独立、只引用已验收 Stage Artifact 的 Case。"},
+    {"term": "D-026", "desc": "FLOW-07 例外条款：已发布确定性规则命中且唯一 Case 绑定成立时，模型外 Emergency Guard 经 Policy Gate、原子建单 Outbox 和 Execution Broker 执行固定最小保护动作；不得跳过八阶段，不得做恢复/扩大性动作。"},
+    {"term": "D-050", "desc": "目标 Shopify 是无上线产品的空白新店，保留未来绿地实施顺序；不接管任何既有店铺。"},
+    {"term": "D-051", "desc": "当前只交付完整方案门户与 Shopify 店铺治理底座方案：不实例化 Case，不执行任何 Shopify 配置、商品、App、连接、测试订单或发布动作。"},
+    {"term": "D-052", "desc": "只授权把方案公开发布到 GitHub 与 GitHub Pages；不扩大任何业务系统权限。"},
+    {"term": "D-053", "desc": "50 个岗位均为可独立寻址的数字分身：每个岗位有独立 Soul Contract、Role Playbook 和 DSH Preset Blueprint，可独立处理边界清晰任务，也可由模型外 Case Control 以 Lead/Worker 受控组队。"}
+  ]},
+  {"group": "岗位与契约资产", "items": [
+    {"term": "Soul Contract", "desc": "岗位人格契约：把「这个岗位是谁、判断什么事、绝不做什么」写成可检验的行为边界。人格描述不得扩大数据访问、业务权限或预算——行为风格、业务职责与可执行权限分别定义。"},
+    {"term": "Role Playbook", "desc": "岗位作业手册：该角色的职责范围、输入输出、协作接口与验收标准，供 Case Agent 按需加载。"},
+    {"term": "DSH Preset Blueprint", "desc": "DeepSeek Harness 预设蓝图：把岗位契约落到 DSH 运行时的配置骨架（模型、工具、记忆、护栏），版本化管理。"},
+    {"term": "Role Release Bundle", "desc": "五份契约的不可变发布包：Business / Skill / Runtime / Access / Assurance 绑定为一个版本，发布后冻结，任何变更生成新 Bundle。"},
+    {"term": "五份契约", "desc": "Business Contract（业务职责）、Skill Contract（可调用技能）、Runtime Contract（运行时形态）、Access Contract（数据与系统权限）、Assurance Contract（验收与审计要求）。"},
+    {"term": "七状态生命周期", "desc": "岗位契约从草稿到退役的七个状态迁移，每次迁移有门禁与证据；保证「谁在什么时候以什么权限运行」可审计。"}
+  ]},
+  {"group": "Case 与协同协议", "items": [
+    {"term": "Case", "desc": "一张绑定单一价值流与单一场景的工单：有触发条件、业务对象、输入输出、经营指标与验收标准，是 AI 组织的最小工作单元。"},
+    {"term": "Case Agent", "desc": "每张紧耦合 Case 只运行一个 Case Agent，绑定一个主岗位人格，按需加载 Skills；不做 LLM 多 Agent 路由，不允许岗位 Agent 互聊。"},
+    {"term": "Case Control", "desc": "模型外的编排控制器：对跨岗位紧耦合任务可组建 Lead/Worker 团队；Worker 只通过已验收 ArtifactEnvelope 交接，Lead 持有 Case 结果责任。"},
+    {"term": "八阶段协议", "desc": "全部 Case 统一的产物驱动、门禁推进协同协议：每阶段有明确产物与准入/准出条件，缺产物不得进入下一阶段。"},
+    {"term": "ArtifactEnvelope", "desc": "阶段产物的标准信封：Worker 交接给 Lead 的唯一合法载体，含产物内容、来源 Case、验收状态与引用关系；只有已验收的 Stage Artifact 才能被下游引用。"},
+    {"term": "correlation_id", "desc": "跨价值流关联标识：同一业务事件拆出多个独立治理的 Case 时共享同一 correlation_id，各 Case 状态独立、只引用已验收产物，用于事后串联而非运行时互相调用。"},
+    {"term": "价值流 / 场景", "desc": "价值流是端到端业务链路（如获客—转化—履约—复购），场景是价值流上的具体工单类型；每个 Case 只属一条价值流一个场景。"},
+    {"term": "AI 结果负责人", "desc": "每个 Case 明确的责任锚点：AI 产出质量与后果由指定岗位人格/人类负责人兜底，不允许「AI 做的没人管」。"}
+  ]},
+  {"group": "治理与执行", "items": [
+    {"term": "Action Intent", "desc": "模型对「要做什么动作」的提议。模型只到这一步——它不能直接执行任何资产侧动作。"},
+    {"term": "Policy Gate", "desc": "模型外授权门：校验 Action Intent 是否符合已发布契约、权限与规则，决定放行、拒绝或升级人工。授权判断不在模型内。"},
+    {"term": "Execution Broker", "desc": "模型外执行代理：Policy Gate 放行后，由它把动作落到 Shopify 等真实系统，全程留痕、可回滚边界内执行。"},
+    {"term": "Emergency Guard", "desc": "FLOW-07 的模型外应急守卫：仅当已发布确定性规则命中且唯一 Case 绑定成立时，执行固定的最小保护动作（如止损下架），建单前歧义只记 Pre-Case Exception。"},
+    {"term": "FLOW-07", "desc": "8 条价值流中的应急保护流：覆盖大促事故、客诉升级、库存风险等需要秒级响应的场景，是唯一允许绕过常规节奏的通道，且只许最小保护动作。"},
+    {"term": "Outbox", "desc": "原子建单机制：Emergency Guard 的保护动作与 Case 建单在同一事务内提交，保证「动作发生了，单也一定建了」，不留无主动作。"},
+    {"term": "Pre-Case Exception", "desc": "建单前的歧义记录：触发条件模糊、绑定不唯一时，不执行动作，只把异常写入待审队列由人/规则裁决。"},
+    {"term": "HITL", "desc": "Human-in-the-Loop 人工介入点：授权八问中的升级条件、信任阶梯晋级、治理门禁不过时的人工复核位置；试点阶段真人负责人是兜底不是依赖。"},
+    {"term": "影子运行", "desc": "新 Case 上线前的验证方式：Agent 真实跑流程但动作不落地，只记录「它会做什么」与人工实际操作的差异，用于校准后再放权。"}
+  ]},
+  {"group": "平台与组织", "items": [
+    {"term": "DSH（DeepSeek Harness）", "desc": "目标运行时平台：承载岗位 Preset、Skill 加载、记忆与护栏；方案阶段只做身份、版本与能力边界设计，不生成可运行配置。"},
+    {"term": "MCP / tools / API / hooks", "desc": "平台外部能力的四类接入面：MCP 服务、工具调用、API 集成与事件钩子；每类都需区分平台原生、插件、外部服务与待开发能力。"},
+    {"term": "GMV 口径", "desc": "第一优先级经营指标：所有场景设计与验收以 GMV 贡献为锚，但须注明币种、时间范围与来源；人效指标必须写明分母。"},
+    {"term": "独立控制平面", "desc": "四平面中的风控/合规/审计类岗位集合：不追求业务产出，专职对其他平面的动作做复核与刹车，与业务平面权责分离。"},
+    {"term": "数据与 Agent 平台平面", "desc": "四平面中的底座岗位集合：负责语义层、Skill 库、运行时与治理设施的建设与维护，是其他平面的供给方。"}
+  ]}
+]

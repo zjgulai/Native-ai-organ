@@ -1,8 +1,9 @@
 """Page-level renderers: home, chapter, chapters index, concepts, tools, about."""
+import re
 from html import escape
 
 from site_data import (BOOK, CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS,
-                       FIG_SRC, SITE_NAME)
+                       TERMS, PILOT, FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page)
 
 
@@ -82,7 +83,7 @@ def render_chapters_index(base: str) -> str:
     inner = (
         '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span><span>章节解读</span></div>'
         '<div class="cat">CHAPTERS</div><h1>章节解读</h1>'
-        '<p class="sub">十四章正文 + 序章与终章，按「道—术—器」三篇组织。每篇为原创深度解读：核心论点蒸馏、书中插图、短引用（标注页码），并附「实践映射」。</p>'
+        '<p class="sub">十三章正文 + 序章与终章，共 15 篇，按「道—术—器」三篇组织。每篇为原创深度解读：核心论点蒸馏、书中插图、短引用（标注页码），并附「实践映射」。</p>'
         '<div class="ch-list" style="margin-top:26px">' + "".join(rows) + '</div>'
     )
     return page_shell("章节解读", base, "chapters", inner,
@@ -123,7 +124,7 @@ def render_home(base: str) -> str:
     concept_cards = "".join(
         f'<div class="concept-card"><h3><a href="{base}concepts/index.html#{c["slug"]}">{escape(c["term"])}</a></h3>'
         f'<p>{escape(c["definition"])}</p>'
-        f'<div class="from">出自 {escape("、".join(c.get("from", [])))}</div></div>'
+        f'<div class="from">出自 {"、".join(_from_html(x, base) for x in c.get("from", []))}</div></div>'
         for c in CONCEPTS[:8])
     tool_cards = "".join(
         f'<div class="tool-card"><span class="idx">TOOL {t["idx"]:02d}</span><h3>{escape(t["name"])}</h3>'
@@ -147,11 +148,43 @@ def render_home(base: str) -> str:
 <div class="author">{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])} · {escape(BOOK.get('pub_date', '2026.10'))}</div>
 <div class="thesis"><q>本书聚焦于人工智能时代组织管理的根本变化——当 AI 从"人使用的工具"进化为"能够独立做事的主体"时，企业的知识、权力、协作与组织结构应如何重新设计。</q><br>—— 内容简介</div></div>
 </div></section>"""
+    chain = [
+        ("序章", "凌晨三点的 Agent", "一个故障故事，提出全书的问题：当 Agent 开始独立做事，组织靠什么协调？", "prologue"),
+        ("道 · 第 1–3 章", "为什么必须变", "组织是信息路由系统；做事主体从人切换到 AI；效率提升的裂缝在增长闭环中间两环", "ch01-xinxi-luyou"),
+        ("术 · 第 4–7 章", "怎么分工与进化", "知识编码成 AI 读得懂的样子；目标与边界的人机分工；知识库到飞轮；角色取代岗位", "ch04-zhishi-bianma"),
+        ("器 · 第 8–10 章", "平台与信任", "Agent 平台的感知行与七组件；信任的工程与治理十二道门；文化是不需要分发的上下文", "ch08-agent-pingtai"),
+        ("第 11 章", "转型路线图", "先诊断、再重构流程、然后部署 Agent、最后走向网络——波定方向，闭环定节拍", "ch11-zhuanxing-luxian"),
+        ("第 12 章", "行业的心跳", "同一套方法在游戏、零售、金融、制造、B2B 软件五个行业的变体", "ch12-hangye-xinbo"),
+        ("第 13 章 · 终章", "个人与 CEO", "AI 时代的个人资产负债表；写给一号位的信", "ch13-geren-xuanze"),
+    ]
+    chain_html = '<div class="chain">' + "".join(
+        f'<a class="chain-node" href="{base}chapters/{slug}.html"><b>{escape(t)}</b>'
+        f'<span>{escape(q)}</span><em>{escape(d)}</em></a>' for t, q, d, slug in chain) + '</div>'
+    paths = [
+        ("布道者路径", "先建立认知与路线共识，再谈工程", "序章 → 第 1、2、3 章 → 第 11 章 → 终章"),
+        ("实操者路径", "先拿边界与平台，再补全方法", "第 5 章 → 第 4、6、9 章 → 第 8 章 → 第 11 章"),
+        ("个人路径", "先看清自己的位置，再决定学什么", "第 13 章 → 第 5、6 章 → 终章"),
+    ]
+    path_html = '<div class="path-grid">' + "".join(
+        f'<div class="path-card"><h4>{escape(n)}</h4><p>{escape(d)}</p>'
+        f'<div class="path-seq">{escape(seq)}</div></div>' for n, d, seq in paths) + '</div>'
     body = hero + f"""
 <section class="section"><div class="wrap">
 <h2>全书地图</h2>
 <p class="sec-sub">以「道—术—器」为主线：先理解原理，再建立方法，最后落地工程。每篇解读保留原书论证线，并附实践映射。</p>
 <div class="map-grid">{''.join(cards)}</div></div></section>
+<section class="section tint"><div class="wrap">
+<h2>方法链：这本书为什么要按这个顺序读</h2>
+<p class="sec-sub">每一层都以相邻层为前提：道回答「为什么」，术回答「怎么分工」，器回答「靠什么运行」，路线图回答「先做什么」，行业与个人回答「落到谁身上」。跳层阅读会得到结论，顺序阅读才能得到方法。</p>
+{chain_html}
+<h3 style="margin:34px 0 6px">三条推荐阅读路径</h3>
+{path_html}</div></section>
+<section class="section"><div class="wrap">
+<div class="cta-card">
+<div><span class="idx">BRIDGE</span><h3>从书到试点：品牌域试点操作序列</h3>
+<p>读完全书之后第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。</p></div>
+<a class="go" href="{base}pilot.html">打开试点指南 →</a></div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套：<a href="{base}terms.html" style="color:var(--r-blue)">方案术语表</a> 解码各篇实践映射中的内部代号（D-020~D-053、Policy Gate、ArtifactEnvelope 等）。</p></div></section>
 <section class="section tint"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>
@@ -165,7 +198,24 @@ def render_home(base: str) -> str:
 <h2>随书工具</h2>
 <p class="sec-sub">附录 A 的实操工具，改写为可勾选、可打印的清单页。</p>
 <div class="tool-grid">{tool_cards}</div></div></section>"""
-    return page_shell(BOOK["title"], base, "index", body, BOOK.get("thesis", "")[:120])
+    return page_shell(BOOK["title"], base, "index", f"<main>{body}</main>", BOOK.get("thesis", "")[:120])
+
+
+_NO2SLUG = {c["no"]: c["slug"] for c in CHAPTERS}
+
+
+def _from_html(label: str, base: str) -> str:
+    m = re.match(r"第\s*(\d+)\s*章", label)
+    if m:
+        slug = _NO2SLUG.get(m.group(1).zfill(2))
+        if slug:
+            return f'<a href="{base}chapters/{slug}.html">{escape(label)}</a>'
+    special = {"序章": "prologue", "终章": "epilogue"}
+    if label in special:
+        return f'<a href="{base}chapters/{special[label]}.html">{escape(label)}</a>'
+    if label.startswith("附录"):
+        return f'<a href="{base}tools/index.html">{escape(label)}</a>'
+    return escape(label)
 
 
 def render_concepts(base: str) -> str:
@@ -174,10 +224,11 @@ def render_concepts(base: str) -> str:
         rel = "、".join(
             next((x["term"] for x in CONCEPTS if x["slug"] == r), r)
             for r in c.get("related", [])[:4])
+        frm = "、".join(_from_html(x, base) for x in c.get("from", []))
         cards.append(
             f'<section class="concept-card" id="{c["slug"]}" style="scroll-margin-top:90px">'
             f'<h3>{escape(c["term"])}</h3><p>{escape(c["definition"])}</p>'
-            f'<div class="from">出处：{escape("、".join(c.get("from", [])))}'
+            f'<div class="from">出处：{frm}'
             + (f' · 相关：{escape(rel)}' if rel else '') + '</div></section>')
     inner = (
         '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span><span>概念索引</span></div>'
@@ -224,6 +275,45 @@ def render_tools_index(base: str) -> str:
         '<p class="sub">附录 A 的五件实操工具加转型日历，改写为可勾选清单。清单类内容属事实性资料，尽量保留原表项目；每项补充了「它在防什么 / 合格证据」的说明。</p>'
         f'<div class="tool-grid" style="margin-top:26px">{cards}</div>')
     return page_shell("随书工具", base, "tools", inner, "AI Native 组织随书工具清单")
+
+
+def render_terms(base: str) -> str:
+    groups = []
+    for g in TERMS:
+        rows = "".join(
+            f'<tr><td class="term-name"><code>{escape(it["term"])}</code></td>'
+            f'<td>{inline(it["desc"])}</td></tr>'
+            for it in g["items"])
+        groups.append(
+            f'<section class="term-group"><h2>{escape(g["group"])}</h2>'
+            f'<div class="table-wrap"><table class="terms"><tbody>{rows}</tbody></table></div></section>')
+    n = sum(len(g["items"]) for g in TERMS)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span><span>方案术语表</span></div>'
+        '<div class="cat">GLOSSARY</div><h1>方案术语表</h1>'
+        f'<p class="sub">各篇「实践映射」中出现的内部项目代号与术语，共 {n} 条，按决策编号、岗位契约、Case 协同、治理执行、平台组织五组整理。术语以本站姊妹项目《AI 组织变革方案》的决策记录（D-020~D-053）为准。</p>'
+        '<div style="margin-top:26px">' + "".join(groups) + '</div>')
+    return page_shell("方案术语表", base, "terms", inner,
+                      "AI 组织变革方案内部术语表")
+
+
+def render_pilot(base: str) -> str:
+    blocks = PILOT["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span><span>从书到试点</span></div>'
+        '<div class="cat">BRIDGE</div>'
+        f'<h1>{escape(PILOT["title"])}</h1>'
+        f'<p class="lead">{inline(PILOT.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创 · 非原书内容</b></span>'
+        f'<span>约 <b>{PILOT.get("minutes", "20")}</b> 分钟读完</span>'
+        '<span>用途 <b>试点设计前的操作序列</b></span></div></div>'
+        + body_html)
+    return reader_page(base, "", inner, heads, PILOT["title"],
+                       PILOT.get("lead", "")[:120], nav_current="pilot")
 
 
 def render_about(base: str) -> str:

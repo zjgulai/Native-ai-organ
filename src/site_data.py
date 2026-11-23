@@ -18,6 +18,8 @@ BOOK = _load("book.json")
 CHAPTERS = _load("chapters-index.json")
 CONCEPTS = _load("concepts.json")
 TOOLS = _load("tools.json")
+TERMS = _load("terms.json")
+PILOT = _load("pilot.json")
 FIG_SRC = json.loads((ROOT / "assets/figures/figures.json").read_text(encoding="utf-8"))
 _manifest = ROOT / "assets/figures/manifest.json"
 FIG_OUT = json.loads(_manifest.read_text(encoding="utf-8")) if _manifest.exists() else {}
