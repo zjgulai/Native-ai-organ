@@ -1,6 +1,6 @@
 {
  "title": "语义底座全景",
- "lead": "《本体驱动的AI数据管理》吸收的落地层：让机器真正懂 Momcozy 业务语义的轻量语义资产——品牌域 v0（48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组）+ 运营域 v0.1（36 条术语、12 对象 18 关系）+ 平台域 v0.1（25 条术语、14 对象 18 关系）+ 产品层权限 v0.1（双层授权 24 四元组）+ SCN 场景域 v0.1（SCN 场景域 10 场景契约各 16 条（两波清零） + 117 项工作 A/B 授权映射 A94/B23）+ G1 数据需求文档（八组出海新源+客户规则集 10 项），全部 Markdown+JSON Schema 表达，不建语义数据库、不引入 RDF/OWL。",
+ "lead": "《本体驱动的AI数据管理》吸收的落地层：让机器真正懂 Momcozy 业务语义的轻量语义资产——品牌域 v0（48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组）+ 运营域 v0.1（36 条术语、12 对象 18 关系）+ 平台域 v0.1（25 条术语、14 对象 18 关系）+ 产品层权限 v0.1（双层授权 24 四元组）+ SCN 场景域 v0.1（SCN 场景域 16 场景契约各 16 条（三波已交付16/20） + 117 项工作 A/B 授权映射 A94/B23）+ G1 数据需求文档（八组出海新源+客户规则集 10 项），全部 Markdown+JSON Schema 表达，不建语义数据库、不引入 RDF/OWL。",
  "status": "v0/v0.1 基线 · DESIGN_ONLY",
  "minutes": "16",
  "boundary": "全部为设计态语义资产：不表示数据已接入、不构成业务授权；pending_data 项待 PILOT-G1 数据就绪后回填；权威版本在姊妹仓库 AI-Native-Organization，本页为公开版导览。",
@@ -34,8 +34,8 @@
    "产品层权限四元组 / 规则（v0.1）"
   ],
   [
-   "10×16",
-   "SCN 场景契约（两波10场景，v0.1）"
+   "16×16",
+   "SCN 场景契约（16/20场景，v0.1）"
   ],
   [
    "117",
@@ -199,6 +199,48 @@
      "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-WORK-AUTH-V01.md"
     },
     {
+     "id": "SCN014",
+     "name": "SCN-014 订单异常契约 v0.1",
+     "desc": "订单、交付与渠道异常：异常收敛器定位（产出是定位+根因反馈而非处理掉）、根因六分类、residual_anomaly 防重复处置、feedback_pending 悬空反馈追踪。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN014.md"
+    },
+    {
+     "id": "SCN018",
+     "name": "SCN-018 账号健康契约 v0.1",
+     "desc": "店铺账号健康与渠道规则变化：唯一 Emergency Guard 场景（D-026 快速通道）、账号级冻结跨 Case 生效（健康优先于 GMV）、orphaned_action 孤儿动作标记、恢复须根因消除+观察期稳定双条件。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN018.md"
+    },
+    {
+     "id": "SCN007",
+     "name": "SCN-007 补货预测契约 v0.1",
+     "desc": "需求预测、补货与库存调拨：预测区间非点值、约束完备性优先于预测精度、mapping_conflict 以仓库实物为准、补货建议≠采购承诺。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN007.md"
+    },
+    {
+     "id": "SCN008",
+     "name": "SCN-008 物流履约契约 v0.1",
+     "desc": "跨境运输与仓储履约：轨迹完备性优先、stalled_unknown 三向排查、路径评估成本-时效-风险三维测算、expedite_ineffective 加急无效追踪。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN008.md"
+    },
+    {
+     "id": "SCN004",
+     "name": "SCN-004 产品质量契约 v0.1",
+     "desc": "产品定义、开发与质量：需求-规格-测试-市场追溯链、质量归因五分类、untraceable 不强行归因、AI 不出具产品安全结论。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN004.md"
+    },
+    {
+     "id": "SCN006",
+     "name": "SCN-006 供应商采购契约 v0.1",
+     "desc": "供应商、采购与生产协作：档案完备性优先、供应商五级分级（unverified 不得推荐）、sole_source 显式建档、切换必算过渡成本、合同建议须 AGT-043 法律审查。",
+     "meta": "v0.1 基线 · 16 条 · 类1/2/4/7",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN006.md"
+    },
+    {
      "id": "WORK-AUTH-JSON",
      "name": "授权映射机读版",
      "desc": "semantic-work-auth-v01.json：117 项工作逐项 work_id/层级/副作用类型/确认粒度/风险档，供产品侧与权限引擎直接消费。",
@@ -356,9 +398,9 @@
    "note": "AGT-029/SCN-002 契约共 10 处【数】标注"
   },
   {
-   "item": "第三波+支撑层 10 场景语义契约 + 权限阈值回填",
+   "item": "支撑层 4 场景语义契约 + 权限阈值回填",
    "blocker": "就绪度波次推进 + G1/客户规则集",
-   "note": "SCN 场景域已交付 10 场景契约（第一二波清零）+117 项授权映射+G1 需求文档；剩余为第三波受控动作型 6 场景（014/018/007/008/004/006）与支撑层 4 场景（001/017/019/020）+ G1 企业侧数据回填"
+   "note": "SCN 场景域已交付 16 场景契约（三波清零）+117 项授权映射+G1 需求文档；仅剩支撑层 SCN-001/017/019/020 + G1 企业侧数据回填"
   }
  ],
  "wiring": "SKL-BRAND-01~04 契约已回写 ontology_dependencies（contracts+concept_domains+term_ids+object_refs 四元组引用）；SERVICE-IDENTITY-SCOPE 已加权限声明指针；SCN-002.md 已增事理规则小节；产品规划 v5 全部 117 项工作已挂接授权映射（semantic-work-auth-v01.json），优先建模 4 场景均有语义契约。"
