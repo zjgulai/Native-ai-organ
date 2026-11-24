@@ -1,7 +1,7 @@
 {
   "slug": "pilot-assets",
   "title": "品牌域试点资产地图",
-  "lead": "FLOW-09「品牌资产经营」价值流的首批可设计资产：1 条价值流、5 份场景规格、4 份 Skill 契约、1 本双层 KPI 字典、1 份首个 Case 试点章程。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
+  "lead": "FLOW-09「品牌资产经营」价值流的完整设计资产链：1 条价值流、5 份场景规格、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程，以及 4 份试点推进文档（数据核实清单 → 装配 Manifest → 阶段门评审 → 四源数据契约）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
   "minutes": "10",
   "status": "设计基线 · 无生产授权",
   "groups": [
@@ -106,6 +106,39 @@
           "desc": "「Momcozy 美国站可穿戴吸奶品类 · Amazon vs DTC 覆盖缺口诊断」：分析/影子导向，预期 NoActionRecord 路径；定义触发、输入、输出、双层指标、50 岗位 MECE 分区、四项硬缺口与验收门槛。",
           "meta": "写章程 ≠ 实例化 Case · 需独立授权数据契约与 Bundle",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-BRAND-PILOT-CHARTER.md"
+        }
+      ]
+    },
+    {
+      "group": "试点推进（4）",
+      "items": [
+        {
+          "id": "READINESS",
+          "name": "数据可得性核实清单",
+          "desc": "四项硬缺口（G1~G4）的访谈问题表、证据要求、通过标准与降级路径；含公开基线、竞品候选集与 N1~N4 发现。2026-11-24 已回填 F-041~F-049 企业确认：DTC 基线=Shopify 原生 customer 体系、Amazon 三层资格齐备、无调研预算走代理指标、竞品 7 类+监控工具已订阅、社媒与 DME 均可触达、品类边界锁定吸奶器。",
+          "meta": "核实完成 · 剩余仅为取数细节",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-PILOT-DATA-READINESS-CHECKLIST.md"
+        },
+        {
+          "id": "CASE-MANIFEST",
+          "name": "Case Context Manifest",
+          "desc": "首个 Case 的机器可读装配清单：角色 MECE 分区（1+12+7+30）、SKL-BRAND-01/04 挂载、八阶段产物、四渠道数据源状态、双层 KPI 口径与 14 项授权位（全部 false）。",
+          "meta": "JSON · DESIGN_BASELINE_NOT_INSTANTIATED",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-PILOT-CASE-CONTEXT-MANIFEST.json"
+        },
+        {
+          "id": "GATE-REVIEW",
+          "name": "阶段门评审",
+          "desc": "对照 PILOT-G0~G4 逐门核对：G0 部分通过（缺 Bundle 与工具登记册）、G1 未就绪（数据契约为关键路径，已建议 G1A/G1B 分源验收）、G2 阻塞、G3 不适用（诊断 Case 无外部动作）、G4 未到。含 FLOW-09 特有 Waiting/Frozen 条件。",
+          "meta": "v1 评审 · 2026-11-24",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-PILOT-GATE-REVIEW.md"
+        },
+        {
+          "id": "DATA-CONTRACT",
+          "name": "四源数据契约",
+          "desc": "FLOW-09 只读诊断数据契约 v1：五源 15 个数据集（Shopify/Amazon/社媒/DME/竞品工具）、统一对象键、DQ-F09 十条质量规则、F09-DC 十个 Shadow 验收用例与证据包要求。缺失不补零、代理必标、PII 整页拒绝。",
+          "meta": "v1 设计基线 · 不授权访问",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-DATA-CONTRACT.md"
         }
       ]
     }
