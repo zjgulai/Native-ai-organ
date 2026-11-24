@@ -295,16 +295,16 @@
         },
         {
           "id": "OBJ-MODEL-DRAFT",
-          "name": "品牌域对象-关系模型 v0（草稿）",
+          "name": "品牌域对象-关系模型 v0",
           "desc": "六域 20 对象（商品/交易/渠道/库存/品牌资产/消费者）+34 关系+引用层 11 项登记+候选扩展 5 项；附 JSON Schema 与机器可读实例，term_refs 绑定术语表条目。",
-          "meta": "v0.1-draft · 待逐条评审 · 20对象/34关系",
+          "meta": "v0 基线 · 2026-11-24 用户评审通过 · 20对象/34关系",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-OBJECT-MODEL-V0.md"
         },
         {
           "id": "PERM-DECL-DRAFT",
-          "name": "FLOW-09 权限语义声明 v0（草稿）",
+          "name": "FLOW-09 权限语义声明 v0",
           "desc": "三类主体（导出操作身份/API只读身份/模型数据面）×五源范围包读取侧 13 条+跨源规则 5 条+动作侧边界 6 条，共 24 条主体/客体/条件/时效四元组；不授权任何访问。",
-          "meta": "v0.1-draft · 待逐条评审 · 24条四元组",
+          "meta": "v0 基线 · 2026-11-24 用户评审通过 · 24条四元组",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-PERMISSION-V0.md"
         }
       ]
