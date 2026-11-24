@@ -80,6 +80,13 @@
       try { localStorage.setItem(key, JSON.stringify(boxes.map(x => x.checked))); } catch (_) {}
       paint();
     }));
+    box.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        if (e.target.closest('label') || e.target.tagName === 'INPUT') return;
+        const cb = li.querySelector('input[type=checkbox]');
+        if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+      });
+    });
     const reset = box.querySelector('[data-reset]');
     if (reset) reset.addEventListener('click', () => {
       boxes.forEach(b => { b.checked = false; });
