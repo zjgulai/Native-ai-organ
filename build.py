@@ -68,6 +68,7 @@ def build(check: bool = False) -> int:
     write_page("semantic.html", P.render_semantic(""))
     write_page("sitemap.html", P.render_sitemap(""))
     write_page("synthesis.html", P.render_synthesis(""))
+    write_page("triology.html", P.render_trilogy(""))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))
     write_page("tools/index.html", P.render_tools_index("../"))

@@ -6,7 +6,7 @@ from html import escape
 from site_data import (BOOK, BOOK2, BOOK3, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, TOOLS, TERMS, PILOT, PILOT_ASSETS,
-                       SYNTHESIS, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
+                       SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2, sidebar_html_b3)
 
@@ -293,6 +293,29 @@ def render_b3_index(base: str) -> str:
                       BOOK3.get("thesis", "")[:120])
 
 
+def render_trilogy(base: str) -> str:
+    blocks = TRILOGY["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>三书合璧</span></div>'
+        '<div class="cat">TRILOGY · THREE BOOKS</div>'
+        f'<h1>{escape(TRILOGY["title"])}</h1>'
+        f'<p class="lead">{inline(TRILOGY.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创整合 · 非原书内容</b></span>'
+        f'<span>约 <b>{TRILOGY.get("minutes", "12")}</b> 分钟读完</span>'
+        '<span>覆盖 <b>三书 60 章框架</b></span></div></div>'
+        + body_html
+        + f'<div class="cta-card" style="margin-top:30px"><div><span class="idx">DETAIL</span>'
+        '<h3>两书合璧：书1 × 书2 深度整合</h3>'
+        '<p>AI Native 组织 × 品牌增长方法论的分工、五层结合点、智能中枢能力清单与 FLOW-09 品效边界工程化——两书间的细粒度整合见专页。</p></div>'
+        + f'<a class="go" href="{base}synthesis.html">打开两书合璧 →</a></div>')
+    return reader_page(base, "", inner, heads, TRILOGY["title"],
+                       TRILOGY.get("lead", "")[:120], nav_current="triology")
+
+
 def render_synthesis(base: str) -> str:
     blocks = SYNTHESIS["sections"]
     counters = {"h2": 0, "h3": 0}
@@ -413,7 +436,8 @@ def render_home(base: str) -> str:
          [("章节解读", "书1 · 15 篇深度解读", "chapters/index.html"),
           ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
           ("本体书·本体驱动AI数据管理", "书3 · 10 章框架 + 6 篇精读", "book3/index.html"),
-          ("两书合璧", "两书分工与五层结合点", "synthesis.html"),
+          ("三书合璧", "组织 × 品牌 × 语义三层支撑", "triology.html"),
+          ("两书合璧", "书1×书2 分工与五层结合点", "synthesis.html"),
           ("概念索引", "44 个核心概念词条", "concepts/index.html"),
           ("随书工具", "6 件可勾选实操清单", "tools/index.html")]),
         ("实战项目轨 · PRACTICE",
