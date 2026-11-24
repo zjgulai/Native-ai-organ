@@ -271,6 +271,7 @@ def render_home(base: str) -> str:
 <div class="site-entries">
 <div class="site-entry"><b>书一 · AI Native 组织</b><span>《{escape(BOOK['title'])}》{escape(BOOK['author'])} 著 · {len(CHAPTER_CONTENT)} 篇深度解读</span><a href="{base}chapters/index.html">章节解读 →</a></div>
 <div class="site-entry"><b>书二 · 弱品牌强品牌</b><span>《{escape(BOOK2["short_title"])}》{escape(BOOK2["author"])} 著 · {len(BOOK2["chapters"])} 章框架 + {len(BRAND2_DEEP)} 篇精读</span><a href="{base}brand2/index.html">品牌书全书地图 →</a></div>
+<div class="site-entry"><b>书三 · 方法源</b><span>《本体驱动的AI数据管理》语义底座方法源 · 不做章节精读，成果落入实战轨</span><a href="{base}semantic.html">语义底座 v0 →</a></div>
 <div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、语义底座方法、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
 </div>
 <a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""
