@@ -25,6 +25,7 @@ PILOT_ASSETS = _load("pilot-assets.json")
 BRAND_PLAN = _load("brand-plan.json")
 ORGMAP = _load("orgmap.json")
 SITEMAP = _load("sitemap.json")
+SEMANTIC = _load("semantic.json")
 SYNTHESIS = _load("synthesis.json")
 FIG_SRC = json.loads((ROOT / "assets/figures/figures.json").read_text(encoding="utf-8"))
 _manifest = ROOT / "assets/figures/manifest.json"

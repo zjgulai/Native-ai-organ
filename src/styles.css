@@ -528,3 +528,8 @@ h1,h3,h4{text-wrap:balance}
   .tbl-pager{display:none!important}
   table.paginated tbody tr[hidden]{display:table-row}
 }
+
+/* semantic page kpi strip */
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi b{display:block;font-size:22px;color:var(--r-blue);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12.5px;color:var(--r-faint)}

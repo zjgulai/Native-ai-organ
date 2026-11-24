@@ -1,0 +1,60 @@
+{
+  "title": "语义底座 v0 全景",
+  "lead": "《本体驱动的AI数据管理》吸收的落地层：让机器真正懂 Momcozy 业务语义的轻量语义资产——48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组，全部 Markdown+JSON Schema 表达，不建语义数据库、不引入 RDF/OWL。",
+  "status": "v0 基线 · DESIGN_ONLY",
+  "minutes": "12",
+  "boundary": "全部为设计态语义资产：不表示数据已接入、不构成业务授权；pending_data 项待 PILOT-G1 数据就绪后回填；权威版本在姊妹仓库 AI-Native-Organization，本页为公开版导览。",
+  "kpis": [
+    ["48", "术语条目（六域 SKOS-lite）"],
+    ["20+34", "对象 / 关系"],
+    ["38", "契约规则（AGT-029+SCN-002）"],
+    ["24", "权限四元组"]
+  ],
+  "groups": [
+    {
+      "group": "术语与结构",
+      "items": [
+        {"id": "GLOSSARY-V0", "name": "品牌域语义术语表 v0", "desc": "48 条 SKOS-lite 术语（渠道/品牌资产/交易/商品/消费者/方法六域），消歧 Amazon/DTC/内部口径、触达/可分析、Intent/Receipt、GMV 口径等同名异义，附口径速查表。", "meta": "v0 基线 · 48 条", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-GLOSSARY-V0.md"},
+        {"id": "OBJ-MODEL-V0", "name": "品牌域对象-关系模型 v0", "desc": "六域 20 对象（商品2/交易2/渠道3/库存1/品牌资产6/消费者6）+34 关系+引用层 11 项登记+候选扩展 5 项；entity/artifact 二分，term_refs 绑定术语表。", "meta": "v0 基线 · 20对象/34关系", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-OBJECT-MODEL-V0.md"},
+        {"id": "OBJ-MODEL-JSON", "name": "对象模型 JSON 实例", "desc": "机器可读模型实例：20 对象+34 关系+引用层/候选清单，符合内嵌 JSON Schema，可被 Skill 契约与未来语义层直接消费。", "meta": "JSON 实例 · 可机读", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/semantic-object-model-v0.json"}
+      ]
+    },
+    {
+      "group": "规则与权限",
+      "items": [
+        {"id": "SC-AGT029", "name": "AGT-029 立言语义契约 v0", "desc": "29 句话试填：品牌原则与传播方案对象模型、术语对齐、承诺兑现控制规则、六步流程、外发冻结权限策略，共 20 条。", "meta": "v0 基线 · 类1/3/4/5/6", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-AGT-029.md"},
+        {"id": "SC-SCN002", "name": "SCN-002 诊断场景语义契约 v0", "desc": "市场机会判断包对象模型、口径约束、信号触发与冻结事理规则、覆盖缺口查询模板，共 18 条，阈值类标注 pending_data。", "meta": "v0 基线 · 类1/2/4/7", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN-002.md"},
+        {"id": "PERM-V0", "name": "FLOW-09 权限语义声明 v0", "desc": "三类主体（导出操作身份/API只读身份/模型数据面）×五源范围包读取侧 13 条+跨源规则 5 条+动作侧边界 6 条，共 24 条主体/客体/条件/时效四元组；不授权任何访问。", "meta": "v0 基线 · 24条四元组", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-PERMISSION-V0.md"},
+        {"id": "PERM-JSON", "name": "权限声明 JSON 实例", "desc": "机器可读权限实例：3 主体+6 客体+24 四元组，含激活前提（PILOT-G1+A1~A7）声明。", "meta": "JSON 实例 · 可机读", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/semantic-permission-v0.json"}
+      ]
+    },
+    {
+      "group": "方法与接线",
+      "items": [
+        {"id": "SEM-STRATEGY", "name": "语义底座战略", "desc": "采用范围声明（SKOS-lite+轻量对象/关系/规则，不建语义数据库）、FFA→八阶段映射、分层治理→授权位/HITL 映射、场景就绪度三维标准。", "meta": "策略文档", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-LAYER-STRATEGY.md"},
+        {"id": "ELICIT-29", "name": "「29 句话」知识工程模板", "desc": "7 维 29 式中文化模板：显性知识 AI 提炼+隐性知识专家提取；本试点两份契约即其首轮试填产出。", "meta": "方法模板", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/KNOWLEDGE-ELICITATION-29.md"},
+        {"id": "ONTO-PILOT", "name": "FLOW-09 品牌域本体试点", "desc": "五项交付物四项完成升 v0 基线，事理规则显性化待 G1 数据回填阈值——试点实质完成，进入待数据激活状态。", "meta": "试点方案 · 4/5 v0基线", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-ONTOLOGY-PILOT.md"},
+        {"id": "ONTO-READY", "name": "20 场景本体就绪度矩阵", "desc": "四维评估输出优先建模（4）/可选（10）/暂不（5）；语义层推广到其余场景的分级依据。", "meta": "评估矩阵", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/ONTOLOGY-READINESS.md"}
+      ]
+    }
+  ],
+  "disambig": {
+    "head": ["术语", "易混点", "v0 正确口径"],
+    "rows": [
+      ["覆盖", "场景×媒体×渠道矩阵 / 渠道覆盖缺口 / 品牌覆盖率", "按语境区分，引用带限定词（T-CH-08/09）"],
+      ["触达", "数据可下载 vs 品牌可主动触达用户", "后者才是 reachable；Amazon 报表可下载≠可触达买家（T-CH-07）"],
+      ["复购", "DTC CRM 完整 vs Amazon 近似", "分渠道标注不可合并（T-BR-06/T-CO-05）"],
+      ["GMV", "gross_sales vs 静默净额", "D-035 固定 gross_sales，折扣/退款/税费分量分列（T-CO-01）"],
+      ["品牌资产", "L2 指标族 / 书2 五要素叙事 / 流程名", "三层消歧，引用须指明层级（T-BR-01）"],
+      ["Intent/Receipt", "模型提议 vs Broker 执行回执", "模型只提 Intent，Receipt 由模型外 Broker 产生（T-MT-02/T-CO-06）"]
+    ]
+  },
+  "pending": [
+    {"item": "事理规则显性化（SCN-002 5~8 条「如果…那么…」）", "blocker": "覆盖缺口判据等阈值待 G1 数据", "note": "契约类4 控制规则已兜底；类7-26/28 已预留 pending_data 位"},
+    {"item": "证据强度分级刻度（T-CN-04）", "blocker": "分级档位待业务确认+G1 数据", "note": "当前为【推】占位"},
+    {"item": "覆盖率/渗透率公式、差异容忍度、字段级取数", "blocker": "数据契约字段确认后回填", "note": "SCN-002 契约类7-25/26/28"},
+    {"item": "批准时限、差评率越阈等【数】项", "blocker": "G1 数据就绪", "note": "AGT-029/SCN-002 契约共 10 处【数】标注"},
+    {"item": "非品牌域术语与对象扩展", "blocker": "场景就绪度评估逐域推进", "note": "优先建模 SCN-016/013/009（就绪度矩阵）"}
+  ],
+  "wiring": "SKL-BRAND-01~04 契约已回写 ontology_dependencies（contracts+concept_domains+term_ids+object_refs 四元组引用）；SERVICE-IDENTITY-SCOPE 已加权限声明指针；SCN-002.md 已增事理规则小节。"
+}

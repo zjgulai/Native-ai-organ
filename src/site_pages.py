@@ -5,7 +5,7 @@ from html import escape
 
 from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
-                       ORGMAP, SITEMAP, TOOLS, TERMS, PILOT, PILOT_ASSETS,
+                       ORGMAP, SITEMAP, SEMANTIC, TOOLS, TERMS, PILOT, PILOT_ASSETS,
                        SYNTHESIS, FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2)
@@ -330,6 +330,7 @@ def render_home(base: str) -> str:
         ("ASSETS", "试点资产地图", "44 项设计资产：FLOW-09 价值流、20 份场景规格、4 份 Skill 契约、语义底座十件套（含术语表、两份契约与对象模型/权限声明）、双层 KPI 字典与试点五件套，每项可点查姊妹仓库规格原文。", "pilot-assets.html", "打开资产地图 →"),
         ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：六层结构（含语义底座层）、P0~P4 阶段门、20 场景波次、双层 KPI 落地与三本书理论锚点。", "brand-plan.html", "打开路线图 →"),
         ("ORGMAP", "组织与价值流一张图", "50 个 AI 岗位 × 13 条价值流 × 20 个业务场景的交互式绑定图：点选任意节点高亮全部绑定关系，四平面职责与跨平面契约一图看清。设计基线静态版。", "orgmap.html", "打开组织图 →"),
+        ("SEMANTIC", "语义底座 v0", "《本体驱动的AI数据管理》吸收的落地层：48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组——让机器真正懂 Momcozy 业务语义。全部 v0 基线，待数据激活。", "semantic.html", "打开语义底座 →"),
     ]
     practice_html = "".join(
         f'<div class="cta-card"><div><span class="idx">{idx}</span><h3>{escape(t)}</h3>'
@@ -636,6 +637,53 @@ def render_sitemap(base: str) -> str:
         + body_html)
     return reader_page(base, "", inner, heads, SITEMAP["title"],
                        SITEMAP.get("lead", "")[:120], nav_current="sitemap")
+
+
+def render_semantic(base: str) -> str:
+    groups = []
+    for g in SEMANTIC["groups"]:
+        rows = "".join(
+            f'<tr><td class="term-name"><code>{escape(it["id"])}</code></td>'
+            f'<td><strong>{escape(it["name"])}</strong><br><span style="color:#5b6b7d">{inline(it["desc"])}</span></td>'
+            f'<td style="white-space:nowrap;font-size:12.5px;color:#8a97a8">{escape(it.get("meta", ""))}'
+            + (f'<br><a href="{escape(it["link"], quote=True)}" target="_blank" rel="noopener" style="color:#4a6fa5">权威版 ↗</a>' if it.get("link") else "")
+            + '</td></tr>'
+            for it in g["items"])
+        groups.append(
+            f'<section class="term-group"><h2>{escape(g["group"])} · {len(g["items"])}</h2>'
+            f'<div class="table-wrap"><table class="terms"><tbody>{rows}</tbody></table></div></section>')
+    kpis = "".join(
+        f'<div class="kpi"><b>{escape(v)}</b><span>{escape(l)}</span></div>' for v, l in SEMANTIC["kpis"])
+    d = SEMANTIC["disambig"]
+    drows = "".join(
+        f'<tr><td><strong>{escape(r[0])}</strong></td><td>{inline(r[1])}</td><td>{inline(r[2])}</td></tr>'
+        for r in d["rows"])
+    prows = "".join(
+        f'<tr><td><strong>{escape(p["item"])}</strong><br><span style="color:#8a97a8;font-size:12.5px">{inline(p["blocker"])}</span></td>'
+        f'<td style="font-size:13px;color:#5b6b7d">{inline(p["note"])}</td></tr>'
+        for p in SEMANTIC["pending"])
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
+        '<a href="' + base + 'pilot.html">从书到试点</a><span>/</span><span>语义底座</span></div>'
+        '<div class="cat">SEMANTIC LAYER</div><h1>' + escape(SEMANTIC["title"]) + '</h1>'
+        f'<p class="lead">{inline(SEMANTIC.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>状态 <b>{escape(SEMANTIC.get("status", ""))}</b></span>'
+        f'<span>交付物 <b>{sum(len(g["items"]) for g in SEMANTIC["groups"])} 项</b></span>'
+        f'<span>约 <b>{escape(SEMANTIC.get("minutes", "10"))}</b> 分钟读完</span></div></div>'
+        f'<div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0">{kpis}</div>'
+        '<div style="margin-top:26px">' + "".join(groups) + '</div>'
+        '<section class="term-group"><h2>高频口径速查 · 消歧对照</h2>'
+        '<div class="table-wrap"><table class="terms"><thead><tr>'
+        + "".join(f'<th>{escape(h)}</th>' for h in d["head"])
+        + f'</tr></thead><tbody>{drows}</tbody></table></div></section>'
+        '<section class="term-group"><h2>待数据激活清单 · pending_data</h2>'
+        '<p style="font-size:13.5px;color:#5b6b7d;margin:0 0 10px">以下项目全部以占位符存在，G1 数据就绪后回填并产出事理规则 v0——这是语义层从「设计基线」到「影子运行输入」的最后一公里。</p>'
+        '<div class="table-wrap"><table class="terms"><tbody>' + prows + '</tbody></table></div></section>'
+        '<div class="note" style="margin-top:26px"><strong>接线状态：</strong>' + inline(SEMANTIC.get("wiring", "")) + '<br><br>'
+        + inline(SEMANTIC.get("boundary", "")) + '</div>')
+    return page_shell("语义底座 v0 全景", base, "semantic", inner,
+                      "语义底座 v0：48 术语/20 对象 34 关系/38 契约规则/24 权限四元组")
 
 
 def render_pilot_assets(base: str) -> str:
