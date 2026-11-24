@@ -4,8 +4,8 @@ from html import escape
 
 from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
-                       TOOLS, TERMS, PILOT, PILOT_ASSETS, SYNTHESIS,
-                       FIG_SRC, SITE_NAME)
+                       SITEMAP, TOOLS, TERMS, PILOT, PILOT_ASSETS,
+                       SYNTHESIS, FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2)
 
@@ -251,24 +251,28 @@ def render_home(base: str) -> str:
         f'<div class="tool-card"><span class="idx">TOOL {t["idx"]:02d}</span><h3>{escape(t["name"])}</h3>'
         f'<p>{escape(t["desc"])}</p><a class="go" href="{base}tools/{t["slug"]}.html">打开工具 →</a></div>'
         for t in TOOLS)
+    n_assets = sum(len(g["items"]) for g in PILOT_ASSETS["groups"])
     hero = f"""
 <section class="hero"><div class="wrap">
 <div>
-<p class="eyebrow">深度解读 · Reading Notes</p>
-<h1>{escape(BOOK['title'])}<br><em>从思考到实践</em></h1>
-<p class="lead">{escape(BOOK.get('thesis', ''))}</p>
+<p class="eyebrow">READING NOTES × AI NATIVE PRACTICE</p>
+<h1>Native AI Organ</h1>
+<p class="lead">《AI Native 组织：从思考到实践》与《弱品牌强品牌》的原创深度解读——以及 AI Native 组织变革方案的实战化公开版。读书笔记与实战项目，同一仓库。</p>
 <div class="meta">
-<div><b>{BOOK.get('pages', '271')}</b>页原书</div>
-<div><b>{len(CHAPTERS)}</b>章正文</div>
-<div><b>{len(CONCEPTS)}</b>概念词条</div>
-<div><b>{len(TOOLS)}</b>随书工具</div>
-<div><b>{len(FIG_SRC)}</b>幅原书插图</div>
+<div><b>2</b>本书</div>
+<div><b>{len(CHAPTERS) + len(BOOK2["chapters"])}</b>章框架</div>
+<div><b>{len(CHAPTER_CONTENT) + len(BRAND2_DEEP)}</b>篇精读</div>
+<div><b>20</b>场景规格</div>
+<div><b>{n_assets}</b>项资产</div>
 </div></div>
-<div class="book-card"><div class="kicker">THE BOOK</div>
-<h2>{escape(BOOK['title'])}</h2>
-<div class="author">{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])} · {escape(BOOK.get('pub_date', '2026.10'))}</div>
-<div class="thesis"><q>本书聚焦于人工智能时代组织管理的根本变化——当 AI 从"人使用的工具"进化为"能够独立做事的主体"时，企业的知识、权力、协作与组织结构应如何重新设计。</q><br>—— 内容简介</div></div>
-</div></section>"""
+<div class="book-card"><div class="kicker">THE SITE</div>
+<h2>站点构成</h2>
+<div class="site-entries">
+<div class="site-entry"><b>书一 · AI Native 组织</b><span>《{escape(BOOK['title'])}》{escape(BOOK['author'])} 著 · {len(CHAPTER_CONTENT)} 篇深度解读</span><a href="{base}chapters/index.html">章节解读 →</a></div>
+<div class="site-entry"><b>书二 · 弱品牌强品牌</b><span>《{escape(BOOK2["short_title"])}》{escape(BOOK2["author"])} 著 · {len(BOOK2["chapters"])} 章框架 + {len(BRAND2_DEEP)} 篇精读</span><a href="{base}brand2/index.html">品牌书全书地图 →</a></div>
+<div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
+</div>
+<a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""
     chain = [
         ("序章", "凌晨三点的 Agent", "一个故障故事，提出全书的问题：当 Agent 开始独立做事，组织靠什么协调？", "prologue"),
         ("道 · 第 1–3 章", "为什么必须变", "组织是信息路由系统；做事主体从人切换到 AI；效率提升的裂缝在增长闭环中间两环", "ch01-xinxi-luyou"),
@@ -295,18 +299,51 @@ def render_home(base: str) -> str:
         f'<small>{escape(c.get("essence", ""))}</small></span>'
         f'<span class="st">精读</span></div>'
         for c in BRAND2_DEEP)
+    track_cards = [
+        ("读书笔记轨 · READING",
+         "两本书的原创深度解读——先理解方法论本身：AI Native 组织怎么建、品牌增长该干什么、干得好是什么样。",
+         [("章节解读", "书1 · 15 篇深度解读", "chapters/index.html"),
+          ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
+          ("两书合璧", "两书分工与五层结合点", "synthesis.html"),
+          ("概念索引", "44 个核心概念词条", "concepts/index.html"),
+          ("随书工具", "6 件可勾选实操清单", "tools/index.html")]),
+        ("实战项目轨 · PRACTICE",
+         "AI 组织变革方案的实战化公开版——看同一套方法论如何落成约 50 个 AI 岗位的组织设计，并在 Momcozy 品牌域走到试点门前。全部为设计基线，不构成业务授权。",
+         [("从书到试点", "读完书第一步做什么", "pilot.html"),
+          ("试点资产地图", "34 项设计资产可点查规格", "pilot-assets.html"),
+          ("实战路线图", "P0~P4 阶段门与场景波次", "brand-plan.html"),
+          ("方案术语表", "内部代号 D-020~D-053 解码", "terms.html")]),
+    ]
+    track_html = "".join(
+        f'<div class="path-card track-card"><h4>{escape(t)}</h4><p>{escape(d)}</p>'
+        f'<div class="track-links">{"".join(f"<a href=\"{base}{href}\">{escape(n)}<small>{escape(s)}</small></a>" for n, s, href in links)}</div></div>'
+        for t, d, links in track_cards)
+    practice_items = [
+        ("BRIDGE", "从书到试点", "读完书第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。", "pilot.html", "打开试点指南 →"),
+        ("ASSETS", "试点资产地图", "34 项设计资产：FLOW-09 价值流、20 份场景规格、4 份 Skill 契约、双层 KPI 字典与试点五件套，每项可点查姊妹仓库规格原文。", "pilot-assets.html", "打开资产地图 →"),
+        ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：五层结构、P0~P4 阶段门、20 场景波次、双层 KPI 落地与两本书理论锚点。", "brand-plan.html", "打开路线图 →"),
+    ]
+    practice_html = "".join(
+        f'<div class="cta-card"><div><span class="idx">{idx}</span><h3>{escape(t)}</h3>'
+        f'<p>{escape(d)}</p></div><a class="go" href="{base}{href}">{escape(go)}</a></div>'
+        for idx, t, d, href, go in practice_items)
     body = hero + f"""
 <section class="section"><div class="wrap">
+<h2>两条线：读书笔记 × 实战项目</h2>
+<p class="sec-sub">本站由两条主线构成——笔记轨帮你理解方法论，实战轨让你看到方法论在一个真实业务域里长什么样。各板块的完整说明见<a href="{base}sitemap.html" style="color:var(--r-blue)">站点地图</a>。</p>
+<div class="track-grid">{track_html}</div>
+<p style="margin-top:16px;font-size:13px;color:#8a97a8">第一次来？建议按 <a href="{base}sitemap.html" style="color:var(--r-blue);font-weight:600">路径① 全站 30 分钟</a> 建立全貌。</p></div></section>
+<section class="section tint"><div class="wrap">
 <h2>全书地图</h2>
 <p class="sec-sub">以「道—术—器」为主线：先理解原理，再建立方法，最后落地工程。每篇解读保留原书论证线，并附实践映射。</p>
 <div class="map-grid">{''.join(cards)}</div></div></section>
-<section class="section tint"><div class="wrap">
+<section class="section"><div class="wrap">
 <h2>方法链：这本书为什么要按这个顺序读</h2>
 <p class="sec-sub">每一层都以相邻层为前提：道回答「为什么」，术回答「怎么分工」，器回答「靠什么运行」，路线图回答「先做什么」，行业与个人回答「落到谁身上」。跳层阅读会得到结论，顺序阅读才能得到方法。</p>
 {chain_html}
 <h3 style="margin:34px 0 6px">三条推荐阅读路径</h3>
 {path_html}</div></section>
-<section class="section"><div class="wrap">
+<section class="section tint"><div class="wrap">
 <h2>第二本书：《{escape(BOOK2["short_title"])}》</h2>
 <p class="sec-sub">品牌域的业务方法论——与第一本书正交互补：书一回答 Agent 组织怎么建，书二回答品牌增长该干什么、干得好是什么样。本站采用「全书地图 + 战略章节精读」结构。</p>
 <div class="cta-card">
@@ -318,26 +355,25 @@ def render_home(base: str) -> str:
 <h3 style="margin:26px 0 6px">精选精读（{len(BRAND2_DEEP)} / 25 章）</h3>
 <div class="ch-list">{b2_deep_rows}</div>
 <p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {25 - len(BRAND2_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}brand2/index.html" style="color:var(--r-blue)">品牌书全书地图</a>。</p></div></section>
-<section class="section tint"><div class="wrap">
-<div class="cta-card">
-<div><span class="idx">BRIDGE</span><h3>从书到试点：品牌域试点操作序列</h3>
-<p>读完全书之后第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。</p></div>
-<a class="go" href="{base}pilot.html">打开试点指南 →</a></div>
-<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套：<a href="{base}pilot-assets.html" style="color:var(--r-blue)">品牌域实战资产地图</a>（20 场景规格 + Skill 契约 + 试点五件套）· <a href="{base}brand-plan.html" style="color:var(--r-blue)">品牌域实战路线图</a>（P0~P4 阶段门 + 两本书理论锚点）· <a href="{base}terms.html" style="color:var(--r-blue)">方案术语表</a> 解码各篇实践映射中的内部代号。</p></div></section>
-<section class="section tint"><div class="wrap">
+<section class="section"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>
 <div class="ch-list">{ch_rows}</div></div></section>
-<section class="section"><div class="wrap">
+<section class="section tint"><div class="wrap">
 <h2>概念索引</h2>
 <p class="sec-sub">从全书抽取的核心概念，每个词条给出蒸馏定义、出处与关联。</p>
 <div class="concept-grid">{concept_cards}</div>
 <p style="margin-top:18px"><a href="{base}concepts/index.html" style="color:var(--r-blue);font-weight:600">查看全部 {len(CONCEPTS)} 个概念 →</a></p></div></section>
-<section class="section tint"><div class="wrap">
+<section class="section"><div class="wrap">
 <h2>随书工具</h2>
 <p class="sec-sub">附录 A 的实操工具，改写为可勾选、可打印的清单页。</p>
-<div class="tool-grid">{tool_cards}</div></div></section>"""
-    return page_shell(BOOK["title"], base, "index", f"<main>{body}</main>", BOOK.get("thesis", "")[:120])
+<div class="tool-grid">{tool_cards}</div></div></section>
+<section class="section tint"><div class="wrap">
+<h2>实战项目轨：AI 组织变革方案</h2>
+<p class="sec-sub">笔记轨的毕业设计——同一套方法论落到一个真实业务域：Momcozy 品牌域的 AI Native 实战案例。全部为设计基线，不构成业务授权。</p>
+<div class="cta-grid">{practice_html}</div></div></section>"""
+    return page_shell("首页", base, "index", f"<main>{body}</main>",
+                      "两本书深度解读 + AI Native 组织变革方案实战化公开版")
 
 
 _NO2SLUG = {c["no"]: c["slug"] for c in CHAPTERS}
@@ -473,6 +509,25 @@ def render_brand_plan(base: str) -> str:
         + body_html)
     return reader_page(base, "", inner, heads, BRAND_PLAN["title"],
                        BRAND_PLAN.get("lead", "")[:120], nav_current="brand-plan")
+
+
+def render_sitemap(base: str) -> str:
+    blocks = SITEMAP["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span><span>站点地图</span></div>'
+        '<div class="cat">GUIDE</div>'
+        f'<h1>{escape(SITEMAP["title"])}</h1>'
+        f'<p class="lead">{inline(SITEMAP.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创导览 · 非原书内容</b></span>'
+        f'<span>约 <b>{escape(SITEMAP.get("minutes", "6"))}</b> 分钟读完</span>'
+        '<span>覆盖 <b>全站 11 个板块</b></span></div></div>'
+        + body_html)
+    return reader_page(base, "", inner, heads, SITEMAP["title"],
+                       SITEMAP.get("lead", "")[:120], nav_current="sitemap")
 
 
 def render_pilot_assets(base: str) -> str:

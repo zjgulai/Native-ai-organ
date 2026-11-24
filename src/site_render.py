@@ -115,6 +115,7 @@ def render_figure(fig_id: str, base: str) -> str:
 def nav_html(base: str, current: str) -> str:
     links = [
         ("index.html", "全书地图", "index"),
+        ("sitemap.html", "导览", "sitemap"),
         ("chapters/index.html", "章节解读", "chapters"),
         ("concepts/index.html", "概念索引", "concepts"),
         ("brand2/index.html", "品牌书·弱品牌强品牌", "brand2"),
@@ -166,6 +167,7 @@ def sidebar_html(base: str, current_slug: str = "") -> str:
                            f'<span class="no">{c["no"]}</span>{escape(c["title"])}<span class="soon">撰写中</span></a>')
         out.append('</div>')
     out.append('<div class="dir-group"><h4>索引</h4>')
+    out.append(f'<a href="{base}sitemap.html" data-search="导览 站点地图 指南 路径 板块 新手">站点地图</a>')
     out.append(f'<a href="{base}concepts/index.html" data-search="概念 索引 词条">概念索引（{len(CONCEPTS)}）</a>')
     out.append(f'<a href="{base}pilot.html" data-search="试点 品牌 跨境电商 操作序列 案例">从书到试点</a>')
     out.append(f'<a href="{base}pilot-assets.html" data-search="资产 场景 规格 skill 契约 试点">试点资产地图</a>')
@@ -233,7 +235,7 @@ def page_shell(title: str, base: str, current: str, body: str,
 {body}
 <footer class="footer"><div class="wrap">
 <div class="col"><h4>{SITE_NAME}</h4><p>《AI Native 组织：从思考到实践》深度解读笔记。个人精读库，内容为原创蒸馏与短引用，非原书转载。</p></div>
-<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}brand2/index.html">品牌书·弱品牌强品牌</a><br><a href="{base}synthesis.html">两书合璧</a><br><a href="{base}pilot.html">从书到试点</a><br><a href="{base}pilot-assets.html">试点资产地图</a><br><a href="{base}brand-plan.html">品牌域实战路线图</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}terms.html">方案术语表</a><br><a href="{base}about.html">关于</a></p></div>
+<div class="col"><h4>导航</h4><p><a href="{base}index.html">全书地图</a><br><a href="{base}sitemap.html">站点地图</a><br><a href="{base}chapters/index.html">章节解读</a><br><a href="{base}concepts/index.html">概念索引</a><br><a href="{base}brand2/index.html">品牌书·弱品牌强品牌</a><br><a href="{base}synthesis.html">两书合璧</a><br><a href="{base}pilot.html">从书到试点</a><br><a href="{base}pilot-assets.html">试点资产地图</a><br><a href="{base}brand-plan.html">品牌域实战路线图</a><br><a href="{base}tools/index.html">随书工具</a><br><a href="{base}terms.html">方案术语表</a><br><a href="{base}about.html">关于</a></p></div>
 <div class="col"><h4>原书</h4><p>{escape(BOOK['title'])}<br>{escape(BOOK['author'])} 著 · {escape(BOOK['publisher'])} · {escape(BOOK['isbn'])}<br><br>{escape(BOOK2['title'])}<br>{escape(BOOK2['author'])} 著 · {escape(BOOK2['publisher'])} · {escape(BOOK2['isbn'])}</p></div>
 </div><div class="wrap legal">本站内容为读书笔记性质的 transformative use；图像裁自原书 PDF 供个人精读参考。引用规范见<a href="{base}about.html">关于页</a>。</div></footer>
 <script src="{base}assets/site.js" defer></script>
