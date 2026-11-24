@@ -321,6 +321,13 @@
      "desc": "机器可读实例：4 主体+6 范围包+24 四元组（PV-01~24 分层）+5 跨源规则+标杆工作分类（Shopify 矩阵/VOC→A/B 层判据）。",
      "meta": "JSON 实例 · 可机读",
      "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/semantic-permission-v01.json"
+    },
+    {
+     "id": "EXS",
+     "name": "B层执行面设计 v0.1",
+     "desc": "PV-21受控执行面产品形态：三层模型（ES-M手动交接面v0.1唯一/ES-A API执行器演进/ES-X永久人工面）、确认流三级（C1审核会话批量/C2高风险逐条/C3 EG规则级预授权）、Emergency Guard最小保护动作标准档、执行包14字段规范。决策D-080。",
+     "meta": "v0.1 基线 · D-080",
+     "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/EXECUTION-SURFACE-V01.md"
     }
    ]
   },
