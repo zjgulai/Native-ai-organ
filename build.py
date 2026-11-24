@@ -65,6 +65,7 @@ def build(check: bool = False) -> int:
     write_page("pilot-assets.html", P.render_pilot_assets(""))
     write_page("brand-plan.html", P.render_brand_plan(""))
     write_page("orgmap.html", P.render_orgmap(""))
+    write_page("product.html", P.render_product(""))
     write_page("semantic.html", P.render_semantic(""))
     write_page("sitemap.html", P.render_sitemap(""))
     write_page("synthesis.html", P.render_synthesis(""))

@@ -6,6 +6,7 @@ from html import escape
 from site_data import (BOOK, BOOK2, BOOK3, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, TOOLS, TERMS, PILOT, PILOT_ASSETS,
+                       PRODUCT,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2, sidebar_html_b3)
@@ -446,6 +447,7 @@ def render_home(base: str) -> str:
           ("试点资产地图", "44 项设计资产可点查规格", "pilot-assets.html"),
           ("实战路线图", "P0~P4 阶段门与场景波次", "brand-plan.html"),
           ("组织与价值流一张图", "50 岗位 × 13 流 × 20 场景交互图", "orgmap.html"),
+          ("Sage 产品层规划", "出海产品 v5：52 场景 117 工作", "product.html"),
           ("方案术语表", "内部代号 D-020~D-053 解码", "terms.html"),
           ("3D 组织空间", "外部门户 · 交互原型", "https://native.sagegogo.com/src/orgmap/")]),
     ]
@@ -463,6 +465,7 @@ def render_home(base: str) -> str:
         ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：六层结构（含语义底座层）、P0~P4 阶段门、20 场景波次、双层 KPI 落地与三本书理论锚点。", "brand-plan.html", "打开路线图 →"),
         ("ORGMAP", "组织与价值流一张图", "50 个 AI 岗位 × 13 条价值流 × 20 个业务场景的交互式绑定图：点选任意节点高亮全部绑定关系，四平面职责与跨平面契约一图看清。设计基线静态版。", "orgmap.html", "打开组织图 →"),
         ("SEMANTIC", "语义底座 v0", "《本体驱动的AI数据管理》吸收的落地层：48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组——让机器真正懂 Momcozy 业务语义。全部 v0 基线，待数据激活。", "semantic.html", "打开语义底座 →"),
+        ("PRODUCT", "Sage 产品层规划", "出海产品的完整蓝图：一个主产品 Sage（数字员工团队）+ 三个单点工具 + 四档购买，覆盖 Shopify/Amazon/TikTok Shop，52 个细分场景、117 项可验收工作，含两个标杆场景与七条主线。规划 v5，全为设计状态。", "product.html", "打开产品规划 →"),
     ]
     practice_html = "".join(
         f'<div class="cta-card"><div><span class="idx">{idx}</span><h3>{escape(t)}</h3>'
@@ -762,6 +765,221 @@ def render_orgmap(base: str) -> str:
         + map_html + body_html)
     return reader_page(base, "", inner, heads, om["title"],
                        om.get("lead", "")[:120], nav_current="orgmap")
+
+
+def sidebar_html_product(base: str) -> str:
+    """Left directory for the Sage product page: overview + scene classes."""
+    cat = PRODUCT["catalog"]
+    out = ['<aside class="dir" aria-label="Sage 产品目录">',
+           '<div class="dir-search"><label for="dir-search">搜索目录</label>',
+           '<input id="dir-search" type="search" placeholder="场景、工作、工具…" autocomplete="off"></div>']
+    out.append('<div class="dir-group"><h4>概览</h4>')
+    for hid, label, hay in [
+            ("pd-positioning", "定位与客户", "定位 客户 成长线 覆盖范围"),
+            ("pd-products", "产品组合", "产品 sage 单点工具 四档"),
+            ("pd-structure", "Sage 结构", "结构 场景统计 交付方式")]:
+        out.append(f'<a href="#{hid}" data-search="{escape(hay, quote=True)}">{escape(label)}</a>')
+    out.append('</div><div class="dir-group"><h4>经营场景 · 10 类</h4>')
+    for sc in cat["scenes"]:
+        hay = f'{sc["id"]} {sc["name"]} 细分场景'
+        out.append(f'<a href="#pd-{sc["id"].lower()}" data-search="{escape(hay, quote=True)}">'
+                   f'<span class="no">{sc["id"]}</span>{escape(sc["name"])}</a>')
+    out.append('</div><div class="dir-group"><h4>平台运营 · 4 类</h4>')
+    for i, pf in enumerate(cat["platforms"]):
+        out.append(f'<a href="#pd-plt-{i}" data-search="{escape(pf["name"], quote=True)} 细分场景">'
+                   f'<span class="no">{i + 1}</span>{escape(pf["name"])}</a>')
+    out.append('</div><div class="dir-group"><h4>标杆 · 主线 · 工具</h4>')
+    for hid, label, hay in [
+            ("pd-bench", "两个标杆场景", "标杆 shopify 自动运营 voc 洞察"),
+            ("pd-lines", "七条主线", "主线 上新线 口碑线 机会线 经营线 品牌线 复购线 新平台线"),
+            ("pd-tools", "单点工具", "工具 合规审核 数据采集 视频分镜")]:
+        out.append(f'<a href="#{hid}" data-search="{escape(hay, quote=True)}">{escape(label)}</a>')
+    out.append('</div><p class="dir-empty" hidden>没有匹配的目录项。</p></aside>')
+    return "".join(out)
+
+
+def _pchip(w: dict) -> str:
+    cls = ' class="pchip ref"' if w.get("ref") else ' class="pchip"'
+    mode = f'<i>{escape(w["mode"])}</i>' if w.get("mode") else ""
+    pf = f'<em>{escape(w["platform"])}</em>' if w.get("platform") else ""
+    return f'<span{cls}>{escape(w["name"])}{mode}{pf}</span>'
+
+
+def _scene_table(subs: list) -> str:
+    rows = []
+    for sub in subs:
+        works = "".join(_pchip(w) for w in sub["works"])
+        rows.append(
+            f'<tr><td class="psc"><b>{escape(sub["id"])} {escape(sub["name"])}</b></td>'
+            f'<td>{escape(sub["question"])}</td>'
+            f'<td class="psw">{works}</td>'
+            f'<td>{escape(sub["result"])}</td></tr>')
+    return ('<div class="table-wrap"><table><thead><tr>'
+            '<th>细分场景</th><th>要回答的问题</th><th>包含的工作</th><th>交到客户手里的结果</th>'
+            f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+
+
+def _simple_table(head: list, rows: list) -> str:
+    h = "".join(f"<th>{escape(c)}</th>" for c in head)
+    r = "".join("<tr>" + "".join(f"<td>{escape(c)}</td>" for c in row) + "</tr>" for row in rows)
+    return f'<div class="table-wrap"><table><thead><tr>{h}</tr></thead><tbody>{r}</tbody></table></div>'
+
+
+def _flow(text: str) -> str:
+    steps = [x.strip() for x in text.split("→") if x.strip()]
+    body = '<span class="pflow-arrow">→</span>'.join(
+        f'<span class="pstep">{escape(x)}</span>' for x in steps)
+    return f'<div class="pflow">{body}</div>'
+
+
+def render_product(base: str) -> str:
+    P = PRODUCT
+    pos = P["positioning"]
+    heads: list[tuple[str, str]] = []
+    parts: list[str] = []
+
+    def h2(hid: str, title: str) -> None:
+        heads.append((hid, title))
+        parts.append(f'<h2 id="{hid}"><span class="sec-no">{len(heads):02d}</span>{escape(title)}</h2>')
+
+    def h3(hid: str, title: str) -> None:
+        heads.append((hid, title))
+        parts.append(f'<h3 id="{hid}">{escape(title)}</h3>')
+
+    # ---- 01 定位与客户 ----
+    h2("pd-positioning", "定位与客户")
+    parts.append(f'<p class="lead">{escape(pos["promise"])}</p>')
+    cust = "".join(
+        f'<div class="path-card"><h4>{escape(c["name"])}</h4><p>{escape(c["desc"])}</p>'
+        f'<p style="margin-top:8px"><b>最先需要：</b>{escape(c["need"])}</p></div>'
+        for c in pos["customers"])
+    parts.append(f'<div class="path-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">{cust}</div>')
+    parts.append(f'<p style="margin:18px 0 8px"><b>同一条成长线</b> · {escape(pos["growth_note"])}</p>')
+    grow = '<span class="pgrow-arrow">→</span>'.join(
+        f'<span class="pstep">{escape(x)}</span>' for x in pos["growth_line"])
+    parts.append(f'<div class="pflow pgrow">{grow}</div>')
+    parts.append("<h3>覆盖范围</h3>")
+    parts.append("<ul>" + "".join(f"<li>{escape(x)}</li>" for x in pos["scope"]) + "</ul>")
+
+    # ---- 02 产品组合 ----
+    h2("pd-products", "产品组合")
+    parts.append(f'<p>{escape(P["products"]["lead"])}</p>')
+    m = P["products"]["matrix"]
+    mrows = []
+    for row in m["rows"]:
+        label, cells = row[0], row[1:]
+        mrows.append("<tr><td><b>" + escape(label) + "</b></td>" +
+                     "".join(f"<td>{escape(c)}</td>" for c in cells) + "</tr>")
+    mh = "".join(f"<th>{escape(c)}</th>" for c in m["head"])
+    parts.append('<div class="table-wrap"><table><thead><tr>' + mh +
+                 f'</tr></thead><tbody>{"".join(mrows)}</tbody></table></div>')
+    t = P["products"]["tiers"]
+    parts.append("<h3>按预算分四档购买</h3>")
+    parts.append(f'<p>{escape(t["lead"])}</p>')
+    parts.append(_simple_table(t["head"], t["rows"]))
+    parts.append("<h3>贯穿四档的三条原则</h3>")
+    parts.append('<div class="path-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">' + "".join(
+        f'<div class="path-card"><h4>{escape(n)}</h4><p>{escape(d)}</p></div>'
+        for n, d in P["products"]["principles"]) + "</div>")
+
+    # ---- 03 Sage 结构 ----
+    h2("pd-structure", "Sage 的结构")
+    st = P["structure"]
+    parts.append(f'<p>{escape(st["lead"])}</p>')
+    parts.append(f'<p class="note">{escape(st["modes"])}</p>')
+    parts.append(_simple_table(st["summary_rows"][0], st["summary_rows"][1:]))
+
+    # ---- 04 经营场景明细 ----
+    h2("pd-scenes", "经营场景明细")
+    parts.append("<p>10 类场景、37 个细分场景，各平台通用。每个细分场景只回答一个问题、有一个主要使用人、交付客户能验收的结果，并尽量走完同一个闭环：发现 → 判断 → 出稿 → 客户确认 → 回看结果。</p>")
+    parts.append('<p style="font-size:12.5px;color:var(--r-faint)">标记说明：<b>例行</b>=定时自动运行；<b>项目</b>=多项工作串成一个完整结果；无标记=交办一次、交付一次；平台名标签=只适用该平台，未标的各平台通用；虚线框=登记在其他细分场景的引用工作。</p>')
+    for sc in P["catalog"]["scenes"]:
+        h3(f'pd-{sc["id"].lower()}', f'{sc["id"]} {sc["name"]}')
+        parts.append(f'<p class="psc-desc">{escape(sc["desc"])}</p>')
+        parts.append(_scene_table(sc["subs"]))
+
+    # ---- 05 平台运营明细 ----
+    h2("pd-platforms", "平台运营明细")
+    parts.append("<p>只在某个平台存在的工作，以及多平台同时经营时的协同。通用工作（商品资料、客服、复盘等）不在这里重复，以虚线标签表示引用。</p>")
+    for i, pf in enumerate(P["catalog"]["platforms"]):
+        h3(f'pd-plt-{i}', pf["name"])
+        parts.append(f'<p class="psc-desc">{escape(pf["desc"])}</p>')
+        parts.append(_scene_table(pf["subs"]))
+
+    # ---- 06 两个标杆 ----
+    h2("pd-bench", "两个标杆场景")
+    bm = P["benchmarks"]
+    h3("pd-bench-m", bm["matrix_title"])
+    parts.append(f'<p>{escape(bm["matrix_desc"])}</p>')
+    mrows = []
+    for r in bm["matrix"]:
+        works = "".join(_pchip({**w, "ref": False}) for w in r["works"])
+        role = f'<b>{escape(r["role"])}</b>' if r["role"] else ""
+        mrows.append(f'<tr><td class="psc">{role}</td><td class="psc">{escape(r["ring"])}</td>'
+                     f'<td class="psw">{works}</td></tr>')
+    parts.append('<div class="table-wrap"><table><thead><tr><th>岗位</th><th>Shopify 运营环节</th>'
+                 f'<th>负责的工作</th></tr></thead><tbody>{"".join(mrows)}</tbody></table></div>')
+    parts.append(f'<p class="note">{escape(bm["matrix_why"])}</p>')
+    h3("pd-bench-v", bm["voc_title"])
+    parts.append(f'<p>{escape(bm["voc_desc"])}</p>')
+    vrows = []
+    for v in bm["voc"]:
+        mode = f' <i>{escape(v["mode"])}</i>' if v.get("mode") else ""
+        vrows.append(f'<tr><td class="psc"><b>{escape(v["work"])}{mode}</b></td><td>{escape(v["answer"])}</td></tr>')
+    parts.append('<div class="table-wrap"><table><thead><tr><th>工作</th><th>回答什么</th></tr></thead>'
+                 f'<tbody>{"".join(vrows)}</tbody></table></div>')
+    parts.append(f'<p class="note">{escape(bm["voc_why"])}</p>')
+    parts.append("<h3>两个标杆之间的关系</h3>")
+    parts.append('<div class="path-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">' + "".join(
+        f'<div class="path-card"><h4>{escape(n)}</h4><p>{escape(d)}</p></div>'
+        for n, d in bm["relation"]) + "</div>")
+
+    # ---- 07 七条主线 ----
+    h2("pd-lines", "七条主线")
+    ln = P["lines"]
+    parts.append(f'<p>{escape(ln["lead"])}</p>')
+    parts.append('<div class="pline-grid">' + "".join(
+        f'<div class="path-card pline"><h4>{escape(n)}</h4><p>{escape(d)}</p>{_flow(f)}</div>'
+        for n, d, f in ln["items"]) + "</div>")
+    parts.append("<h3>关键交接</h3>")
+    parts.append(_simple_table(["交接", "规则"], ln["handoffs"]))
+
+    # ---- 08 单点工具 ----
+    h2("pd-tools", "单点工具")
+    parts.append("<p>三个工具只对「这一件结果」负责，不需要了解客户的店铺和经营情况就能用。</p>")
+    for i, tl in enumerate(P["tools"]):
+        h3(f'pd-tool-{i}', tl["name"])
+        parts.append(f'<p><b>问题：</b>{escape(tl["problem"])}</p>')
+        kv = [("谁来买", tl["buyer"]), ("客户给什么", tl["input"]),
+              ("客户拿到什么", tl["output"]), ("怎么验收", tl["verify"]),
+              ("怎么买", tl["buy"]), ("不做什么", tl["wont"])]
+        parts.append('<div class="table-wrap"><table><tbody>' + "".join(
+            f'<tr><td class="psc"><b>{escape(k)}</b></td><td>{escape(v)}</td></tr>'
+            for k, v in kv) + "</tbody></table></div>")
+        if tl.get("in_sage"):
+            parts.append("<h4 class='map-h4' style='margin:14px 0 6px'>在 Sage 里出现在哪</h4>")
+            parts.append('<div class="table-wrap"><table><tbody>' + "".join(
+                f'<tr><td class="psc">{escape(a)}</td><td>{escape(b)}</td></tr>'
+                for a, b in tl["in_sage"]) + "</tbody></table></div>")
+        parts.append(f'<p class="note"><b>单买与在 Sage 里用的区别：</b>{escape(tl["upgrade"])}</p>')
+
+    # ---- 边界 ----
+    parts.append('<div class="note"><b>边界声明：</b>本页为产品层规划 v5（2026-11-23）的公开呈现，全部能力为设计状态，不构成已上线产品、性能承诺或业务授权。对外动作（发布、提交、退款、投诉）始终由客户执行。</div>')
+
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>Sage 产品</span></div>'
+        '<div class="cat">PRODUCT · SAGE</div>'
+        f'<h1>{escape(P["title"])}</h1>'
+        f'<p class="lead">{inline(P.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>版本 <b>{escape(P.get("version", ""))}</b></span>'
+        '<span>性质 <b>规划文档 · 设计状态</b></span>'
+        f'<span>规模 <b>52 细分场景 · 117 项工作</b></span>'
+        f'<span>约 <b>{escape(P.get("minutes", "25"))}</b> 分钟读完</span></div></div>'
+        + "".join(parts))
+    return reader_page(base, "", inner, heads, P["title"],
+                       P.get("lead", "")[:120], nav_current="product",
+                       sidebar=sidebar_html_product(base))
 
 
 def render_sitemap(base: str) -> str:
