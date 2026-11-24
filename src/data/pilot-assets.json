@@ -268,8 +268,8 @@
         {
           "id": "ONTO-PILOT",
           "name": "FLOW-09 品牌域本体试点",
-          "desc": "首个语义底座试点：商品/订单/渠道/库存/品牌资产/消费者六类概念域，术语表 v0+对象关系模型+事理规则+权限语义+Skill 依赖声明；切入点为 AGT-029 立言与 SCN-002 语义契约试填。",
-          "meta": "试点方案 · 08-data",
+          "desc": "首个语义底座试点：商品/订单/渠道/库存/品牌资产/消费者六类概念域。五项交付物四项完成并升 v0 基线（术语表 48 条/对象-关系模型 20对象+34关系/权限语义 24 条四元组/Skill 依赖回填），事理规则显性化待 G1 数据回填阈值。",
+          "meta": "试点方案 · 实质完成 · 4/5 v0基线+1待数据",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-ONTOLOGY-PILOT.md"
         },
         {
