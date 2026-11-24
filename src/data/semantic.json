@@ -1,14 +1,15 @@
 {
-  "title": "语义底座 v0 全景",
-  "lead": "《本体驱动的AI数据管理》吸收的落地层：让机器真正懂 Momcozy 业务语义的轻量语义资产——48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组，全部 Markdown+JSON Schema 表达，不建语义数据库、不引入 RDF/OWL。",
-  "status": "v0 基线 · DESIGN_ONLY",
-  "minutes": "12",
+  "title": "语义底座全景",
+  "lead": "《本体驱动的AI数据管理》吸收的落地层：让机器真正懂 Momcozy 业务语义的轻量语义资产——品牌域 v0（48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组）+ 运营域 v0.1（36 条术语、12 对象 18 关系），全部 Markdown+JSON Schema 表达，不建语义数据库、不引入 RDF/OWL。",
+  "status": "v0/v0.1 基线 · DESIGN_ONLY",
+  "minutes": "14",
   "boundary": "全部为设计态语义资产：不表示数据已接入、不构成业务授权；pending_data 项待 PILOT-G1 数据就绪后回填；权威版本在姊妹仓库 AI-Native-Organization，本页为公开版导览。",
   "kpis": [
     ["48", "术语条目（六域 SKOS-lite）"],
     ["20+34", "对象 / 关系"],
     ["38", "契约规则（AGT-029+SCN-002）"],
-    ["24", "权限四元组"]
+    ["24", "权限四元组"],
+    ["36+12/18", "运营域术语 / 对象·关系（v0.1）"]
   ],
   "groups": [
     {
@@ -17,6 +18,14 @@
         {"id": "GLOSSARY-V0", "name": "品牌域语义术语表 v0", "desc": "48 条 SKOS-lite 术语（渠道/品牌资产/交易/商品/消费者/方法六域），消歧 Amazon/DTC/内部口径、触达/可分析、Intent/Receipt、GMV 口径等同名异义，附口径速查表。", "meta": "v0 基线 · 48 条", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-GLOSSARY-V0.md"},
         {"id": "OBJ-MODEL-V0", "name": "品牌域对象-关系模型 v0", "desc": "六域 20 对象（商品2/交易2/渠道3/库存1/品牌资产6/消费者6）+34 关系+引用层 11 项登记+候选扩展 5 项；entity/artifact 二分，term_refs 绑定术语表。", "meta": "v0 基线 · 20对象/34关系", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-OBJECT-MODEL-V0.md"},
         {"id": "OBJ-MODEL-JSON", "name": "对象模型 JSON 实例", "desc": "机器可读模型实例：20 对象+34 关系+引用层/候选清单，符合内嵌 JSON Schema，可被 Skill 契约与未来语义层直接消费。", "meta": "JSON 实例 · 可机读", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/semantic-object-model-v0.json"}
+      ]
+    },
+    {
+      "group": "运营域扩展（产品层 v5）",
+      "items": [
+        {"id": "GLOSSARY-OPS", "name": "运营域语义术语表 v0.1", "desc": "36 条 T-OP-* 术语，覆盖产品规划 v5 经营场景 S1~S10（37 细分/91 项通用工作）+多平台协同机制；与品牌域六域并行不映射，附 9 组高频消歧对照。", "meta": "v0.1 基线 · 36 条", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-GLOSSARY-OPS-V0.md"},
+        {"id": "OBJ-MODEL-OPS", "name": "运营域对象-关系模型 v0.1", "desc": "实体 9/工件 3 共 12 对象+18 关系：Market/ProductFactSheet/Listing/WorkItem/SettlementRecord 等；Listing、ReplenishmentSignal、SettlementRecord 三个品牌域候选对象正式升级。", "meta": "v0.1 基线 · 12对象/18关系", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-OBJECT-MODEL-OPS-V0.md"},
+        {"id": "OBJ-MODEL-OPS-JSON", "name": "运营域模型 JSON 实例", "desc": "机器可读实例：12 对象+18 关系+引用层 7 项+平台域候选清单，term_refs 七域前缀混引，可被产品层工作项契约直接消费。", "meta": "JSON 实例 · 可机读", "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/semantic-object-model-ops-v0.json"}
       ]
     },
     {
@@ -54,7 +63,7 @@
     {"item": "证据强度分级刻度（T-CN-04）", "blocker": "分级档位待业务确认+G1 数据", "note": "当前为【推】占位"},
     {"item": "覆盖率/渗透率公式、差异容忍度、字段级取数", "blocker": "数据契约字段确认后回填", "note": "SCN-002 契约类7-25/26/28"},
     {"item": "批准时限、差评率越阈等【数】项", "blocker": "G1 数据就绪", "note": "AGT-029/SCN-002 契约共 10 处【数】标注"},
-    {"item": "非品牌域术语与对象扩展", "blocker": "场景就绪度评估逐域推进", "note": "优先建模 SCN-016/013/009（就绪度矩阵）"}
+    {"item": "平台运营域与场景域语义扩展", "blocker": "平台域迭代 + 场景就绪度评估", "note": "运营域已交付 v0.1 基线（36术语/12对象）；剩余为 SH/AM/TT/MP 平台特有术语与 SCN-016/013/009 场景域"}
   ],
   "wiring": "SKL-BRAND-01~04 契约已回写 ontology_dependencies（contracts+concept_domains+term_ids+object_refs 四元组引用）；SERVICE-IDENTITY-SCOPE 已加权限声明指针；SCN-002.md 已增事理规则小节。"
 }
