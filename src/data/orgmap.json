@@ -1,0 +1,1878 @@
+{
+ "slug": "orgmap",
+ "title": "组织与价值流一张图",
+ "lead": "50 个 AI 岗位、13 条价值流、20 个业务场景——同一套组织设计的三层绑定关系，做成可点选的静态交互图。点任意节点（价值流 / 场景 / 岗位 / 平面），高亮它的全部绑定对象，右侧抽屉给出该节点的职责、边界与关联清单。",
+ "minutes": "12",
+ "planes": [
+  {
+   "id": "PLN-MGT",
+   "name": "经营管理",
+   "purpose": "目标、优先级、资源约束、经营判断与组织能力",
+   "role_count": 5
+  },
+  {
+   "id": "PLN-OPS",
+   "name": "业务运营",
+   "purpose": "产品、供应、渠道、增长、服务和GMV事实闭环",
+   "role_count": 35
+  },
+  {
+   "id": "PLN-CTL",
+   "name": "独立控制",
+   "purpose": "审计、税务、法务、产品合规、隐私、安全与权限边界",
+   "role_count": 5
+  },
+  {
+   "id": "PLN-PLT",
+   "name": "数据与Agent平台",
+   "purpose": "数据口径、质量、集成工具、Skills、Memory、Model与可靠性",
+   "role_count": 5
+  }
+ ],
+ "plane_contracts": [
+  {
+   "from": "PLN-MGT",
+   "to": "PLN-OPS",
+   "from_name": "经营管理",
+   "to_name": "业务运营",
+   "type": "sets_objectives_and_constraints",
+   "label": "下达目标、优先级与资源约束"
+  },
+  {
+   "from": "PLN-OPS",
+   "to": "PLN-MGT",
+   "from_name": "业务运营",
+   "to_name": "经营管理",
+   "type": "returns_business_results_and_evidence",
+   "label": "回传经营结果、证据与 Action Intent"
+  },
+  {
+   "from": "PLN-CTL",
+   "to": "PLN-MGT",
+   "from_name": "独立控制",
+   "to_name": "经营管理",
+   "type": "independently_checks_and_can_reject",
+   "label": "独立检查、可否决并给出恢复条件"
+  },
+  {
+   "from": "PLN-CTL",
+   "to": "PLN-OPS",
+   "from_name": "独立控制",
+   "to_name": "业务运营",
+   "type": "independently_checks_and_can_reject",
+   "label": "独立检查、可否决并给出恢复条件"
+  },
+  {
+   "from": "PLN-PLT",
+   "to": "PLN-MGT",
+   "from_name": "数据与Agent平台",
+   "to_name": "经营管理",
+   "type": "provides_data_skills_tools_and_runtime",
+   "label": "提供数据、Skills、工具与运行能力"
+  },
+  {
+   "from": "PLN-PLT",
+   "to": "PLN-OPS",
+   "from_name": "数据与Agent平台",
+   "to_name": "业务运营",
+   "type": "provides_data_skills_tools_and_runtime",
+   "label": "提供数据、Skills、工具与运行能力"
+  },
+  {
+   "from": "PLN-PLT",
+   "to": "PLN-CTL",
+   "from_name": "数据与Agent平台",
+   "to_name": "独立控制",
+   "type": "provides_control_evidence_and_capabilities",
+   "label": "提供控制证据与控制能力"
+  },
+  {
+   "from": "PLN-MGT",
+   "to": "PLN-PLT",
+   "from_name": "经营管理",
+   "to_name": "数据与Agent平台",
+   "type": "defines_capability_demand_and_acceptance",
+   "label": "定义能力需求并参与验收"
+  },
+  {
+   "from": "PLN-OPS",
+   "to": "PLN-PLT",
+   "from_name": "业务运营",
+   "to_name": "数据与Agent平台",
+   "type": "defines_capability_demand_and_acceptance",
+   "label": "定义能力需求并参与验收"
+  }
+ ],
+ "streams": [
+  {
+   "key": "FLOW-01",
+   "sid": "BVS-01",
+   "family": "BVS",
+   "title": "存量GMV增长：投放、价格、库存联动",
+   "name": "存量GMV增长",
+   "product": "存量GMV联营舱",
+   "owner": "AGT-023",
+   "value": "把广告、价格、内容和库存从分散优化转为同一经营约束下的联合决策",
+   "start": "GMV机会、异常或经营目标进入已确认的市场、账号与SKU范围",
+   "finish": "行动已执行并取得逐对象回执，增量GMV与退款、库存、利润约束完成归因",
+   "scenarios": [
+    "SCN-001",
+    "SCN-007",
+    "SCN-009",
+    "SCN-010",
+    "SCN-011",
+    "SCN-013",
+    "SCN-016",
+    "SCN-018"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-003",
+    "AGT-016",
+    "AGT-017",
+    "AGT-021",
+    "AGT-022",
+    "AGT-023",
+    "AGT-024",
+    "AGT-025",
+    "AGT-026",
+    "AGT-027",
+    "AGT-028",
+    "AGT-030",
+    "AGT-031",
+    "AGT-032",
+    "AGT-035",
+    "AGT-040",
+    "AGT-041",
+    "AGT-045"
+   ],
+   "owner_note": "试点实例 AGT-023；分渠道结果负责人：Amazon AGT-021 · Shopify_DTC AGT-023 · other_platform AGT-024 · B2B_retail AGT-025"
+  },
+  {
+   "key": "FLOW-02",
+   "sid": "BVS-02",
+   "family": "BVS",
+   "title": "新品：需求证据到商业验证",
+   "name": "新品证据到商业验证",
+   "product": "新品证据工厂",
+   "owner": "AGT-008",
+   "value": "缩短从母婴洞察到可验证新品命题的时间，同时避免用讨论代替实物和市场证据",
+   "start": "被记录的用户需求、技术趋势、竞品空白或产品机会进入证据池",
+   "finish": "形成有证据的继续、转向、停止或有限放量决定，并保留市场回执",
+   "scenarios": [
+    "SCN-002",
+    "SCN-003",
+    "SCN-004",
+    "SCN-005",
+    "SCN-006",
+    "SCN-009",
+    "SCN-012",
+    "SCN-013"
+   ],
+   "contributors": [
+    "AGT-001",
+    "AGT-002",
+    "AGT-006",
+    "AGT-007",
+    "AGT-008",
+    "AGT-009",
+    "AGT-010",
+    "AGT-011",
+    "AGT-012",
+    "AGT-013",
+    "AGT-014",
+    "AGT-018",
+    "AGT-021",
+    "AGT-024",
+    "AGT-028",
+    "AGT-029",
+    "AGT-030",
+    "AGT-031",
+    "AGT-033",
+    "AGT-035",
+    "AGT-038",
+    "AGT-039",
+    "AGT-041",
+    "AGT-043",
+    "AGT-044",
+    "AGT-048"
+   ]
+  },
+  {
+   "key": "FLOW-03",
+   "sid": "BVS-03",
+   "family": "BVS",
+   "title": "供需：补货、采购与交付",
+   "name": "供需补货与交付",
+   "product": "供需履约控制塔",
+   "owner": "AGT-016",
+   "value": "以单一需求事实和约束求解连接预测、OEM采购、跨境运输与渠道可售",
+   "start": "权威需求、库存、在途、订单或供应异常达到计划触发条件",
+   "finish": "供应计划、采购/运输回执、入仓和可售库存一致，异常有冻结或补偿记录",
+   "scenarios": [
+    "SCN-006",
+    "SCN-007",
+    "SCN-008",
+    "SCN-010",
+    "SCN-014",
+    "SCN-016",
+    "SCN-017"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-014",
+    "AGT-015",
+    "AGT-016",
+    "AGT-017",
+    "AGT-018",
+    "AGT-019",
+    "AGT-020",
+    "AGT-021",
+    "AGT-026",
+    "AGT-040",
+    "AGT-041",
+    "AGT-042"
+   ]
+  },
+  {
+   "key": "FLOW-04",
+   "sid": "BVS-04",
+   "family": "BVS",
+   "title": "新市场、新渠道与合规上架",
+   "name": "新市场与合规上架",
+   "product": "市场准入发布器",
+   "owner": "AGT-024",
+   "value": "把市场判断、合规、内容、本地化、账号和履约条件编译成可重复的发布包",
+   "start": "已批准的产品与市场机会需要进入新的国家、渠道、账号或站点",
+   "finish": "商品在明确准入、履约与账号边界内可售，并取得上线、首单和风险监测回执",
+   "scenarios": [
+    "SCN-002",
+    "SCN-005",
+    "SCN-008",
+    "SCN-009",
+    "SCN-012",
+    "SCN-014",
+    "SCN-018"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-007",
+    "AGT-009",
+    "AGT-019",
+    "AGT-021",
+    "AGT-022",
+    "AGT-023",
+    "AGT-024",
+    "AGT-025",
+    "AGT-027",
+    "AGT-028",
+    "AGT-029",
+    "AGT-030",
+    "AGT-031",
+    "AGT-033",
+    "AGT-036",
+    "AGT-042",
+    "AGT-043",
+    "AGT-044",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "FLOW-05",
+   "sid": "BVS-05",
+   "family": "BVS",
+   "title": "客户旅程：服务、留存与复购",
+   "name": "客户旅程与复购",
+   "product": "客户旅程修复台",
+   "owner": "AGT-034",
+   "value": "从单次客服响应升级为贯穿售前、使用、售后与复购的闭环体验修复",
+   "start": "客户咨询、差评、退货、投诉、流失或复购机会进入统一事件视图",
+   "finish": "客户问题得到有回执的解决，根因进入内容、产品或运营改进，并验证留存结果",
+   "scenarios": [
+    "SCN-002",
+    "SCN-012",
+    "SCN-013",
+    "SCN-014",
+    "SCN-015",
+    "SCN-016"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-006",
+    "AGT-020",
+    "AGT-023",
+    "AGT-028",
+    "AGT-029",
+    "AGT-034",
+    "AGT-035",
+    "AGT-036",
+    "AGT-037",
+    "AGT-038",
+    "AGT-039",
+    "AGT-040",
+    "AGT-044"
+   ]
+  },
+  {
+   "key": "FLOW-06",
+   "sid": "BVS-06",
+   "family": "BVS",
+   "title": "需求到数据产品与业务工具",
+   "name": "需求到数据产品与业务工具",
+   "product": "数据产品工作台",
+   "owner": "AGT-047",
+   "value": "让数字化从被动接单转为以数据契约和产品SLO交付可复用经营能力",
+   "start": "经营Case出现可复用的数据、分析、工具或UI能力缺口",
+   "finish": "权威口径、数据质量、工具行为、访问边界和使用效果均通过验收并可回退",
+   "scenarios": [
+    "SCN-001",
+    "SCN-016",
+    "SCN-020"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-003",
+    "AGT-021",
+    "AGT-023",
+    "AGT-040",
+    "AGT-044",
+    "AGT-045",
+    "AGT-046",
+    "AGT-047",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "FLOW-07",
+   "sid": "BVS-07",
+   "family": "BVS",
+   "title": "质量和账号重大事件处理",
+   "name": "质量与账号重大事件",
+   "product": "重大事件控制室",
+   "owner": "AGT-018",
+   "value": "优先限制暴露和保护客户、账号与品牌，同时保证任何紧急动作可追踪、可核对",
+   "start": "权威质量、合规、账号、客户安全或平台风险信号达到事件规则",
+   "finish": "影响范围、保护动作、根因、纠正预防措施和恢复证据全部闭合",
+   "scenarios": [
+    "SCN-004",
+    "SCN-005",
+    "SCN-006",
+    "SCN-014",
+    "SCN-015",
+    "SCN-018"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-005",
+    "AGT-011",
+    "AGT-012",
+    "AGT-013",
+    "AGT-014",
+    "AGT-017",
+    "AGT-018",
+    "AGT-020",
+    "AGT-021",
+    "AGT-027",
+    "AGT-029",
+    "AGT-036",
+    "AGT-037",
+    "AGT-038",
+    "AGT-041",
+    "AGT-043",
+    "AGT-044",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "FLOW-08",
+   "sid": "BVS-08",
+   "family": "BVS",
+   "title": "经营复盘、资源和组织能力更新",
+   "name": "经营复盘与能力组合更新",
+   "product": "经营复盘与能力组合台",
+   "owner": "AGT-001",
+   "value": "把经营复盘直接连接到资源配置、岗位能力和平台投资，避免报告与行动脱节",
+   "start": "周/月/季度节奏或重大Case关闭后形成可比较的经营、风险和能力证据",
+   "finish": "资源、策略、岗位Bundle和能力组合的版本化决定已执行或明确冻结，并进入下周期验证",
+   "scenarios": [
+    "SCN-001",
+    "SCN-003",
+    "SCN-016",
+    "SCN-017",
+    "SCN-019",
+    "SCN-020"
+   ],
+   "contributors": [
+    "AGT-001",
+    "AGT-002",
+    "AGT-003",
+    "AGT-004",
+    "AGT-005",
+    "AGT-008",
+    "AGT-021",
+    "AGT-029",
+    "AGT-035",
+    "AGT-040",
+    "AGT-041",
+    "AGT-042",
+    "AGT-043",
+    "AGT-045",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "CVS-01",
+   "sid": "CVS-01",
+   "family": "CVS",
+   "title": "岗位与场景产品化",
+   "name": "岗位与场景产品化",
+   "product": "岗位产品编译器",
+   "owner": "AGT-004",
+   "value": "把组织设计从文档转成可检查、可装配、可回退的岗位产品",
+   "start": "业务价值流、场景或组织责任发生经批准的变化",
+   "finish": "五份契约被绑定为不可变岗位Bundle，Preset与清单一致并可被Case固定引用",
+   "scenarios": [],
+   "contributors": [
+    "AGT-001",
+    "AGT-002",
+    "AGT-004",
+    "AGT-005",
+    "AGT-045",
+    "AGT-047",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "CVS-02",
+   "sid": "CVS-02",
+   "family": "CVS",
+   "title": "知识与Skill供应",
+   "name": "知识与Skill供应",
+   "product": "Skill供应链",
+   "owner": "AGT-048",
+   "value": "把论文、方法、企业知识和业务经验转成按需加载且以任务结果验收的能力",
+   "start": "业务Case暴露知识缺口、方法缺口或已有Skill效果不足",
+   "finish": "有来源、可检索、经任务结果评测的Skill版本绑定到适用岗位并可退役",
+   "scenarios": [],
+   "contributors": [
+    "AGT-003",
+    "AGT-005",
+    "AGT-006",
+    "AGT-007",
+    "AGT-008",
+    "AGT-013",
+    "AGT-021",
+    "AGT-029",
+    "AGT-038",
+    "AGT-045",
+    "AGT-046",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "CVS-03",
+   "sid": "CVS-03",
+   "family": "CVS",
+   "title": "Tool、MCP与API连接交付",
+   "name": "Tool、MCP与API连接交付",
+   "product": "企业连接器工厂",
+   "owner": "AGT-047",
+   "value": "为Case Agent提供可组合的手和脚，同时把秘密、权限与资产执行留在模型之外",
+   "start": "业务价值流需要读取或受控写入一个权威企业系统",
+   "finish": "连接器完成身份、数据、动作、Policy、幂等、回执、探针和UI验收，可被指定Case安全调用",
+   "scenarios": [],
+   "contributors": [
+    "AGT-002",
+    "AGT-005",
+    "AGT-021",
+    "AGT-023",
+    "AGT-036",
+    "AGT-040",
+    "AGT-042",
+    "AGT-043",
+    "AGT-044",
+    "AGT-045",
+    "AGT-046",
+    "AGT-047",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "CVS-04",
+   "sid": "CVS-04",
+   "family": "CVS",
+   "title": "Release、运行保障与持续改进",
+   "name": "Release、运行保障与持续改进",
+   "product": "Release与可靠性控制塔",
+   "owner": "AGT-049",
+   "value": "把能力变更变成可重复发行物，以统一证据链降低平台漂移和静默故障",
+   "start": "岗位、Skill、连接器、插件、配置或平台变更形成可发布候选",
+   "finish": "同源构建经过确定性门禁、签名/Hash、原子安装、运行核对和可验证回退",
+   "scenarios": [],
+   "contributors": [
+    "AGT-001",
+    "AGT-002",
+    "AGT-003",
+    "AGT-005",
+    "AGT-041",
+    "AGT-045",
+    "AGT-046",
+    "AGT-047",
+    "AGT-048",
+    "AGT-049",
+    "AGT-050"
+   ]
+  },
+  {
+   "key": "FLOW-09",
+   "sid": "BVS-09",
+   "family": "BVS",
+   "title": "品牌资产经营：洞察、定义、传播、内容、渠道、体验与品效",
+   "name": "品牌资产经营",
+   "product": "品牌资产经营舱",
+   "owner": "AGT-029",
+   "value": "把品牌认知、内容、渠道覆盖与投放从分散动作转为同一品牌资产口径下的联合经营，并与GMV短期结果分层核对",
+   "start": "品牌经营节奏、品牌信号异常、品效结构偏差或年度品牌规划进入已确认的品牌、市场与人群范围",
+   "finish": "品牌传播、内容、渠道、体验与投资行动已执行并取得逐对象回执，品牌资产指标与GMV护栏完成长周期归因",
+   "scenarios": [
+    "SCN-002",
+    "SCN-009",
+    "SCN-011",
+    "SCN-012",
+    "SCN-013"
+   ],
+   "contributors": [
+    "AGT-002",
+    "AGT-003",
+    "AGT-005",
+    "AGT-006",
+    "AGT-007",
+    "AGT-021",
+    "AGT-022",
+    "AGT-023",
+    "AGT-024",
+    "AGT-026",
+    "AGT-027",
+    "AGT-028",
+    "AGT-029",
+    "AGT-030",
+    "AGT-031",
+    "AGT-032",
+    "AGT-033",
+    "AGT-034",
+    "AGT-035",
+    "AGT-038",
+    "AGT-039",
+    "AGT-041",
+    "AGT-045",
+    "AGT-048"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "SCN-001",
+   "title": "经营目标、预算与资源分配",
+   "flows": [
+    "FLOW-01",
+    "FLOW-06",
+    "FLOW-08"
+   ]
+  },
+  {
+   "id": "SCN-002",
+   "title": "市场、竞品与用户需求发现",
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-09"
+   ]
+  },
+  {
+   "id": "SCN-003",
+   "title": "产品机会评估与立项",
+   "flows": [
+    "FLOW-02",
+    "FLOW-08"
+   ]
+  },
+  {
+   "id": "SCN-004",
+   "title": "产品定义、开发与质量",
+   "flows": [
+    "FLOW-02",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-005",
+   "title": "产品及市场准入、知识产权",
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-006",
+   "title": "供应商、采购与生产协作",
+   "flows": [
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-007",
+   "title": "需求预测、补货与库存调拨",
+   "flows": [
+    "FLOW-01",
+    "FLOW-03"
+   ]
+  },
+  {
+   "id": "SCN-008",
+   "title": "跨境运输与仓储履约",
+   "flows": [
+    "FLOW-03",
+    "FLOW-04"
+   ]
+  },
+  {
+   "id": "SCN-009",
+   "title": "商品内容、本地化与上架",
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ]
+  },
+  {
+   "id": "SCN-010",
+   "title": "定价、促销与利润管理",
+   "flows": [
+    "FLOW-01",
+    "FLOW-03"
+   ]
+  },
+  {
+   "id": "SCN-011",
+   "title": "广告投放与预算调整",
+   "flows": [
+    "FLOW-01",
+    "FLOW-09"
+   ]
+  },
+  {
+   "id": "SCN-012",
+   "title": "品牌内容、站外营销与活动",
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-09"
+   ]
+  },
+  {
+   "id": "SCN-013",
+   "title": "独立站体验、转化与复购",
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-05",
+    "FLOW-09"
+   ]
+  },
+  {
+   "id": "SCN-014",
+   "title": "订单、交付与渠道异常",
+   "flows": [
+    "FLOW-03",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-015",
+   "title": "客服、退换货、评价与客诉",
+   "flows": [
+    "FLOW-05",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-016",
+   "title": "渠道结算、对账与财务经营",
+   "flows": [
+    "FLOW-01",
+    "FLOW-03",
+    "FLOW-05",
+    "FLOW-06",
+    "FLOW-08"
+   ]
+  },
+  {
+   "id": "SCN-017",
+   "title": "现金、汇率与资金安排",
+   "flows": [
+    "FLOW-03",
+    "FLOW-08"
+   ]
+  },
+  {
+   "id": "SCN-018",
+   "title": "店铺账号健康与渠道规则变化",
+   "flows": [
+    "FLOW-01",
+    "FLOW-04",
+    "FLOW-07"
+   ]
+  },
+  {
+   "id": "SCN-019",
+   "title": "组织、人员与绩效改进",
+   "flows": [
+    "FLOW-08"
+   ]
+  },
+  {
+   "id": "SCN-020",
+   "title": "数据质量、知识、系统与 AI 运行",
+   "flows": [
+    "FLOW-06",
+    "FLOW-08"
+   ]
+  }
+ ],
+ "roles": [
+  {
+   "id": "AGT-001",
+   "alias": "衡远",
+   "title": "经营目标与资源统筹",
+   "plane": "PLN-MGT",
+   "domain": "经营与组织",
+   "primary_flows": [
+    "FLOW-08"
+   ],
+   "flows": [
+    "FLOW-02",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-017",
+    "SCN-019"
+   ],
+   "principle": "每个优先级都必须说明放弃了什么",
+   "boundary": "投资、组织与全局策略变更只能调用已发布的企业动作策略；缺策略时冻结相关范围，不自行扩张。"
+  },
+  {
+   "id": "AGT-002",
+   "alias": "枢衡",
+   "title": "场景自主编排与异常协调",
+   "plane": "PLN-MGT",
+   "domain": "经营与组织",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-06",
+    "FLOW-07",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-002",
+    "SCN-003",
+    "SCN-004",
+    "SCN-005",
+    "SCN-006",
+    "SCN-007",
+    "SCN-008",
+    "SCN-009",
+    "SCN-010",
+    "SCN-011",
+    "SCN-012",
+    "SCN-013",
+    "SCN-014",
+    "SCN-015",
+    "SCN-016",
+    "SCN-017",
+    "SCN-018",
+    "SCN-019",
+    "SCN-020"
+   ],
+   "principle": "催促不能替代明确责任和接收条件",
+   "boundary": "不作为LLM路由器，不创建岗位Agent互聊，不绕过Acceptance Gate、Policy Gate或Execution Broker，不将自己设为自我验收者。"
+  },
+  {
+   "id": "AGT-003",
+   "alias": "明镜",
+   "title": "经营分析与决策支持",
+   "plane": "PLN-MGT",
+   "domain": "经营与组织",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-06",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-016"
+   ],
+   "principle": "口径不同的数字不能拼成结论",
+   "boundary": "未知数据标注缺口，不填造数。"
+  },
+  {
+   "id": "AGT-004",
+   "alias": "知人",
+   "title": "组织能力与人事行政",
+   "plane": "PLN-MGT",
+   "domain": "经营与组织",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-019"
+   ],
+   "principle": "工作量和能力证据先于人员标签",
+   "boundary": "招聘录用、解聘、薪酬和员工敏感事项仅可经已配置的企业流程提交；缺少合规动作策略时仅产出建议并冻结写入。"
+  },
+  {
+   "id": "AGT-005",
+   "alias": "守衡",
+   "title": "内控审计与独立复核",
+   "plane": "PLN-CTL",
+   "domain": "经营与组织",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-07",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-016",
+    "SCN-019"
+   ],
+   "principle": "发起者不能替代自己的验收者",
+   "boundary": "不修改被审计业务证据或自行关闭整改。"
+  },
+  {
+   "id": "AGT-006",
+   "alias": "听澜",
+   "title": "消费者需求与VOC研究",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-05",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-002",
+    "SCN-003"
+   ],
+   "principle": "用户原话与研究者解释分别保存",
+   "boundary": "不能把少数评论当作整个市场需求。"
+  },
+  {
+   "id": "AGT-007",
+   "alias": "望野",
+   "title": "市场竞争与机会研究",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-002",
+    "SCN-003"
+   ],
+   "principle": "竞品动作只是信号，需求证据决定机会",
+   "boundary": "不复制受保护内容或凭竞品销量推定需求。"
+  },
+  {
+   "id": "AGT-008",
+   "alias": "拓新",
+   "title": "产品组合与新品孵化",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [
+    "FLOW-02"
+   ],
+   "flows": [
+    "FLOW-02",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-002",
+    "SCN-003",
+    "SCN-004"
+   ],
+   "principle": "每个新品假设都应有停止条件",
+   "boundary": "新类目资本投入只可经已发布的资源动作策略提交；缺策略时保留为假设与验证方案。"
+  },
+  {
+   "id": "AGT-009",
+   "alias": "定形",
+   "title": "产品定义与商业立项",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04"
+   ],
+   "scenarios": [
+    "SCN-003",
+    "SCN-004"
+   ],
+   "principle": "每项功能要对应真实问题与验证方式",
+   "boundary": "不能用功能数量代替产品价值。"
+  },
+  {
+   "id": "AGT-010",
+   "alias": "映物",
+   "title": "工业设计与用户体验",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-013"
+   ],
+   "principle": "外观和交互应服务实际使用情境",
+   "boundary": "AI设计草图不代表实物安全或可制造验收。"
+  },
+  {
+   "id": "AGT-011",
+   "alias": "砺器",
+   "title": "硬件结构与材料工程",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-006"
+   ],
+   "principle": "实物和测量结果决定技术结论",
+   "boundary": "实物测试和工程签核由受控供应商或合格执行主体完成；Agent只发起已获准流程、收取回执与证据。"
+  },
+  {
+   "id": "AGT-012",
+   "alias": "灵枢",
+   "title": "软件算法与应用生态",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-013",
+    "SCN-020"
+   ],
+   "principle": "能力演示必须回到用户使用结果",
+   "boundary": "固件、模型发布和数据采集变更仅由已配置的发布策略和系统执行。"
+  },
+  {
+   "id": "AGT-013",
+   "alias": "求证",
+   "title": "产品验证与研发项目",
+   "plane": "PLN-OPS",
+   "domain": "产品与创新",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-005"
+   ],
+   "principle": "没有验证证据就保留未通过状态",
+   "boundary": "不能以仿真或文档替代实物和适用合规验收。"
+  },
+  {
+   "id": "AGT-014",
+   "alias": "择源",
+   "title": "OEM供应商开发与协同",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-006"
+   ],
+   "principle": "低报价必须和质量交期一起看",
+   "boundary": "新供应商准入和商业承诺仅经受控业务流程执行，缺回执不视为已准入。"
+  },
+  {
+   "id": "AGT-015",
+   "alias": "契约",
+   "title": "采购与合同履约",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-03"
+   ],
+   "scenarios": [
+    "SCN-006"
+   ],
+   "principle": "采购动作必须连接批准的需求",
+   "boundary": "合同、付款和订单下达只调用具体动作策略允许的企业系统能力。"
+  },
+  {
+   "id": "AGT-016",
+   "alias": "知量",
+   "title": "需求预测与补货计划",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [
+    "FLOW-03"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-03"
+   ],
+   "scenarios": [
+    "SCN-007"
+   ],
+   "principle": "预测应给区间并说明何时失效",
+   "boundary": "不越过现金、MOQ、产能和策略边界下单。"
+  },
+  {
+   "id": "AGT-017",
+   "alias": "衡仓",
+   "title": "库存与商品生命周期",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-03",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-007",
+    "SCN-010"
+   ],
+   "principle": "可售库存需要考虑预留与真实可用性",
+   "boundary": "库存调整与报损需有依据、动作策略与外部回执。"
+  },
+  {
+   "id": "AGT-018",
+   "alias": "质守",
+   "title": "生产协同与质量控制",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [
+    "FLOW-07"
+   ],
+   "flows": [
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-006",
+    "SCN-015"
+   ],
+   "principle": "异常先隔离和确认，再解释影响",
+   "boundary": "停产、召回和重大处置只能调用已配置的质量处置策略；否则隔离范围并记录异常。"
+  },
+  {
+   "id": "AGT-019",
+   "alias": "通途",
+   "title": "跨境物流与关务",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-03",
+    "FLOW-04"
+   ],
+   "scenarios": [
+    "SCN-008"
+   ],
+   "principle": "预计到货不等于已可售",
+   "boundary": "申报、承运合同与改线只通过受控系统中适用的动作策略执行。"
+  },
+  {
+   "id": "AGT-020",
+   "alias": "行舟",
+   "title": "仓储履约与退货处置",
+   "plane": "PLN-OPS",
+   "domain": "供应与履约",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-03",
+    "FLOW-05",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-008",
+    "SCN-014",
+    "SCN-015"
+   ],
+   "principle": "系统状态与现场结果必须对得上",
+   "boundary": "现场作业由仓库、履约系统或供应商执行；库存写入必须核对回执。"
+  },
+  {
+   "id": "AGT-021",
+   "alias": "北辰",
+   "title": "Amazon业务经营",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [
+    "FLOW-01"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-04",
+    "FLOW-06",
+    "FLOW-07",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-009",
+    "SCN-010",
+    "SCN-011",
+    "SCN-018"
+   ],
+   "principle": "广告价格库存必须在一个经营方案里",
+   "boundary": "仅在明确账号范围和动作策略内执行。"
+  },
+  {
+   "id": "AGT-022",
+   "alias": "觅位",
+   "title": "Amazon商品与搜索运营",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-009",
+    "SCN-018"
+   ],
+   "principle": "搜索曝光不能靠夸大产品能力换取",
+   "boundary": "发布商品内容需规则与产品证据核验。"
+  },
+  {
+   "id": "AGT-023",
+   "alias": "自航",
+   "title": "独立站经营与转化",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [
+    "FLOW-01"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-06",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-009",
+    "SCN-010",
+    "SCN-013"
+   ],
+   "principle": "局部点击改善必须观察最终购买结果",
+   "boundary": "站点变更和客户数据使用受具体业务范围与动作策略限制。"
+  },
+  {
+   "id": "AGT-024",
+   "alias": "拓域",
+   "title": "其他平台与新市场经营",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [
+    "FLOW-01",
+    "FLOW-04"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-009",
+    "SCN-012",
+    "SCN-018"
+   ],
+   "principle": "新渠道先验证获客供给与交付闭环",
+   "boundary": "不能假定其余20%渠道的身份与规则。"
+  },
+  {
+   "id": "AGT-025",
+   "alias": "联商",
+   "title": "零售渠道与B2B拓展",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [
+    "FLOW-01"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-04"
+   ],
+   "scenarios": [
+    "SCN-012",
+    "SCN-014",
+    "SCN-016"
+   ],
+   "principle": "承诺须对应可交付的供应与条款",
+   "boundary": "不自行签约或作出超出已发布策略的商业承诺。"
+  },
+  {
+   "id": "AGT-026",
+   "alias": "衡价",
+   "title": "定价促销与商品组合",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-03",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-010"
+   ],
+   "principle": "每次价格动作都应说明适用范围",
+   "boundary": "不自定全渠道价格或擅改策略底线。"
+  },
+  {
+   "id": "AGT-027",
+   "alias": "守店",
+   "title": "店铺账号健康与规则",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [
+    "FLOW-07"
+   ],
+   "flows": [
+    "FLOW-01",
+    "FLOW-04",
+    "FLOW-07",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-018"
+   ],
+   "principle": "申诉和解释必须基于真实经营记录",
+   "boundary": "不绕过平台规则或越权操作其他账号。"
+  },
+  {
+   "id": "AGT-028",
+   "alias": "译境",
+   "title": "本地化与市场适配",
+   "plane": "PLN-OPS",
+   "domain": "渠道经营",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-005",
+    "SCN-009",
+    "SCN-012"
+   ],
+   "principle": "翻译必须保留产品证据边界",
+   "boundary": "不把翻译当作当地法规适用判断。"
+  },
+  {
+   "id": "AGT-029",
+   "alias": "立言",
+   "title": "品牌战略与传播",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [
+    "FLOW-09"
+   ],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-07",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-002",
+    "SCN-012"
+   ],
+   "principle": "品牌承诺要能由产品和服务兑现",
+   "boundary": "重大品牌承诺和危机表态仅使用已审批内容和外发策略；缺策略时冻结外发。"
+  },
+  {
+   "id": "AGT-030",
+   "alias": "叙事",
+   "title": "内容与创意策划",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-009",
+    "SCN-012"
+   ],
+   "principle": "好故事必须有真实产品依据",
+   "boundary": "不编造功效、体验或用户评价。"
+  },
+  {
+   "id": "AGT-031",
+   "alias": "绘影",
+   "title": "视觉视频与素材生产",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-009",
+    "SCN-012"
+   ],
+   "principle": "视觉吸引力要和产品真实一致",
+   "boundary": "形象、版权、产品效果展示按授权证据。"
+  },
+  {
+   "id": "AGT-032",
+   "alias": "点火",
+   "title": "效果广告投放",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-011"
+   ],
+   "principle": "广告回报要同时检查库存价格和增量",
+   "boundary": "所有改动受账号、预算和策略版本约束。"
+  },
+  {
+   "id": "AGT-033",
+   "alias": "结伴",
+   "title": "达人与联盟合作",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-012"
+   ],
+   "principle": "合作费用与声誉风险需要一起评估",
+   "boundary": "对外联系、付费和合同仅通过明确范围和动作策略执行。"
+  },
+  {
+   "id": "AGT-034",
+   "alias": "续缘",
+   "title": "CRM留存与复购",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [
+    "FLOW-05"
+   ],
+   "flows": [
+    "FLOW-05",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-013",
+    "SCN-015"
+   ],
+   "principle": "相关性和服务价值优先于打扰频次",
+   "boundary": "未经允许不扩大客户数据和触达范围。"
+  },
+  {
+   "id": "AGT-035",
+   "alias": "试真",
+   "title": "增长实验与增量评估",
+   "plane": "PLN-OPS",
+   "domain": "品牌与增长",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-05",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-003",
+    "SCN-011",
+    "SCN-013"
+   ],
+   "principle": "结论要能被对照和复现实验挑战",
+   "boundary": "不将相关性或平台归因直接当因果收益。"
+  },
+  {
+   "id": "AGT-036",
+   "alias": "安心",
+   "title": "售前服务与购买指导",
+   "plane": "PLN-OPS",
+   "domain": "服务与体验",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-015"
+   ],
+   "principle": "适合客户的选择比一次成交更重要",
+   "boundary": "不作无依据医疗判断或功效承诺。"
+  },
+  {
+   "id": "AGT-037",
+   "alias": "解忧",
+   "title": "售后客诉与服务补救",
+   "plane": "PLN-OPS",
+   "domain": "服务与体验",
+   "primary_flows": [
+    "FLOW-05"
+   ],
+   "flows": [
+    "FLOW-05",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-014",
+    "SCN-015"
+   ],
+   "principle": "先理解损失和事实，再给可兑现方案",
+   "boundary": "赔付、退款等动作依具体规则与回执执行。"
+  },
+  {
+   "id": "AGT-038",
+   "alias": "回声",
+   "title": "体验洞察与质量反馈",
+   "plane": "PLN-OPS",
+   "domain": "服务与体验",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-05",
+    "FLOW-07",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-002",
+    "SCN-004",
+    "SCN-015"
+   ],
+   "principle": "重复问题必须回到根因责任者",
+   "boundary": "没有证据不指认个人或供应商责任。"
+  },
+  {
+   "id": "AGT-039",
+   "alias": "同行",
+   "title": "用户教育与会员社区",
+   "plane": "PLN-OPS",
+   "domain": "服务与体验",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-05",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-012",
+    "SCN-013",
+    "SCN-015"
+   ],
+   "principle": "教育内容应减轻使用负担",
+   "boundary": "专业健康问题只交给已配置的合格服务渠道或输出受限信息，不冒充专业意见。"
+  },
+  {
+   "id": "AGT-040",
+   "alias": "清账",
+   "title": "GMV结算与会计对账",
+   "plane": "PLN-OPS",
+   "domain": "财务与合规",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-03",
+    "FLOW-05",
+    "FLOW-06",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-016"
+   ],
+   "principle": "GMV和财务收入各有口径",
+   "boundary": "不能为对齐报表而覆盖原始交易事实。"
+  },
+  {
+   "id": "AGT-041",
+   "alias": "守金",
+   "title": "经营财务与资金",
+   "plane": "PLN-MGT",
+   "domain": "财务与合规",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-02",
+    "FLOW-03",
+    "FLOW-07",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-016",
+    "SCN-017"
+   ],
+   "principle": "增长必须说明需要多少现金与何时回收",
+   "boundary": "付款、融资和资金调拨只调用已发布的资金动作策略与受控系统。"
+  },
+  {
+   "id": "AGT-042",
+   "alias": "合账",
+   "title": "税务与跨境实体协作",
+   "plane": "PLN-CTL",
+   "domain": "财务与合规",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-03",
+    "FLOW-04",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-005",
+    "SCN-016",
+    "SCN-017"
+   ],
+   "principle": "不同实体与期间的义务不能混用",
+   "boundary": "税务结论与申报只能通过具有资格和权限的外部执行主体或系统完成；Agent保留证据与回执。"
+  },
+  {
+   "id": "AGT-043",
+   "alias": "律衡",
+   "title": "法务与知识产权",
+   "plane": "PLN-CTL",
+   "domain": "财务与合规",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-07",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-003",
+    "SCN-005",
+    "SCN-006",
+    "SCN-012"
+   ],
+   "principle": "先明确事实与适用范围再下结论",
+   "boundary": "不能替代法律签署和诉讼程序；仅调用已配置的法律服务或企业流程。"
+  },
+  {
+   "id": "AGT-044",
+   "alias": "安界",
+   "title": "产品合规与隐私",
+   "plane": "PLN-CTL",
+   "domain": "财务与合规",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-04",
+    "FLOW-05",
+    "FLOW-06",
+    "FLOW-07"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-005",
+    "SCN-009"
+   ],
+   "principle": "已有证据只支持其覆盖的产品市场和用途",
+   "boundary": "不自行认定医疗分类或发布未经证实功效；无适用策略时冻结。"
+  },
+  {
+   "id": "AGT-045",
+   "alias": "同尺",
+   "title": "业务口径与主数据",
+   "plane": "PLN-PLT",
+   "domain": "数据与AI运行",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-01",
+    "FLOW-06",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-001",
+    "SCN-016",
+    "SCN-020"
+   ],
+   "principle": "每个指标必须有业务所有者",
+   "boundary": "争议口径由数据契约和已发布的口径策略裁决，不由IT单方定义。"
+  },
+  {
+   "id": "AGT-046",
+   "alias": "清源",
+   "title": "数据工程与质量",
+   "plane": "PLN-PLT",
+   "domain": "数据与AI运行",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-06"
+   ],
+   "scenarios": [
+    "SCN-020"
+   ],
+   "principle": "数据不可用必须让消费方知道",
+   "boundary": "未经授权不复制或扩大敏感数据访问。"
+  },
+  {
+   "id": "AGT-047",
+   "alias": "接桥",
+   "title": "系统集成与业务工具",
+   "plane": "PLN-PLT",
+   "domain": "数据与AI运行",
+   "primary_flows": [
+    "FLOW-06"
+   ],
+   "flows": [
+    "FLOW-06"
+   ],
+   "scenarios": [
+    "SCN-020"
+   ],
+   "principle": "工具交付以业务闭环验收",
+   "boundary": "写接口须核对主体、范围、动作策略、回执与恢复。"
+  },
+  {
+   "id": "AGT-048",
+   "alias": "积知",
+   "title": "知识技能与Playbook治理",
+   "plane": "PLN-PLT",
+   "domain": "数据与AI运行",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-02",
+    "FLOW-06",
+    "FLOW-08",
+    "FLOW-09"
+   ],
+   "scenarios": [
+    "SCN-004",
+    "SCN-019",
+    "SCN-020"
+   ],
+   "principle": "一次成功先成为候选经验",
+   "boundary": "不自动把未审阅经验发布到全部岗位。"
+  },
+  {
+   "id": "AGT-049",
+   "alias": "稳行",
+   "title": "Agent平台与可靠运行",
+   "plane": "PLN-PLT",
+   "domain": "数据与AI运行",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-06",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-020"
+   ],
+   "principle": "会话重启不代表业务动作没有发生",
+   "boundary": "不以工具返回成功代替业务最终回执。"
+  },
+  {
+   "id": "AGT-050",
+   "alias": "门卫",
+   "title": "信息安全与权限",
+   "plane": "PLN-CTL",
+   "domain": "数据与AI运行",
+   "primary_flows": [],
+   "flows": [
+    "FLOW-04",
+    "FLOW-06",
+    "FLOW-07",
+    "FLOW-08"
+   ],
+   "scenarios": [
+    "SCN-018",
+    "SCN-020"
+   ],
+   "principle": "岗位人格不能扩大权限",
+   "boundary": "密钥不进入提示词；动作策略必须绑定具体范围、工具、参数与回执。"
+  }
+ ],
+ "sections": [
+  {
+   "h2": "怎么读这张图"
+  },
+  {
+   "p": "本页把姊妹项目《AI 组织变革方案》的组织设计压缩成三个可交互的层次：**业务天空**是 13 条价值流（9 条业务经营流 BVS + 4 条能力供应流 CVS），**场景带**是 20 个业务场景，**员工工位**是按四平面分组的 50 个 AI 岗位。"
+  },
+  {
+   "list": [
+    "**点选节点**：点击任意价值流卡、场景签、岗位签或平面头，其直接绑定对象会高亮、其余淡出；再点一次或按 Esc 清除。",
+    "**绑定语义**：价值流 → 岗位表示「结果负责 + 能力贡献」（每条流只有一个 AI 结果负责人，其余岗位以 Skills、产物规范和独立保障规则贡献）；岗位 → 场景表示「参与/主责资格」；场景 → 价值流表示「可进入的流」（一张 Case 仍只绑定一条主流，见 D-025）。",
+    "**诚实边界**：图中连线是**设计绑定**，不是运行路由、行政上下级或数据权限；四平面是逻辑责任分类，不表示实例、预算或工具授权。"
+   ]
+  },
+  {
+   "h2": "四平面与跨平面契约"
+  },
+  {
+   "p": "D-021 确认的四平面回答「岗位在经营系统中承担什么性质的责任」：经营管理定目标与约束，业务运营扛 GMV 事实闭环，独立控制可否决与冻结，数据与 Agent 平台供给能力但不自我验收。平面之间的 9 条契约全部走确定性产物与回执，不允许 Agent 互发自由文本。"
+  },
+  {
+   "table": {
+    "head": [
+     "发起平面",
+     "接收平面",
+     "契约内容"
+    ],
+    "rows": [
+     [
+      "经营管理",
+      "业务运营",
+      "下达目标、优先级与资源约束"
+     ],
+     [
+      "业务运营",
+      "经营管理",
+      "回传经营结果、证据与 Action Intent"
+     ],
+     [
+      "独立控制",
+      "经营管理",
+      "独立检查、可否决并给出恢复条件"
+     ],
+     [
+      "独立控制",
+      "业务运营",
+      "独立检查、可否决并给出恢复条件"
+     ],
+     [
+      "数据与Agent平台",
+      "经营管理",
+      "提供数据、Skills、工具与运行能力"
+     ],
+     [
+      "数据与Agent平台",
+      "业务运营",
+      "提供数据、Skills、工具与运行能力"
+     ],
+     [
+      "数据与Agent平台",
+      "独立控制",
+      "提供控制证据与控制能力"
+     ],
+     [
+      "经营管理",
+      "数据与Agent平台",
+      "定义能力需求并参与验收"
+     ],
+     [
+      "业务运营",
+      "数据与Agent平台",
+      "定义能力需求并参与验收"
+     ]
+    ]
+   }
+  },
+  {
+   "note": "完整结构化数据见姊妹仓库 `docs/04-organization/organization-graph.json`（D-021 确认拓扑）与 `docs/07-orchestration/collaboration-graph.json`（流—场景—岗位绑定）。"
+  },
+  {
+   "h2": "与外部 3D 原型的关系"
+  },
+  {
+   "p": "本页是**站内静态可检索版**：全部绑定关系可点选、可查证、无 JS 时仍完整呈现。姊妹项目还有一个**外部交互原型**——「三宝 · 3D 组织与经营空间」用天幕业务节点、地面员工工位与跨层光柱做空间化表达，适合演示与探索，但数据与权限口径以本页及权威仓库为准。"
+  },
+  {
+   "list": [
+    "[三宝 · 3D 组织与经营空间](https://native.sagegogo.com/src/orgmap/)（外部项目门户 · 设计态原型）",
+    "[姊妹仓库权威版](https://github.com/zjgulai/AI-Native-Organization)（内部完整规格、组织图谱与协同协议）"
+   ]
+  },
+  {
+   "h2": "边界声明"
+  },
+  {
+   "note": "本页全部为**设计基线（DESIGN_ONLY）**：50 个岗位均为逻辑岗位契约（Soul + Role Playbook + Preset Blueprint 蓝图态），无运行实例、无生产权限、无数据连接。岗位契约资产 50/50 处于 `blueprint_only_not_importable` 状态；53 项视觉身份绑定的运行与访问影响均为 NONE。任何实例化、连接或授权动作需走姊妹仓库的门禁评审（PILOT-G0~G4），本站不构成授权。"
+  }
+ ]
+}

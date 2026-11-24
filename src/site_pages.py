@@ -1,10 +1,11 @@
 """Page-level renderers: home, chapter, chapters index, concepts, tools, about."""
+import json
 import re
 from html import escape
 
 from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
-                       SITEMAP, TOOLS, TERMS, PILOT, PILOT_ASSETS,
+                       ORGMAP, SITEMAP, TOOLS, TERMS, PILOT, PILOT_ASSETS,
                        SYNTHESIS, FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2)
@@ -312,6 +313,7 @@ def render_home(base: str) -> str:
          [("从书到试点", "读完书第一步做什么", "pilot.html"),
           ("试点资产地图", "34 项设计资产可点查规格", "pilot-assets.html"),
           ("实战路线图", "P0~P4 阶段门与场景波次", "brand-plan.html"),
+          ("组织与价值流一张图", "50 岗位 × 13 流 × 20 场景交互图", "orgmap.html"),
           ("方案术语表", "内部代号 D-020~D-053 解码", "terms.html"),
           ("3D 组织空间", "外部门户 · 交互原型", "https://native.sagegogo.com/src/orgmap/")]),
     ]
@@ -327,6 +329,7 @@ def render_home(base: str) -> str:
         ("BRIDGE", "从书到试点", "读完书第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。", "pilot.html", "打开试点指南 →"),
         ("ASSETS", "试点资产地图", "34 项设计资产：FLOW-09 价值流、20 份场景规格、4 份 Skill 契约、双层 KPI 字典与试点五件套，每项可点查姊妹仓库规格原文。", "pilot-assets.html", "打开资产地图 →"),
         ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：五层结构、P0~P4 阶段门、20 场景波次、双层 KPI 落地与两本书理论锚点。", "brand-plan.html", "打开路线图 →"),
+        ("ORGMAP", "组织与价值流一张图", "50 个 AI 岗位 × 13 条价值流 × 20 个业务场景的交互式绑定图：点选任意节点高亮全部绑定关系，四平面职责与跨平面契约一图看清。设计基线静态版。", "orgmap.html", "打开组织图 →"),
     ]
     practice_html = "".join(
         f'<div class="cta-card"><div><span class="idx">{idx}</span><h3>{escape(t)}</h3>'
@@ -377,7 +380,7 @@ def render_home(base: str) -> str:
 <h2>实战项目轨：AI 组织变革方案</h2>
 <p class="sec-sub">笔记轨的毕业设计——同一套方法论落到一个真实业务域：Momcozy 品牌域的 AI Native 实战案例。全部为设计基线，不构成业务授权。</p>
 <div class="cta-grid">{practice_html}</div>
-<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套可视化：<a href="https://native.sagegogo.com/src/orgmap/" target="_blank" rel="noopener" style="color:var(--r-blue)">三宝 · 3D 组织与经营空间 ↗</a>——50 个数字员工工位 × 20 个天幕业务节点 × 38 条跨层光柱的交互式设计态原型（外部项目门户 · 生产权限 0/53 · 非运行系统）。</p></div></section>"""
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">站内可视化：<a href="{base}orgmap.html" style="color:var(--r-blue)">组织与价值流一张图</a>（静态交互版）；外部交互原型：<a href="https://native.sagegogo.com/src/orgmap/" target="_blank" rel="noopener" style="color:var(--r-blue)">三宝 · 3D 组织与经营空间 ↗</a>——50 个数字员工工位 × 20 个天幕业务节点 × 38 条跨层光柱的设计态原型（外部项目门户 · 生产权限 0/53 · 非运行系统）。</p></div></section>"""
     return page_shell("首页", base, "index", f"<main>{body}</main>",
                       "两本书深度解读 + AI Native 组织变革方案实战化公开版")
 
@@ -517,6 +520,105 @@ def render_brand_plan(base: str) -> str:
                        BRAND_PLAN.get("lead", "")[:120], nav_current="brand-plan")
 
 
+def render_orgmap(base: str) -> str:
+    om = ORGMAP
+    roles = {r["id"]: r for r in om["roles"]}
+    bvs = [s for s in om["streams"] if s["family"] == "BVS"]
+    cvs = [s for s in om["streams"] if s["family"] == "CVS"]
+
+    def _rlabel(agid: str) -> str:
+        r = roles.get(agid)
+        return f'{r["alias"]}·{r["title"]}' if r else agid
+
+    def _stream_card(s: dict) -> str:
+        meta = f'{_rlabel(s["owner"])} · {len(s["contributors"])} 岗位'
+        meta += f' · {len(s["scenarios"])} 场景' if s["scenarios"] else ' · 无业务场景'
+        return (
+            f'<button type="button" class="om-stream om-{s["family"].lower()}" '
+            f'data-om="stream:{escape(s["key"])}" title="{escape(s["title"])}">'
+            f'<span class="om-sid">{escape(s["key"])}<i>{escape(s["sid"])}</i></span>'
+            f'<b>{escape(s["title"])}</b>'
+            f'<span class="om-meta">{escape(meta)}</span></button>')
+
+    def _scn_chip(s: dict) -> str:
+        return (f'<button type="button" class="om-scn" data-om="scn:{escape(s["id"])}">'
+                f'<b>{escape(s["id"])}</b><span>{escape(s["title"])}</span></button>')
+
+    def _role_chip(r: dict) -> str:
+        return (f'<button type="button" class="om-role" data-om="role:{escape(r["id"])}" '
+                f'title="{escape(r["id"] + " · " + r["title"])}">'
+                f'<b>{escape(r["alias"])}</b><span>{escape(r["title"])}</span></button>')
+
+    plane_blocks = []
+    for p in om["planes"]:
+        members = [r for r in om["roles"] if r["plane"] == p["id"]]
+        chips = "".join(_role_chip(r) for r in members)
+        plane_blocks.append(
+            f'<div class="om-plane" data-om="plane:{escape(p["id"])}" '
+            f'title="{escape(p["name"])} · 点击查看平面职责与契约">'
+            f'<div class="om-plane-h"><b>{escape(p["name"])}</b>'
+            f'<i>{p["role_count"]} 个岗位</i></div>'
+            f'<p class="om-plane-purpose">{escape(p["purpose"])}</p>'
+            f'<div class="om-roles">{chips}</div></div>')
+
+    badges = [
+        ("ok", "岗位契约", "50/50 · 五契约蓝图态"),
+        ("ok", "价值流", "13 条 · 场景 20/20 v1"),
+        ("warn", "生产权限", "0 · 无运行实例"),
+        ("warn", "试点门禁", "PILOT-G1 未就绪"),
+        ("", "视觉身份", "53 绑定 · 运行影响 0"),
+    ]
+    badge_html = "".join(
+        f'<span class="om-badge {cls}"><b>{escape(k)}</b>{escape(v)}</span>'
+        for cls, k, v in badges)
+
+    embed = {k: om[k] for k in ("planes", "plane_contracts", "streams", "scenarios", "roles")}
+    om_json = json.dumps(embed, ensure_ascii=False).replace("</", "<\\/")
+    map_html = f'''
+<div class="om-app" id="om-app">
+<p class="om-hint">点选任意节点（价值流 / 场景 / 岗位 / 平面）查看绑定关系——高亮为直接绑定，淡出为无关；再点一次或按 Esc 清除。</p>
+<div class="om-badges">{badge_html}</div>
+<section class="om-band" aria-label="价值流">
+<h3 class="om-band-t">业务天空 · 价值流 <small>9 条业务经营流 BVS + 4 条能力供应流 CVS · 每条流一个 AI 结果负责人</small></h3>
+<div class="om-streams om-bvs">{"".join(_stream_card(s) for s in bvs)}</div>
+<div class="om-streams om-cvs">{"".join(_stream_card(s) for s in cvs)}</div>
+</section>
+<section class="om-band" aria-label="业务场景">
+<h3 class="om-band-t">场景带 · 20 个业务场景 <small>一张 Case 只绑定一条主流与一个主场景（D-025）</small></h3>
+<div class="om-scns">{"".join(_scn_chip(s) for s in om["scenarios"])}</div>
+</section>
+<section class="om-band" aria-label="AI岗位">
+<h3 class="om-band-t">员工工位 · 四平面 50 个 AI 岗位 <small>D-021 逻辑责任分类 · 非行政层级 / 运行实例 / 权限</small></h3>
+<div class="om-planes">{"".join(plane_blocks)}</div>
+</section>
+<div class="om-drawer" id="om-drawer" aria-live="polite">
+<div class="om-drawer-in"><h4>选择一个节点</h4>
+<p>点击上方面板中的价值流、场景、岗位或平面，这里会显示它的职责、边界与全部绑定对象——清单中的条目可以继续点选跳转。</p>
+<p class="om-drawer-links">延伸阅读：<a href="{base}pilot-assets.html">试点资产地图</a> · <a href="{base}brand-plan.html">实战路线图</a> · <a href="https://native.sagegogo.com/src/orgmap/" target="_blank" rel="noopener">3D 组织空间 ↗</a></p></div>
+</div>
+</div>
+<script type="application/json" id="om-data">{om_json}</script>'''
+
+    blocks = om["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = [("sec-map", "组织与价值流全景图")] + chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
+        '<a href="' + base + 'pilot.html">从书到试点</a><span>/</span><span>组织与价值流一张图</span></div>'
+        '<div class="cat">ORG MAP</div>'
+        f'<h1>{escape(om["title"])}</h1>'
+        f'<p class="lead">{inline(om.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>设计基线 · 无生产授权</b></span>'
+        '<span>规模 <b>50 岗位 · 13 价值流 · 20 场景</b></span>'
+        f'<span>约 <b>{escape(om.get("minutes", "12"))}</b> 分钟读完</span>'
+        '<span>交互 <b>点选节点查看绑定</b></span></div></div>'
+        + map_html + body_html)
+    return reader_page(base, "", inner, heads, om["title"],
+                       om.get("lead", "")[:120], nav_current="orgmap")
+
+
 def render_sitemap(base: str) -> str:
     blocks = SITEMAP["sections"]
     counters = {"h2": 0, "h3": 0}
@@ -530,7 +632,7 @@ def render_sitemap(base: str) -> str:
         '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
         '<span>性质 <b>本站原创导览 · 非原书内容</b></span>'
         f'<span>约 <b>{escape(SITEMAP.get("minutes", "6"))}</b> 分钟读完</span>'
-        '<span>覆盖 <b>全站 11 个板块</b></span></div></div>'
+        '<span>覆盖 <b>全站 12 个板块</b></span></div></div>'
         + body_html)
     return reader_page(base, "", inner, heads, SITEMAP["title"],
                        SITEMAP.get("lead", "")[:120], nav_current="sitemap")
