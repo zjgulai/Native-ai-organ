@@ -312,11 +312,16 @@ def render_home(base: str) -> str:
          [("从书到试点", "读完书第一步做什么", "pilot.html"),
           ("试点资产地图", "34 项设计资产可点查规格", "pilot-assets.html"),
           ("实战路线图", "P0~P4 阶段门与场景波次", "brand-plan.html"),
-          ("方案术语表", "内部代号 D-020~D-053 解码", "terms.html")]),
+          ("方案术语表", "内部代号 D-020~D-053 解码", "terms.html"),
+          ("3D 组织空间", "外部门户 · 交互原型", "https://native.sagegogo.com/src/orgmap/")]),
     ]
+    def _track_links(links):
+        return "".join(
+            f'<a href="{href if "://" in href else base + href}">{escape(n)}<small>{escape(s)}</small></a>'
+            for n, s, href in links)
     track_html = "".join(
         f'<div class="path-card track-card"><h4>{escape(t)}</h4><p>{escape(d)}</p>'
-        f'<div class="track-links">{"".join(f"<a href=\"{base}{href}\">{escape(n)}<small>{escape(s)}</small></a>" for n, s, href in links)}</div></div>'
+        f'<div class="track-links">{_track_links(links)}</div></div>'
         for t, d, links in track_cards)
     practice_items = [
         ("BRIDGE", "从书到试点", "读完书第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。", "pilot.html", "打开试点指南 →"),
@@ -371,7 +376,8 @@ def render_home(base: str) -> str:
 <section class="section tint"><div class="wrap">
 <h2>实战项目轨：AI 组织变革方案</h2>
 <p class="sec-sub">笔记轨的毕业设计——同一套方法论落到一个真实业务域：Momcozy 品牌域的 AI Native 实战案例。全部为设计基线，不构成业务授权。</p>
-<div class="cta-grid">{practice_html}</div></div></section>"""
+<div class="cta-grid">{practice_html}</div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套可视化：<a href="https://native.sagegogo.com/src/orgmap/" target="_blank" rel="noopener" style="color:var(--r-blue)">三宝 · 3D 组织与经营空间 ↗</a>——50 个数字员工工位 × 20 个天幕业务节点 × 38 条跨层光柱的交互式设计态原型（外部项目门户 · 生产权限 0/53 · 非运行系统）。</p></div></section>"""
     return page_shell("首页", base, "index", f"<main>{body}</main>",
                       "两本书深度解读 + AI Native 组织变革方案实战化公开版")
 
