@@ -274,16 +274,16 @@
         },
         {
           "id": "SC-AGT029",
-          "name": "AGT-029 立言语义契约（草稿）",
-          "desc": "29 句话试填：品牌原则与传播方案对象模型、品牌资产/覆盖缺口术语对齐、承诺兑现控制规则、六步执行流程、外发冻结权限策略，共 20 条，逐条标注来源等级。",
-          "meta": "v0.1-draft · 待用户评审 · 类1/3/4/5/6",
+          "name": "AGT-029 立言语义契约 v0",
+          "desc": "29 句话语义契约（已评审）：品牌原则与传播方案对象模型、品牌资产/覆盖缺口术语对齐、承诺兑现控制规则、六步执行流程、外发冻结权限策略，共 20 条，逐条标注来源等级。",
+          "meta": "v0 基线 · 2026-11-24 用户评审通过 · 类1/3/4/5/6",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-AGT-029.md"
         },
         {
           "id": "SC-SCN002",
-          "name": "SCN-002 诊断场景语义契约（草稿）",
-          "desc": "29 句话试填：市场机会判断包对象模型、渠道/品类/指标口径约束、信号触发与冻结事理规则、覆盖缺口查询模板，共 18 条，阈值类标注 pending_data。",
-          "meta": "v0.1-draft · 待用户评审 · 类1/2/4/7",
+          "name": "SCN-002 诊断场景语义契约 v0",
+          "desc": "29 句话语义契约（已评审）：市场机会判断包对象模型、渠道/品类/指标口径约束、信号触发与冻结事理规则、覆盖缺口查询模板，共 18 条，阈值类标注 pending_data。",
+          "meta": "v0 基线 · 2026-11-24 用户评审通过 · 类1/2/4/7",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN-002.md"
         }
       ]
