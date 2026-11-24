@@ -1,7 +1,7 @@
 {
   "slug": "pilot-assets",
   "title": "品牌域试点资产地图",
-  "lead": "品牌域从设计到实战的完整资产链：1 条价值流、20 份场景规格（按波次排序）、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程、7 项语义底座资产、5 份试点推进文档，以及实战路线图（站内公开版 + 内部权威版）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
+  "lead": "品牌域从设计到实战的完整资产链：1 条价值流、20 份场景规格（按波次排序）、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程、8 项语义底座资产、5 份试点推进文档，以及实战路线图（站内公开版 + 内部权威版）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
   "minutes": "12",
   "status": "设计基线 · 无生产授权",
   "groups": [
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "group": "语义底座（7）",
+      "group": "语义底座（8）",
       "items": [
         {
           "id": "ONTO-ANALYSIS",
@@ -243,6 +243,13 @@
           "desc": "全书十章结构提炼、FFA/DIKW/29 句话/7+1 语义规范/分层治理/六证明的核心提取，以及与本项目组织层/协议层/资产层的逐板块映射和吸收决策记录。",
           "meta": "研究文档 · 14-research",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/14-research/ONTOLOGY-BOOK-ANALYSIS.md"
+        },
+        {
+          "id": "GLOSSARY-V0",
+          "name": "品牌域语义术语表 v0",
+          "desc": "48 条 SKOS-lite 术语（渠道/品牌资产/交易/商品/消费者/方法六域），消歧 Amazon/DTC/内部口径、触达/可分析、Intent/Receipt、GMV 口径等同名异义，附口径速查表；SKL-BRAND term_ids 引用目标。",
+          "meta": "v0 基线 · 48 条 · semantic_tag 目标",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-GLOSSARY-V0.md"
         },
         {
           "id": "SEM-STRATEGY",
