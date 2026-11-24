@@ -16,6 +16,7 @@ def _load(name: str):
 
 BOOK = _load("book.json")
 BOOK2 = _load("book2.json")
+BOOK3 = _load("book3.json")
 CHAPTERS = _load("chapters-index.json")
 CONCEPTS = _load("concepts.json")
 TOOLS = _load("tools.json")
@@ -43,5 +44,12 @@ for f in sorted((DATA / "brand2").glob("*.json")):
 
 # book2 chapters that have a published deep read, ordered by chapter number
 BRAND2_DEEP = [c for c in BOOK2["chapters"] if c.get("deep") in BRAND2_CONTENT]
+
+BOOK3_CONTENT: dict[str, dict] = {}
+for f in sorted((DATA / "book3").glob("*.json")):
+    doc = json.loads(f.read_text(encoding="utf-8"))
+    BOOK3_CONTENT[doc["slug"]] = doc
+
+BOOK3_DEEP = [c for c in BOOK3["chapters"] if c.get("deep") in BOOK3_CONTENT]
 
 SITE_NAME = "Native AI Organ"

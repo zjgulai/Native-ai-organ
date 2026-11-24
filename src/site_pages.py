@@ -3,12 +3,12 @@ import json
 import re
 from html import escape
 
-from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
+from site_data import (BOOK, BOOK2, BOOK3, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, TOOLS, TERMS, PILOT, PILOT_ASSETS,
-                       SYNTHESIS, FIG_SRC, SITE_NAME)
+                       SYNTHESIS, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
-                         sidebar_html_b2)
+                         sidebar_html_b2, sidebar_html_b3)
 
 
 def chapter_headings(blocks: list) -> list[tuple[str, str]]:
@@ -193,6 +193,106 @@ def render_b2_index(base: str) -> str:
                       BOOK2.get("thesis", "")[:120])
 
 
+def _b3_chapter_meta(deep_slug: str) -> dict:
+    for c in BOOK3["chapters"]:
+        if c.get("deep") == deep_slug:
+            return c
+    return {}
+
+
+def render_b3_chapter_page(deep_slug: str, base: str) -> str:
+    doc = BOOK3_CONTENT[deep_slug]
+    c = _b3_chapter_meta(deep_slug)
+    blocks = doc["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    idx = next(i for i, x in enumerate(BOOK3_DEEP) if x["deep"] == deep_slug)
+    prev_c = BOOK3_DEEP[idx - 1] if idx > 0 else None
+    next_c = BOOK3_DEEP[idx + 1] if idx + 1 < len(BOOK3_DEEP) else None
+    pager = '<nav class="pager">'
+    pager += (f'<a href="{base}book3/{prev_c["deep"]}.html"><span class="dir-label">← 上一篇精读</span>'
+              f'<span class="ttl">第 {prev_c["no"]} 章 · {escape(prev_c["title"])}</span></a>' if prev_c
+              else '<span></span>')
+    pager += (f'<a class="next" href="{base}book3/{next_c["deep"]}.html"><span class="dir-label">下一篇精读 →</span>'
+              f'<span class="ttl">第 {next_c["no"]} 章 · {escape(next_c["title"])}</span></a>' if next_c
+              else '<span></span>')
+    pager += '</nav>'
+    chars = sum(len(str(v)) for b in blocks for v in b.values())
+    minutes = max(8, round(chars / 900))
+    inner = (
+        f'<div class="crumb"><a href="{base}index.html">首页</a><span>/</span>'
+        f'<a href="{base}book3/index.html">本体书·本体驱动AI数据管理</a><span>/</span>'
+        f'<span>第 {c["no"]} 章</span></div>'
+        f'<div class="cat">{escape(BOOK3["short_title"])} · 第 {c["no"]} 章 · 精读</div>'
+        f'<h1>{escape(c["title"])}</h1>'
+        f'<p class="lead">{inline(doc.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>原书页码 <b>{escape(c.get("pages", "—"))}</b></span>'
+        f'<span>约 <b>{minutes}</b> 分钟读完</span>'
+        f'<span>全书进度 <b>{c["no"]} / 10</b></span>'
+        '<span>状态 <b>深度解读已发布</b></span></div></div>'
+        + body_html + pager
+    )
+    title = f'第{c["no"]}章 {c["title"]}'
+    return reader_page(base, deep_slug, inner, heads, title,
+                       doc.get("lead", "")[:120], nav_current="book3",
+                       sidebar=sidebar_html_b3(base, deep_slug))
+
+
+def _b3_row(c: dict, base: str) -> str:
+    anchor = f' id="ch-{c["no"]}"'
+    deep = c.get("deep")
+    if deep and deep in BOOK3_CONTENT:
+        return (f'<div class="ch-item live"{anchor}>'
+                f'<span class="no">{c["no"]}</span>'
+                f'<span class="t"><a href="{base}book3/{deep}.html">{escape(c["title"])}</a>'
+                f'<small>{escape(c.get("essence", ""))}</small></span>'
+                f'<span class="st">精读已发布 · {c.get("pages", "—")}页</span></div>')
+    return (f'<div class="ch-item"{anchor}>'
+            f'<span class="no">{c["no"]}</span>'
+            f'<span class="t">{escape(c["title"])}<small>{escape(c.get("essence", ""))}</small></span>'
+            f'<span class="st"><span class="soon">框架索引</span></span></div>')
+
+
+def render_b3_index(base: str) -> str:
+    paths = "".join(
+        f'<div class="path-card"><h4>{escape(p["name"])}</h4><p>{escape(p["desc"])}</p>'
+        f'<div class="path-seq">{escape(p["seq"])}</div></div>'
+        for p in BOOK3["reading_paths"])
+    grouped = []
+    for part in BOOK3["parts"]:
+        part_rows = "".join(_b3_row(c, base) for c in BOOK3["chapters"]
+                            if c["part"] == part["key"])
+        grouped.append(
+            f'<h3 style="margin:30px 0 4px">{escape(part["name"])}</h3>'
+            f'<p style="font-size:13px;color:#8a97a8;margin:0 0 10px">{escape(part["desc"])} · 第 {escape(part["chapters"])} 章</p>'
+            f'<div class="ch-list">{part_rows}</div>')
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>本体书·本体驱动AI数据管理</span></div>'
+        '<div class="cat">BOOK THREE · SEMANTIC FOUNDATION</div>'
+        f'<h1>{escape(BOOK3["title"])}</h1>'
+        f'<p class="lead">{escape(BOOK3.get("thesis", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>作者 <b>{escape(BOOK3["author"])}</b></span>'
+        f'<span>出版社 <b>{escape(BOOK3["publisher"])}</b></span>'
+        f'<span>ISBN <b>{escape(BOOK3["isbn"])}</b></span>'
+        f'<span>出版 <b>{escape(BOOK3.get("pub_date", "2026.5"))}</b></span>'
+        f'<span>正文 <b>{BOOK3.get("pages", "211")} 页</b></span>'
+        f'<span>精读 <b>{len(BOOK3_DEEP)} / 10 章</b></span></div></div>'
+        f'<div class="note" style="margin:18px 0">{escape(BOOK3.get("source_note", ""))}本站对该书采用「全书地图 + 战略章节精读」结构：10 章全部收录为框架索引，其中 {len(BOOK3_DEEP)} 个与语义底座最相关的章节提供深度解读（含实践映射）。本书在本站的角色是语义底座层的方法源——其工程化成果已落成<a href="{base}semantic.html">语义底座 v0 全景页</a>。</div>'
+        + "".join(grouped)
+        + '<h2 style="margin-top:44px">三条阅读路径</h2>'
+        + f'<div class="path-grid" style="margin-top:14px">{paths}</div>'
+        + f'<div class="cta-card" style="margin-top:34px"><div><span class="idx">SEMANTIC</span>'
+        '<h3>语义底座 v0：本书方法的落地层</h3>'
+        '<p>48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组——本书方法论在 Momcozy 品牌域的第一份工程化产出。</p></div>'
+        + f'<a class="go" href="{base}semantic.html">打开语义底座 →</a></div>'
+    )
+    return page_shell(f'{BOOK3["short_title"]} · 全书地图', base, "book3", inner,
+                      BOOK3.get("thesis", "")[:120])
+
+
 def render_synthesis(base: str) -> str:
     blocks = SYNTHESIS["sections"]
     counters = {"h2": 0, "h3": 0}
@@ -258,10 +358,10 @@ def render_home(base: str) -> str:
 <div>
 <p class="eyebrow">READING NOTES × AI NATIVE PRACTICE</p>
 <h1>Native AI Organ</h1>
-<p class="lead">《AI Native 组织：从思考到实践》与《弱品牌强品牌》的原创深度解读——以及 AI Native 组织变革方案的实战化公开版。读书笔记与实战项目，同一仓库。</p>
+<p class="lead">《AI Native 组织：从思考到实践》《弱品牌强品牌》《本体驱动的AI数据管理》三本书的原创深度解读——以及 AI Native 组织变革方案的实战化公开版。读书笔记与实战项目，同一仓库。</p>
 <div class="meta">
-<div><b>2</b>本书</div>
-<div><b>{len(CHAPTERS) + len(BOOK2["chapters"])}</b>章框架</div>
+<div><b>3</b>本书</div>
+<div><b>{len(CHAPTERS) + len(BOOK2["chapters"]) + len(BOOK3["chapters"])}</b>章框架</div>
 <div><b>{len(CHAPTER_CONTENT) + len(BRAND2_DEEP)}</b>篇精读</div>
 <div><b>20</b>场景规格</div>
 <div><b>{n_assets}</b>项资产</div>
@@ -271,7 +371,7 @@ def render_home(base: str) -> str:
 <div class="site-entries">
 <div class="site-entry"><b>书一 · AI Native 组织</b><span>《{escape(BOOK['title'])}》{escape(BOOK['author'])} 著 · {len(CHAPTER_CONTENT)} 篇深度解读</span><a href="{base}chapters/index.html">章节解读 →</a></div>
 <div class="site-entry"><b>书二 · 弱品牌强品牌</b><span>《{escape(BOOK2["short_title"])}》{escape(BOOK2["author"])} 著 · {len(BOOK2["chapters"])} 章框架 + {len(BRAND2_DEEP)} 篇精读</span><a href="{base}brand2/index.html">品牌书全书地图 →</a></div>
-<div class="site-entry"><b>书三 · 方法源</b><span>《本体驱动的AI数据管理》语义底座方法源 · 不做章节精读，成果落入实战轨</span><a href="{base}semantic.html">语义底座 v0 →</a></div>
+<div class="site-entry"><b>书三 · 本体驱动的AI数据管理</b><span>《{escape(BOOK3["short_title"])}》{escape(BOOK3["author"])} 著 · {len(BOOK3["chapters"])} 章框架 + {len(BOOK3_DEEP)} 篇精读</span><a href="{base}book3/index.html">本体书全书地图 →</a></div>
 <div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、语义底座方法、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
 </div>
 <a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""
@@ -301,11 +401,18 @@ def render_home(base: str) -> str:
         f'<small>{escape(c.get("essence", ""))}</small></span>'
         f'<span class="st">精读</span></div>'
         for c in BRAND2_DEEP)
+    b3_deep_rows = "".join(
+        f'<div class="ch-item live"><span class="no">{c["no"]}</span>'
+        f'<span class="t"><a href="{base}book3/{c["deep"]}.html">{escape(c["title"])}</a>'
+        f'<small>{escape(c.get("essence", ""))}</small></span>'
+        f'<span class="st">精读</span></div>'
+        for c in BOOK3_DEEP)
     track_cards = [
         ("读书笔记轨 · READING",
-         "两本书的原创深度解读——先理解方法论本身：AI Native 组织怎么建、品牌增长该干什么、干得好是什么样。",
+         "三本书的原创深度解读——先理解方法论本身：AI Native 组织怎么建、品牌增长该干什么、机器如何懂业务、干得好是什么样。",
          [("章节解读", "书1 · 15 篇深度解读", "chapters/index.html"),
           ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
+          ("本体书·本体驱动AI数据管理", "书3 · 10 章框架 + 6 篇精读", "book3/index.html"),
           ("两书合璧", "两书分工与五层结合点", "synthesis.html"),
           ("概念索引", "44 个核心概念词条", "concepts/index.html"),
           ("随书工具", "6 件可勾选实操清单", "tools/index.html")]),
@@ -366,6 +473,18 @@ def render_home(base: str) -> str:
 <div class="ch-list">{b2_deep_rows}</div>
 <p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {25 - len(BRAND2_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}brand2/index.html" style="color:var(--r-blue)">品牌书全书地图</a>。</p></div></section>
 <section class="section"><div class="wrap">
+<h2>第三本书：《{escape(BOOK3["short_title"])}》</h2>
+<p class="sec-sub">语义底座层的方法论源头——与前两本书构成三层支撑：书一回答 AI 组织怎么变，书二回答品牌域该经营什么，书三回答机器如何懂业务。本站采用「全书地图 + 战略章节精读」结构。</p>
+<div class="cta-card">
+<div><span class="idx">BOOK THREE</span><h3>{escape(BOOK3["title"])}</h3>
+<p>{escape(BOOK3["author"])} 著 · {escape(BOOK3["publisher"])} · {escape(BOOK3["isbn"])} · 正文 {BOOK3.get("pages", "211")} 页 · {escape(BOOK3.get("thesis", ""))}</p></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<a class="go" href="{base}book3/index.html">本体书全书地图 →</a>
+<a class="go" href="{base}semantic.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">语义底座 v0 →</a></div></div>
+<h3 style="margin:26px 0 6px">精选精读（{len(BOOK3_DEEP)} / 10 章）</h3>
+<div class="ch-list">{b3_deep_rows}</div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {10 - len(BOOK3_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}book3/index.html" style="color:var(--r-blue)">本体书全书地图</a>；本书方法论的工程化落地见<a href="{base}semantic.html" style="color:var(--r-blue)">语义底座 v0 全景页</a>。</p></div></section>
+<section class="section tint"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>
 <div class="ch-list">{ch_rows}</div></div></section>
