@@ -5,7 +5,7 @@ from html import escape
 
 from site_data import (BOOK, BOOK2, BOOK3, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
-                       ORGMAP, SITEMAP, SEMANTIC, TOOLS, TERMS, PILOT, PILOT_ASSETS,
+                       ORGMAP, SITEMAP, SEMANTIC, G1_PACK, TOOLS, TERMS, PILOT, PILOT_ASSETS,
                        PRODUCT,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
@@ -1046,6 +1046,24 @@ def render_semantic(base: str) -> str:
         + inline(SEMANTIC.get("boundary", "")) + '</div>')
     return page_shell("语义底座 v0 全景", base, "semantic", inner,
                       "语义底座 v0：48 术语/20 对象 34 关系/38 契约规则/24 权限四元组")
+
+
+def render_g1_pack(base: str) -> str:
+    G = G1_PACK
+    counters = {"h2": 0, "h3": 0}
+    body = render_blocks(G["blocks"], base, counters)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
+        '<a href="' + base + 'pilot.html">从书到试点</a><span>/</span><span>数据就绪交付包</span></div>'
+        '<div class="cat">G1 DATA PACK</div><h1>' + escape(G["title"]) + '</h1>'
+        f'<p class="lead">{inline(G.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>状态 <b>{escape(G.get("status", ""))}</b></span>'
+        f'<span>约 <b>{escape(G.get("minutes", "8"))}</b> 分钟读完</span></div></div>'
+        '<div style="margin-top:26px">' + body + '</div>'
+        '<div class="note" style="margin-top:26px">' + inline(G.get("boundary", "")) + '</div>')
+    return page_shell("数据就绪交付包", base, "g1-pack", inner,
+                      "数据就绪交付包：AI 组织落地的企业侧取数框架——三层验收、六件交付物、证据六要件与 PII 边界")
 
 
 def render_pilot_assets(base: str) -> str:
