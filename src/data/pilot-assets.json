@@ -1,7 +1,7 @@
 {
   "slug": "pilot-assets",
   "title": "品牌域试点资产地图",
-  "lead": "品牌域从设计到实战的完整资产链：1 条价值流、20 份场景规格（按波次排序）、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程、5 份试点推进文档，以及实战路线图（站内公开版 + 内部权威版）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
+  "lead": "品牌域从设计到实战的完整资产链：1 条价值流、20 份场景规格（按波次排序）、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程、7 项语义底座资产、5 份试点推进文档，以及实战路线图（站内公开版 + 内部权威版）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
   "minutes": "12",
   "status": "设计基线 · 无生产授权",
   "groups": [
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "group": "语义底座（5）",
+      "group": "语义底座（7）",
       "items": [
         {
           "id": "ONTO-ANALYSIS",
@@ -271,6 +271,20 @@
           "desc": "按书3 §8.1.3 优选/排除标准对 20 个场景做语义复杂度/规则明确度/合规要求/动作风险四维评估，输出优先建模（4）/可选建模（10）/暂不建模（5）分级，与路线图波次对齐。",
           "meta": "评估矩阵 · 03-scenarios",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/ONTOLOGY-READINESS.md"
+        },
+        {
+          "id": "SC-AGT029",
+          "name": "AGT-029 立言语义契约（草稿）",
+          "desc": "29 句话试填：品牌原则与传播方案对象模型、品牌资产/覆盖缺口术语对齐、承诺兑现控制规则、六步执行流程、外发冻结权限策略，共 20 条，逐条标注来源等级。",
+          "meta": "v0.1-draft · 待用户评审 · 类1/3/4/5/6",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-AGT-029.md"
+        },
+        {
+          "id": "SC-SCN002",
+          "name": "SCN-002 诊断场景语义契约（草稿）",
+          "desc": "29 句话试填：市场机会判断包对象模型、渠道/品类/指标口径约束、信号触发与冻结事理规则、覆盖缺口查询模板，共 18 条，阈值类标注 pending_data。",
+          "meta": "v0.1-draft · 待用户评审 · 类1/2/4/7",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/SEMANTIC-CONTRACT-SCN-002.md"
         }
       ]
     },
