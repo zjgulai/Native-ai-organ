@@ -460,7 +460,9 @@ def render_pilot_assets(base: str) -> str:
         rows = "".join(
             f'<tr><td class="term-name"><code>{escape(it["id"])}</code></td>'
             f'<td><strong>{escape(it["name"])}</strong><br><span style="color:#5b6b7d">{inline(it["desc"])}</span></td>'
-            f'<td style="white-space:nowrap;font-size:12.5px;color:#8a97a8">{escape(it.get("meta", ""))}</td></tr>'
+            f'<td style="white-space:nowrap;font-size:12.5px;color:#8a97a8">{escape(it.get("meta", ""))}'
+            + (f'<br><a href="{escape(it["link"], quote=True)}" target="_blank" rel="noopener" style="color:#4a6fa5">规格 ↗</a>' if it.get("link") else "")
+            + '</td></tr>'
             for it in g["items"])
         groups.append(
             f'<section class="term-group"><h2>{escape(g["group"])} · {len(g["items"])}</h2>'

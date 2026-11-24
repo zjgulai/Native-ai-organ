@@ -12,7 +12,8 @@
           "id": "FLOW-09",
           "name": "品牌资产经营（BVS-09）",
           "desc": "把品牌认知、内容、渠道覆盖与投放从分散动作转为同一品牌资产口径下的联合经营，并与 GMV 短期结果分层核对。五步产品流：品牌信号雷达 → 品牌资产诊断 → 品牌经营行动包 → 受控执行 → 品牌资产归因。默认主岗位 AGT-029 立言。",
-          "meta": "端到端流第 9 条业务流 · 绑定 SCN-002/009/011/012/013"
+          "meta": "端到端流第 9 条业务流 · 绑定 SCN-002/009/011/012/013",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/END-TO-END-VALUE-STREAMS.md"
         }
       ]
     },
@@ -23,31 +24,36 @@
           "id": "SCN-002",
           "name": "市场、竞品与用户需求发现",
           "desc": "信号转为有依据、可证伪、可追溯的机会判断；FLOW-09 首个绑定场景，承担六条 Momcozy 诊断假设的证据验证。",
-          "meta": "FLOW-09 · 结果负责人 AGT-029 · 分析型零外部动作"
+          "meta": "FLOW-09 · 结果负责人 AGT-029 · 分析型零外部动作",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-002.md"
         },
         {
           "id": "SCN-013",
           "name": "独立站体验、转化与复购",
           "desc": "体验问题转为可证伪的改进假设与实验结论；独立站是唯一「可分析+可触达」两级数据兼备的渠道，按 LTV 逻辑经营。",
-          "meta": "FLOW-09/01/05 兼绑 · 结果负责人随主流切换"
+          "meta": "FLOW-09/01/05 兼绑 · 结果负责人随主流切换",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-013.md"
         },
         {
           "id": "SCN-011",
           "name": "广告投放与预算调整",
           "desc": "可解释、可归因、可回滚的投放决策；显式管理「品牌资产（品）」与「当期 GMV（效）」两层结果，归因方法强制局限声明。",
-          "meta": "FLOW-09/01 兼绑 · 品效张力最集中的场景"
+          "meta": "FLOW-09/01 兼绑 · 品效张力最集中的场景",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-011.md"
         },
         {
           "id": "SCN-012",
           "name": "品牌内容、站外营销与活动",
           "desc": "与品牌定义一致、可衡量反馈、可沉淀为资产的对外表达；每条内容须锚定品牌定义版本并通过合规自查。",
-          "meta": "FLOW-09/05 兼绑 · 内容五标准诊断"
+          "meta": "FLOW-09/05 兼绑 · 内容五标准诊断",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-012.md"
         },
         {
           "id": "SCN-009",
           "name": "商品内容、本地化与上架",
           "desc": "商品信息成为正确的品牌资产载体；产品事实锚定 + 合规门 + 本地化母语级审核，不确定的宣称删除而非弱化。",
-          "meta": "FLOW-09/04/01 兼绑 · 上架合规归口"
+          "meta": "FLOW-09/04/01 兼绑 · 上架合规归口",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-009.md"
         }
       ]
     },
@@ -58,25 +64,29 @@
           "id": "SKL-BRAND-01",
           "name": "品牌覆盖审计",
           "desc": "三位一体覆盖矩阵（场景×媒体×渠道）加渠道数据资产卡，输出覆盖缺口与优先级。",
-          "meta": "输入：渠道/人群/数据分级 · 输出：覆盖矩阵+缺口清单"
+          "meta": "输入：渠道/人群/数据分级 · 输出：覆盖矩阵+缺口清单",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/06-playbooks/skills/SKL-BRAND-01.md"
         },
         {
           "id": "SKL-BRAND-02",
           "name": "品效归因实验设计",
           "desc": "AB/MTA/MMM 方法选择与实验设计模板；任何归因结论强制附局限声明，禁止单一模型独立支撑预算动作。",
-          "meta": "输入：投放/交易/品牌数据 · 输出：实验设计+局限声明"
+          "meta": "输入：投放/交易/品牌数据 · 输出：实验设计+局限声明",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/06-playbooks/skills/SKL-BRAND-02.md"
         },
         {
           "id": "SKL-BRAND-03",
           "name": "出海市场进入检查",
           "desc": "三类出海品牌判定、六条经验清单、本地化团队与 go/no-go 门；服务 SCN-002 的市场进入评估。",
-          "meta": "输入：目标市场/品类/资源现状 · 输出：进入检查报告"
+          "meta": "输入：目标市场/品类/资源现状 · 输出：进入检查报告",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/06-playbooks/skills/SKL-BRAND-03.md"
         },
         {
           "id": "SKL-BRAND-04",
           "name": "VOC 细分假设验证",
           "desc": "心智/地域/渠道三维细分 → 可证伪假设 + 最小验证设计；服务弱品牌细分突破路径。",
-          "meta": "输入：VOC 聚类/行为信号 · 输出：假设卡+验证方案"
+          "meta": "输入：VOC 聚类/行为信号 · 输出：假设卡+验证方案",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/06-playbooks/skills/SKL-BRAND-04.md"
         }
       ]
     },
@@ -87,16 +97,18 @@
           "id": "KPI-CAT",
           "name": "双层 KPI 指标字典",
           "desc": "L1 当期核算（GMV/订单/ROAS/消耗）+ L2 品牌资产（认知/考虑度/SOV/渗透率/LTV/价格感知）。每指标含来源、归因窗口与置信度前提；GMV 升而品牌指标降等冲突信号触发复核，不取平均；书中倍数仅作方向性来源声明。",
-          "meta": "指标口径唯一来源候选 · 阈值待真实数据校准"
+          "meta": "指标口径唯一来源候选 · 阈值待真实数据校准",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-DUAL-KPI-CATALOG.md"
         },
         {
           "id": "PILOT-CHARTER",
           "name": "首个 Case 试点章程",
           "desc": "「Momcozy 美国站可穿戴吸奶品类 · Amazon vs DTC 覆盖缺口诊断」：分析/影子导向，预期 NoActionRecord 路径；定义触发、输入、输出、双层指标、50 岗位 MECE 分区、四项硬缺口与验收门槛。",
-          "meta": "写章程 ≠ 实例化 Case · 需独立授权数据契约与 Bundle"
+          "meta": "写章程 ≠ 实例化 Case · 需独立授权数据契约与 Bundle",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-BRAND-PILOT-CHARTER.md"
         }
       ]
     }
   ],
-  "boundary": "以上资产全部为设计基线：场景规格待企业验证、Skill 契约未做运行时 schema 化、KPI 阈值待真实数据校准、试点章程未实例化 Case。姊妹项目《AI 组织变革方案》文档随仓库公开发布（github.com/zjgulai/AI-Native-Organization）；本页只呈现可公开讲述的方法论框架与资产清单，不构成任何业务授权、生产动作或经营承诺。"
+  "boundary": "以上资产全部为设计基线：场景规格待企业验证、Skill 契约未做运行时 schema 化、KPI 阈值待真实数据校准、试点章程未实例化 Case。点「规格 ↗」可查看姊妹项目《AI 组织变革方案》仓库（github.com/zjgulai/AI-Native-Organization）中的设计文档原文；本页只呈现可公开讲述的方法论框架与资产清单，不构成任何业务授权、生产动作或经营承诺。"
 }
