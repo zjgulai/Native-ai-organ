@@ -366,3 +366,10 @@ strong{color:var(--r-ink);font-weight:600}
   html{scroll-behavior:auto}
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
+
+/* paginated tables (progressive enhancement; all rows visible without JS) */
+.tbl-pager{display:flex;align-items:center;gap:6px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
+.tbl-pager button{border:1px solid var(--r-line);background:#fff;color:var(--r-blue);font-size:12.5px;padding:4px 11px;border-radius:6px;cursor:pointer}
+.tbl-pager button:hover{background:var(--r-blue-soft)}
+.tbl-pager button.on{background:var(--r-blue);border-color:var(--r-blue);color:#fff}
+.tbl-pager-info{margin-left:8px;font-size:12px;color:#8a97a8}

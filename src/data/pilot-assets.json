@@ -1,8 +1,8 @@
 {
   "slug": "pilot-assets",
   "title": "品牌域试点资产地图",
-  "lead": "FLOW-09「品牌资产经营」价值流的完整设计资产链：1 条价值流、5 份场景规格、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程，以及 4 份试点推进文档（数据核实清单 → 装配 Manifest → 阶段门评审 → 四源数据契约）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
-  "minutes": "10",
+  "lead": "品牌域从设计到实战的完整资产链：1 条价值流、20 份场景规格（按波次排序）、4 份 Skill 契约、1 本双层 KPI 字典、1 份试点章程、5 份试点推进文档，以及实战路线图（站内公开版 + 内部权威版）。全部为设计基线——尚未实例化任何 Case、未连接任何数据源、不构成业务授权。",
+  "minutes": "12",
   "status": "设计基线 · 无生产授权",
   "groups": [
     {
@@ -12,48 +12,173 @@
           "id": "FLOW-09",
           "name": "品牌资产经营（BVS-09）",
           "desc": "把品牌认知、内容、渠道覆盖与投放从分散动作转为同一品牌资产口径下的联合经营，并与 GMV 短期结果分层核对。五步产品流：品牌信号雷达 → 品牌资产诊断 → 品牌经营行动包 → 受控执行 → 品牌资产归因。默认主岗位 AGT-029 立言。",
-          "meta": "端到端流第 9 条业务流 · 绑定 SCN-002/009/011/012/013",
+          "meta": "端到端流第 9 条业务流 · 自身绑定 SCN-002/009/011/012/013",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/END-TO-END-VALUE-STREAMS.md"
         }
       ]
     },
     {
-      "group": "场景规格（5）",
+      "group": "实战路线图",
+      "items": [
+        {
+          "id": "BRAND-PLAN",
+          "name": "品牌域实战路线图（站内版）",
+          "desc": "五层结构全景、P0~P4 五阶段演进、20 场景波次逻辑、门禁证据链、双层 KPI 落地口径、Momcozy 试点锚点，以及两本书方法论在每个环节的理论锚点。",
+          "meta": "站内页面 · 公开综合版",
+          "link": "brand-plan.html"
+        },
+        {
+          "id": "ROLLOUT-ROADMAP",
+          "name": "实战路线图（权威版）",
+          "desc": "内部权威版：门禁判定细则、逐源验收路径、回退条件与波次推进的完整论证；站内 brand-plan.html 为其公开综合版，冲突时以权威版为准。",
+          "meta": "docs/12-rollout · v1 设计基线",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/12-rollout/FLOW-09-ROLLOUT-ROADMAP.md"
+        }
+      ]
+    },
+    {
+      "group": "场景规格·按波次排序",
+      "paginate": 7,
       "items": [
         {
           "id": "SCN-002",
           "name": "市场、竞品与用户需求发现",
           "desc": "信号转为有依据、可证伪、可追溯的机会判断；FLOW-09 首个绑定场景，承担六条 Momcozy 诊断假设的证据验证。",
-          "meta": "FLOW-09 · 结果负责人 AGT-029 · 分析型零外部动作",
+          "meta": "诊断型·第一波 · FLOW-09 · AGT-029 · 零外部动作",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-002.md"
+        },
+        {
+          "id": "SCN-003",
+          "name": "产品机会评估与立项",
+          "desc": "商业假设、风险与投资选择有结论；证据分级强制（hypothesis 不得伪装 measured），最大假设优先证伪。",
+          "meta": "诊断型·第一波 · FLOW-02 · AGT-008 拓新",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-003.md"
+        },
+        {
+          "id": "SCN-005",
+          "name": "产品及市场准入、知识产权",
+          "desc": "有依据地决定可以销售的对象和市场；SKU×市场×法规版本矩阵，AI 只出证据建议、法律判断归 AGT-043 律衡。",
+          "meta": "诊断型·第一波 · FLOW-04 · AGT-024/043",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-005.md"
         },
         {
           "id": "SCN-013",
           "name": "独立站体验、转化与复购",
           "desc": "体验问题转为可证伪的改进假设与实验结论；独立站是唯一「可分析+可触达」两级数据兼备的渠道，按 LTV 逻辑经营。",
-          "meta": "FLOW-09/01/05 兼绑 · 结果负责人随主流切换",
+          "meta": "诊断型·第一波 · FLOW-09/01/05 兼绑 · 结果负责人随主流切换",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-013.md"
+        },
+        {
+          "id": "SCN-016",
+          "name": "渠道结算、对账与财务经营",
+          "desc": "回款、差异、费用与经营损益可解释；五流绑定最广，定位财务事实层，unreconciled 禁止配平保 KPI 诚实。",
+          "meta": "诊断型·第一波 · FLOW-01 主绑 · 五流绑定",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-016.md"
+        },
+        {
+          "id": "SCN-009",
+          "name": "商品内容、本地化与上架",
+          "desc": "商品信息成为正确的品牌资产载体；产品事实锚定 + 合规门 + 本地化母语级审核，不确定的宣称删除而非弱化。",
+          "meta": "建议型·第二波 · FLOW-09/04/01 兼绑 · 上架合规归口",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-009.md"
+        },
+        {
+          "id": "SCN-010",
+          "name": "定价、促销与利润管理",
+          "desc": "价格动作对应销量、贡献和库存结果；三维促销评估（毛利×库存×品牌感知），高风险价格动作逐对象审批。",
+          "meta": "建议型·第二波 · FLOW-01/03 · AGT-021/026",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-010.md"
         },
         {
           "id": "SCN-011",
           "name": "广告投放与预算调整",
           "desc": "可解释、可归因、可回滚的投放决策；显式管理「品牌资产（品）」与「当期 GMV（效）」两层结果，归因方法强制局限声明。",
-          "meta": "FLOW-09/01 兼绑 · 品效张力最集中的场景",
+          "meta": "建议型·第二波 · FLOW-09/01 兼绑 · 品效张力最集中",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-011.md"
         },
         {
           "id": "SCN-012",
           "name": "品牌内容、站外营销与活动",
           "desc": "与品牌定义一致、可衡量反馈、可沉淀为资产的对外表达；每条内容须锚定品牌定义版本并通过合规自查。",
-          "meta": "FLOW-09/05 兼绑 · 内容五标准诊断",
+          "meta": "建议型·第二波 · FLOW-09/05 兼绑 · 内容五标准诊断",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-012.md"
         },
         {
-          "id": "SCN-009",
-          "name": "商品内容、本地化与上架",
-          "desc": "商品信息成为正确的品牌资产载体；产品事实锚定 + 合规门 + 本地化母语级审核，不确定的宣称删除而非弱化。",
-          "meta": "FLOW-09/04/01 兼绑 · 上架合规归口",
-          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-009.md"
+          "id": "SCN-014",
+          "name": "订单、交付与渠道异常",
+          "desc": "异常被定位、处理并反馈原因；四流绑定异常收敛器，七环节定位链 + 七类根因 + systemic_candidate 聚集标记。",
+          "meta": "建议型·第二波 · FLOW-03 主绑 · 四流 correlation_id",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-014.md"
+        },
+        {
+          "id": "SCN-015",
+          "name": "客服、退换货、评价与客诉",
+          "desc": "客户问题解决并反馈产品和运营；FLOW-05 主绑 + FLOW-07 升级双流绑定，全场景最重 PII 边界与三条红线。",
+          "meta": "建议型·第二波 · FLOW-05/07 · AGT-034/037",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-015.md"
+        },
+        {
+          "id": "SCN-018",
+          "name": "店铺账号健康与渠道规则变化",
+          "desc": "风险信号得到核实、处置和复盘；唯一适用 D-026 Emergency Guard 快速通道，账号级冻结全部 Action Intent。",
+          "meta": "建议型·第二波 · FLOW-07/01/04 · AGT-027 守店",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-018.md"
+        },
+        {
+          "id": "SCN-004",
+          "name": "产品定义、开发与质量",
+          "desc": "产品满足要求并反馈真实质量问题；需求-规格-测试-市场追溯链，五类质量归因，VOC 回流设计。",
+          "meta": "受控动作·第三波 · FLOW-02 · AGT-008",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-004.md"
+        },
+        {
+          "id": "SCN-006",
+          "name": "供应商、采购与生产协作",
+          "desc": "采购承诺与质量、成本、交期结果闭环；供应商五级分类，sole_source 风险标记，AI 不认证合格只出证据。",
+          "meta": "受控动作·第三波 · FLOW-03 · AGT-016",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-006.md"
+        },
+        {
+          "id": "SCN-007",
+          "name": "需求预测、补货与库存调拨",
+          "desc": "库存可用性与占用资金共同受控；预测强制区间非点值，约束不明降级参考，新品强制低置信度。",
+          "meta": "受控动作·第三波 · FLOW-03 · AGT-016",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-007.md"
+        },
+        {
+          "id": "SCN-008",
+          "name": "跨境运输与仓储履约",
+          "desc": "货物到达、异常处理与成本可追踪；五环节物流信号，stalled_unknown 禁猜承运商/清关归因。",
+          "meta": "受控动作·第三波 · FLOW-03 · AGT-016/019",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-008.md"
+        },
+        {
+          "id": "SCN-001",
+          "name": "经营目标、预算与资源分配",
+          "desc": "经营目标分解为可执行、可复盘、可调整的资源配置；预算守恒校验，目标冲突显式呈现权衡不擅自取舍。",
+          "meta": "支撑层·贯穿 · FLOW-08 · AGT-001 衡远",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-001.md"
+        },
+        {
+          "id": "SCN-017",
+          "name": "现金、汇率与资金安排",
+          "desc": "资金需求与经授权动作相符；生存底线场景，银行锚定强制，AI 永不执行资金动作。",
+          "meta": "支撑层·贯穿 · FLOW-08 · AGT-001",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-017.md"
+        },
+        {
+          "id": "SCN-019",
+          "name": "组织、人员与绩效改进",
+          "desc": "职责、能力、负荷与经营结果相符；管理 50 个 AI 岗位的能力版本演进，AI-真人边界显式声明。",
+          "meta": "支撑层·贯穿 · FLOW-08 · AGT-001 · 唯一单流绑定",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-019.md"
+        },
+        {
+          "id": "SCN-020",
+          "name": "数据质量、知识、系统与 AI 运行",
+          "desc": "关键依赖可用，错误可发现和恢复；AI 组织运行底座，监控 AI 系统自身健康——一切 KPI 的可信度前提。",
+          "meta": "支撑层·贯穿 · FLOW-06 · AGT-047 接桥",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/03-scenarios/SCN-020.md"
         }
       ]
     },
@@ -110,7 +235,7 @@
       ]
     },
     {
-      "group": "试点推进（4）",
+      "group": "试点推进（5）",
       "items": [
         {
           "id": "READINESS",
@@ -139,9 +264,16 @@
           "desc": "FLOW-09 只读诊断数据契约 v1：五源 15 个数据集（Shopify/Amazon/社媒/DME/竞品工具）、统一对象键、DQ-F09 十条质量规则、F09-DC 十个 Shadow 验收用例与证据包要求。缺失不补零、代理必标、PII 整页拒绝。",
           "meta": "v1 设计基线 · 不授权访问",
           "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-DATA-CONTRACT.md"
+        },
+        {
+          "id": "SERVICE-SCOPE",
+          "name": "服务身份与范围包",
+          "desc": "首期诊断不需要新 API 服务身份——五源全部走 EXPORT_OPERATOR 导出/快照路径；每源 FLOW09_<SRC>_V1 范围包定义允许/拒绝字段边界、粒度时效与激活条件 A1~A7。",
+          "meta": "v1 设计基线 · 六条跨源规则",
+          "link": "https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/FLOW-09-SERVICE-IDENTITY-SCOPE.md"
         }
       ]
     }
   ],
-  "boundary": "以上资产全部为设计基线：场景规格待企业验证、Skill 契约未做运行时 schema 化、KPI 阈值待真实数据校准、试点章程未实例化 Case。点「规格 ↗」可查看姊妹项目《AI 组织变革方案》仓库（github.com/zjgulai/AI-Native-Organization）中的设计文档原文；本页只呈现可公开讲述的方法论框架与资产清单，不构成任何业务授权、生产动作或经营承诺。"
+  "boundary": "以上资产全部为设计基线：场景规格待企业验证、Skill 契约未做运行时 schema 化、KPI 阈值待真实数据校准、试点章程未实例化 Case。场景按波次排序——诊断型（零外部动作）→ 建议型（Action Intent 不执行）→ 受控动作型（逐对象审批）→ 支撑层（管理与基建），波次逻辑详见「实战路线图」。点「规格 ↗」可查看姊妹项目《AI 组织变革方案》仓库（github.com/zjgulai/AI-Native-Organization）中的设计文档原文；本页只呈现可公开讲述的方法论框架与资产清单，不构成任何业务授权、生产动作或经营承诺。"
 }

@@ -91,5 +91,42 @@
     paint();
   });
 
+  /* paginated tables: table.paginated[data-page-size] splits rows into pages */
+  document.querySelectorAll('table.paginated').forEach(table => {
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    const rows = [...tbody.querySelectorAll('tr')];
+    const size = parseInt(table.dataset.pageSize || '8', 10);
+    if (rows.length <= size) return;
+    const pages = Math.ceil(rows.length / size);
+    const pager = document.createElement('div');
+    pager.className = 'tbl-pager';
+    const info = document.createElement('span');
+    info.className = 'tbl-pager-info';
+    pager.appendChild(info);
+    let current = 0;
+    const show = p => {
+      current = p;
+      rows.forEach((r, i) => { r.hidden = Math.floor(i / size) !== p; });
+      pager.querySelectorAll('button').forEach((b, i) => {
+        const on = i === p;
+        b.classList.toggle('on', on);
+        if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+      });
+      info.textContent = (p * size + 1) + '–' + Math.min((p + 1) * size, rows.length) + ' / ' + rows.length + ' 项';
+    };
+    for (let i = 0; i < pages; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = String(i + 1);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 页，共 ' + pages + ' 页');
+      b.addEventListener('click', () => show(i));
+      pager.insertBefore(b, info);
+    }
+    const wrap = table.closest('.table-wrap');
+    if (wrap && wrap.parentNode) wrap.parentNode.insertBefore(pager, wrap.nextSibling);
+    show(0);
+  });
+
   /* chapter prev/next keyboard friendly: nothing extra needed */
 })();

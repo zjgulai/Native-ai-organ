@@ -22,6 +22,7 @@ TOOLS = _load("tools.json")
 TERMS = _load("terms.json")
 PILOT = _load("pilot.json")
 PILOT_ASSETS = _load("pilot-assets.json")
+BRAND_PLAN = _load("brand-plan.json")
 SYNTHESIS = _load("synthesis.json")
 FIG_SRC = json.loads((ROOT / "assets/figures/figures.json").read_text(encoding="utf-8"))
 _manifest = ROOT / "assets/figures/manifest.json"

@@ -3,8 +3,9 @@ import re
 from html import escape
 
 from site_data import (BOOK, BOOK2, BRAND2_CONTENT, BRAND2_DEEP,
-                       CHAPTERS, CHAPTER_CONTENT, CONCEPTS, TOOLS,
-                       TERMS, PILOT, PILOT_ASSETS, SYNTHESIS, FIG_SRC, SITE_NAME)
+                       BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
+                       TOOLS, TERMS, PILOT, PILOT_ASSETS, SYNTHESIS,
+                       FIG_SRC, SITE_NAME)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2)
 
@@ -322,7 +323,7 @@ def render_home(base: str) -> str:
 <div><span class="idx">BRIDGE</span><h3>从书到试点：品牌域试点操作序列</h3>
 <p>读完全书之后第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。</p></div>
 <a class="go" href="{base}pilot.html">打开试点指南 →</a></div>
-<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套：<a href="{base}terms.html" style="color:var(--r-blue)">方案术语表</a> 解码各篇实践映射中的内部代号（D-020~D-053、Policy Gate、ArtifactEnvelope 等）。</p></div></section>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">配套：<a href="{base}pilot-assets.html" style="color:var(--r-blue)">品牌域实战资产地图</a>（20 场景规格 + Skill 契约 + 试点五件套）· <a href="{base}brand-plan.html" style="color:var(--r-blue)">品牌域实战路线图</a>（P0~P4 阶段门 + 两本书理论锚点）· <a href="{base}terms.html" style="color:var(--r-blue)">方案术语表</a> 解码各篇实践映射中的内部代号。</p></div></section>
 <section class="section tint"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>
@@ -454,6 +455,26 @@ def render_pilot(base: str) -> str:
                        PILOT.get("lead", "")[:120], nav_current="pilot")
 
 
+def render_brand_plan(base: str) -> str:
+    blocks = BRAND_PLAN["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
+        '<a href="' + base + 'pilot.html">从书到试点</a><span>/</span><span>品牌域实战路线图</span></div>'
+        '<div class="cat">ROLLOUT</div>'
+        f'<h1>{escape(BRAND_PLAN["title"])}</h1>'
+        f'<p class="lead">{inline(BRAND_PLAN.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>设计基线 · 无生产授权</b></span>'
+        f'<span>约 <b>{escape(BRAND_PLAN.get("minutes", "18"))}</b> 分钟读完</span>'
+        '<span>权威版 <b>姊妹仓库 FLOW-09-ROLLOUT-ROADMAP</b></span></div></div>'
+        + body_html)
+    return reader_page(base, "", inner, heads, BRAND_PLAN["title"],
+                       BRAND_PLAN.get("lead", "")[:120], nav_current="brand-plan")
+
+
 def render_pilot_assets(base: str) -> str:
     groups = []
     for g in PILOT_ASSETS["groups"]:
@@ -464,9 +485,11 @@ def render_pilot_assets(base: str) -> str:
             + (f'<br><a href="{escape(it["link"], quote=True)}" target="_blank" rel="noopener" style="color:#4a6fa5">规格 ↗</a>' if it.get("link") else "")
             + '</td></tr>'
             for it in g["items"])
+        paged = (f' class="paginated" data-page-size="{g["paginate"]}"'
+                 if g.get("paginate") else "")
         groups.append(
             f'<section class="term-group"><h2>{escape(g["group"])} · {len(g["items"])}</h2>'
-            f'<div class="table-wrap"><table class="terms"><tbody>{rows}</tbody></table></div></section>')
+            f'<div class="table-wrap"><table class="terms"{paged}><tbody>{rows}</tbody></table></div></section>')
     n = sum(len(g["items"]) for g in PILOT_ASSETS["groups"])
     inner = (
         '<div class="crumb"><a href="' + base + 'index.html">全书地图</a><span>/</span>'
