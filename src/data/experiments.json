@@ -1,0 +1,1624 @@
+{
+ "repo": "https://github.com/bojieli/ai-agent-book",
+ "chapters": [
+  {
+   "no": 1,
+   "experiments": [
+    {
+     "id": "1-1",
+     "stars": "★★",
+     "title": "上下文的关键作用",
+     "desc": "让 Agent 汇总一家公司的季度收入：第一季度 250 万美元，第二季度 210 万欧元，第三季度 180 万英镑，第四季度 3.8 亿日元。任务要求通过换汇工具将收入统一为美元，再用计算工具求年度总收入与季度平均收入，结果保留两位小数。这样，模型既需要选择工具，也需要记住已经完成的步骤和返回值。",
+     "code": "context"
+    },
+    {
+     "id": "1-2",
+     "stars": "★",
+     "title": "Kimi K3 的多轮搜索与查询调整",
+     "desc": "一项研究任务通常需要多次检索：先确定基本事实，再追查缺失的证据，最后综合结果。本实验让 Kimi K3 核查东盟成员资格与印度尼西亚首都状态。题目还要求它在初次检索后继续查找尚未证实的事实。",
+     "code": "web-search-agent"
+    },
+    {
+     "id": "1-3",
+     "stars": "★",
+     "title": "Responses API 的托管研究闭环",
+     "desc": "搜索之后常常还需要计算。例如，要找出一组首都中距离最近的一对，先要获取坐标，再枚举城市对并计算距离。本实验使用百炼的 `qwen3.7-plus`，通过 Responses API 调用两项服务端托管工具：`web_search` 获取资料与来源，`code_interpreter` 在沙盒中运行 Python，完成计算和绘图[^ch1-hosted]。",
+     "code": "search-codegen"
+    },
+    {
+     "id": "1-4",
+     "stars": "★",
+     "title": "文生图工作流与直接生成的对照",
+     "desc": "把同一句需求送入两条路线。**工作流路线**先由 Kimi K3 改写提示词，再交给通义万相生成图片；**直接生成路线**把原始需求提交给图像生成服务。本次记录使用了 Gemini 图像模型和 GPT-Image 2 两种直接生成服务。",
+     "code": "image-gen-workflow"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "context",
+     "title": "上下文感知 Agent 与消融实验",
+     "exp": "1-1",
+     "note": ""
+    },
+    {
+     "name": "image-gen-workflow",
+     "title": "实验 1-4：文生图工作流与原生图像生成的对照",
+     "exp": "1-4",
+     "note": ""
+    },
+    {
+     "name": "learning-from-experience",
+     "title": "从经验中学习：RL 与 LLM 上下文学习对比",
+     "exp": "",
+     "note": "对应第 8 章实验素材（Q-learning vs LLM 上下文学习）"
+    },
+    {
+     "name": "search-codegen",
+     "title": "把搜索得到的信息交给代码计算",
+     "exp": "1-3",
+     "note": ""
+    },
+    {
+     "name": "web-search-agent",
+     "title": "Kimi 网络搜索 Agent",
+     "exp": "1-2",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 2,
+   "experiments": [
+    {
+     "id": "2-1",
+     "stars": "★",
+     "title": "本地 LLM 服务部署与工具调用",
+     "desc": "本实验在本地运行 Qwen3-0.6B，沿着“查询温哥华时间和天气”这一任务，观察消息如何经过模型、解析器和工具执行器。图2-5 展示了本地服务与客户端的分工：服务端加载模型、处理输入并生成回复，客户端维护消息历史，调度工具并回传结果。",
+     "code": "local_llm_serving"
+    },
+    {
+     "id": "2-2",
+     "stars": "★",
+     "title": "注意力机制可视化",
+     "desc": "先用“北京 的 天气 怎么样”理解一次注意力计算。为了便于展示，图2-6 将这句话分成四个语义单元；实际模型由分词器切分输入。处理“怎么样”这一位置时，注意力层要从已有信息中组合出当前表示。Query、Key 和 Value 分别承担查询、匹配和信息聚合的作用。",
+     "code": "attention_visualization"
+    },
+    {
+     "id": "2-3",
+     "stars": "★★",
+     "title": "上下文管理方式的对照",
+     "desc": "本实验让 Agent 使用文件发现、读取和搜索工具完成同一个任务，比较一种稳定追加的基线与五种上下文改动。基线保持指令和工具顺序稳定，逐轮追加模型消息和工具结果。其余各组分别改变指令、状态、工具排序或历史表达，观察缓存统计和任务过程怎样变化。",
+     "code": "kv-cache"
+    },
+    {
+     "id": "2-4",
+     "stars": "★★",
+     "title": "提示工程的消融实验",
+     "desc": "一份提示词中，语气、信息组织和工具说明分别起什么作用？本实验借助 τ-bench 的航空客服任务做对照。τ-bench 通过用户模拟、业务工具和规则构造交互场景，并检查任务结束后的目标状态；航空和零售是其中的两个任务领域[^ch2-tau-bench]。",
+     "code": "prompt-engineering"
+    },
+    {
+     "id": "2-5",
+     "stars": "★★",
+     "title": "提示注入攻防实验",
+     "desc": "本实验检查外部内容进入上下文后，系统如何保持任务目标与操作权限。实验在隔离工作区中使用合成数据，网页读取、文件写入和邮件输出均有可检查的记录。",
+     "code": "prompt-injection"
+    },
+    {
+     "id": "2-6",
+     "stars": "★★",
+     "title": "使用 Agent Skills 从论文生成演示文稿",
+     "desc": "本实验以《Attention Is All You Need》为材料，演示 Agent 怎样按需加载制作演示文稿的专业流程。任务是从论文 PDF 生成十到十五页演示文稿，覆盖问题背景、方法、关键结果与结论，并使用论文中的图表帮助讲解。",
+     "code": "agent-skills-ppt"
+    },
+    {
+     "id": "2-7",
+     "stars": "★★",
+     "title": "从个人范文创建“去 AI 味”写作 Skill",
+     "desc": "这个练习把个人写作经验整理为可复用的指令。准备三到五篇原创文章，让 Agent 归纳表达习惯，生成包含触发条件、三到五条原则和对应例子的初版 Skill。",
+     "code": ""
+    },
+    {
+     "id": "2-8",
+     "stars": "★★",
+     "title": "通过注意力可视化观察 Agent 状态栏的效果",
+     "desc": "本实验使用 Qwen3-0.6B，构造一段客服退款轨迹：Agent 已经拨打 Xfinity 三次电话，期间穿插网络搜索，随后用户追问“能不能再打电话催促一下？”系统规则限定同一任务内对每个商家最多拨打三次。",
+     "code": ""
+    },
+    {
+     "id": "2-9",
+     "stars": "★★",
+     "title": "几种好用的 Agent 状态栏技术",
+     "desc": "本实验实现五种状态栏技术，可分别开启，也可组合使用。每项技术提供一类具体信息，帮助模型决定下一步行动。",
+     "code": "system-hint"
+    },
+    {
+     "id": "2-10",
+     "stars": "★★★",
+     "title": "上下文压缩策略对比",
+     "desc": "本实验用 Kimi K3 研究 OpenAI 联合创始人的职业状态。任务需要逐步建立人员名单、查找经历和职位变化，再把相关事实与来源对应起来。为观察压缩与溢出处理，实验将应用侧上下文预算设为 128,000 token，保留无压缩基线，再比较五种处理办法，每种最多运行 15 轮[^ch2-compression-results]。",
+     "code": "context-compression"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "agent-skills-ppt",
+     "title": "使用 Agent Skills 从论文生成演示文稿",
+     "exp": "2-6",
+     "note": ""
+    },
+    {
+     "name": "attention_visualization",
+     "title": "注意力机制可视化",
+     "exp": "2-2",
+     "note": ""
+    },
+    {
+     "name": "context-compression",
+     "title": "上下文压缩策略对比",
+     "exp": "2-10",
+     "note": ""
+    },
+    {
+     "name": "kv-cache",
+     "title": "KV Cache 与错误上下文管理模式",
+     "exp": "2-3",
+     "note": ""
+    },
+    {
+     "name": "local_llm_serving",
+     "title": "本地 LLM 服务部署与工具调用",
+     "exp": "2-1",
+     "note": ""
+    },
+    {
+     "name": "prompt-engineering",
+     "title": "提示工程消融实验",
+     "exp": "2-4",
+     "note": ""
+    },
+    {
+     "name": "prompt-injection",
+     "title": "提示注入攻防实验",
+     "exp": "2-5",
+     "note": ""
+    },
+    {
+     "name": "system-hint",
+     "title": "Agent 状态栏（System Hint）实验",
+     "exp": "2-9",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 3,
+   "experiments": [
+    {
+     "id": "3-1",
+     "stars": "★",
+     "title": "用三层次框架评估记忆系统",
+     "desc": "评估集每层包含 20 个用例，共 60 个。第一层以单会话为主；第二、三层包含跨时间、跨对象的多段会话，用于检查实体关联、信息更新和主动提醒。",
+     "code": "user-memory"
+    },
+    {
+     "id": "3-2",
+     "stars": "★★",
+     "title": "四种记忆格式的对比",
+     "desc": "配套实现为四种格式提供统一的记忆生成、更新和检索接口，在实验 3-1 的同一组 60 个用例上比较最终回答。",
+     "code": "mem0"
+    },
+    {
+     "id": "3-3",
+     "stars": "★★",
+     "title": "基于本地模型的日志脱敏",
+     "desc": "本实验通过 Ollama 调用本地 Qwen3-0.6B，在本机识别日志中的敏感片段。小模型适合在消费级设备上部署，也可以切换到 1.7B、4B 等规格，比较识别质量与处理时间。原始日志需要留在本地时，识别和替换也应在本机完成，再把脱敏结果交给后续服务。",
+     "code": "log-sanitization"
+    },
+    {
+     "id": "3-4",
+     "stars": "★★",
+     "title": "比较两种近似最近邻索引",
+     "desc": "文档向量建好后，需要快速找到接近查询的向量。逐个计算可以得到精确近邻，数据规模增大后，**近似最近邻**（Approximate Nearest Neighbor，ANN）索引用可控的召回损失换取查询速度。本实验在同一批真实嵌入和相同查询上比较 ANNOY 与 HNSW，并用精确搜索结果作为参照。比如，某次查询的精确搜索列出了十个最近邻，近似索引返回的十个结",
+     "code": "dense-embedding"
+    },
+    {
+     "id": "3-5",
+     "stars": "★★",
+     "title": "从零实现 BM25 搜索引擎",
+     "desc": "本实验依次完成分词、停用词处理、倒排索引和评分。停用词处理可以过滤“的”“了”等高频词。**倒排索引**记录每个词出现在哪些文档中，以及相应词频；它类似书末的术语索引，查询“TCP”就能找到第 45、112、203 页，再读取这些位置的内容。",
+     "code": "sparse-embedding"
+    },
+    {
+     "id": "3-6",
+     "stars": "★★",
+     "title": "比较稀疏、稠密、融合与重排序",
+     "desc": "本实验在相同的 12 个标注查询上比较五种配置：稀疏检索、稠密检索、RRF 融合、加权融合，以及融合后重排序。查询覆盖语义相似、精确名称、多语言和技术代码，其中两道题分别用英文和中文询问植物怎样把阳光转化为食物。稠密模型采用 Qwen3-Embedding-0.6B，重排序采用 MS MARCO MiniLM 跨编码器，每路检索最多取 10 篇文档，重排器处",
+     "code": "retrieval-pipeline"
+    },
+    {
+     "id": "3-7",
+     "stars": "★★★",
+     "title": "比较层次摘要与关系索引",
+     "desc": "本实验选取 Intel 架构手册中与 SSE、AVX 和状态管理有关的 14 页，构建两种教学实现。层次摘要分支先生成逐页摘要，再聚为三组，生成组摘要和根摘要；关系索引分支提取实体与关系，再生成社区摘要。两组使用相同资料与八个问题，比较概念细节和关系推理。",
+     "code": "structured-index"
+    },
+    {
+     "id": "3-8",
+     "stars": "★★",
+     "title": "比较单次检索与多轮检索",
+     "desc": "本实验使用同一份中文法律材料、同一 BM25 检索器和相同模型，对七个问题比较两种模式：基线按原问题搜索一次，Agent 模式允许模型调整查询，最多执行四次搜索。",
+     "code": "agentic-rag"
+    },
+    {
+     "id": "3-9",
+     "stars": "★★",
+     "title": "用智能体化检索读取用户记忆",
+     "desc": "本实验把完整对话历史作为知识库，按窗口切分后建立索引，再向 Agent 提供 `search_user_memory` 工具。窗口大小可以调整；本次运行每块包含八轮对话，相邻块重叠两轮，并保存会话标识、时间和业务元数据。查询最多执行三次，每次取回四个片段。",
+     "code": "agentic-rag-for-user-memory"
+    },
+    {
+     "id": "3-10",
+     "stars": "★★",
+     "title": "比较原始分块与上下文增强分块",
+     "desc": "本实验为同一批资料建立两套索引：一套使用原始片段，另一套加入模型生成的前缀。保持查询和目标标注一致，分别比较 BM25、稠密检索与混合检索。",
+     "code": "contextual-retrieval"
+    },
+    {
+     "id": "3-11",
+     "stars": "★★★",
+     "title": "用上下文前缀与结构化卡片增强记忆",
+     "desc": "对话中的“好的，就订这个吧”需要关联前面的商品或行程。若原文讨论的是上海到西雅图、500 美元的单程机票，前缀可以补充这些背景，并保留确认发生的会话与时间。",
+     "code": "contextual-retrieval-for-user-memory"
+    },
+    {
+     "id": "3-12",
+     "stars": "★★★",
+     "title": "从司法案例中提取因素与原型",
+     "desc": "本实验使用 CAIL2018 的刑事案件材料，选择盗窃、故意伤害和诈骗三类样本，构建“因素发现—字段提取—聚类—原型解释”的教学流程[^ch3-cail]。每类取 120 条用于建模，另外保留 20 条，共形成 360 条建模样本和 60 条留出样本。",
+     "code": "structured-knowledge-extraction"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "agentic-rag",
+     "title": "Agentic RAG 系统",
+     "exp": "3-8",
+     "note": ""
+    },
+    {
+     "name": "agentic-rag-for-user-memory",
+     "title": "面向用户记忆的 Agentic RAG",
+     "exp": "3-9",
+     "note": ""
+    },
+    {
+     "name": "contextual-retrieval",
+     "title": "上下文感知检索系统",
+     "exp": "3-10",
+     "note": ""
+    },
+    {
+     "name": "contextual-retrieval-for-user-memory",
+     "title": "实验 3-11：利用上下文感知检索增强用户记忆",
+     "exp": "3-11",
+     "note": ""
+    },
+    {
+     "name": "dense-embedding",
+     "title": "稠密向量相似性搜索服务",
+     "exp": "3-4",
+     "note": ""
+    },
+    {
+     "name": "log-sanitization",
+     "title": "日志脱敏",
+     "exp": "3-3",
+     "note": ""
+    },
+    {
+     "name": "mem0",
+     "title": "Exploring cross-session memory with Mem0 and Kimi",
+     "exp": "3-2",
+     "note": ""
+    },
+    {
+     "name": "memobase",
+     "title": "Memobase Agent（Profile + Event 与手写记忆对照）",
+     "exp": "3-2",
+     "note": ""
+    },
+    {
+     "name": "retrieval-pipeline",
+     "title": "混合检索流水线与神经重排序",
+     "exp": "3-6",
+     "note": ""
+    },
+    {
+     "name": "sparse-embedding",
+     "title": "稀疏向量搜索引擎（BM25）",
+     "exp": "3-5",
+     "note": ""
+    },
+    {
+     "name": "structured-index",
+     "title": "结构化索引：RAPTOR 与 GraphRAG",
+     "exp": "3-7",
+     "note": ""
+    },
+    {
+     "name": "structured-knowledge-extraction",
+     "title": "实验 3-12：从结构化数据中提取隐性知识",
+     "exp": "3-12",
+     "note": ""
+    },
+    {
+     "name": "user-memory",
+     "title": "用户记忆系统",
+     "exp": "3-1",
+     "note": ""
+    },
+    {
+     "name": "user-memory-evaluation",
+     "title": "用户记忆评估框架",
+     "exp": "3-1",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 4,
+   "experiments": [
+    {
+     "id": "4-1",
+     "stars": "★★★",
+     "title": "主动工具发现",
+     "desc": "工具发现如何减少模型每次面对的定义文本？本实验使用 Qwen3-4B，在同一套包含 127 个工具的 MCP 服务器上比较全量加载与主动发现。两组分别处理三个任务：查询苹果公司的股价与相关新闻；检索 transformer 相关论文并下载前三篇；获取 GitHub 仓库的贡献者统计并生成图表。这些任务分别需要金融与搜索、论文检索与下载、数据查询与代码执行能力",
+     "code": "active-tool-discovery"
+    },
+    {
+     "id": "4-2",
+     "stars": "★★",
+     "title": "感知工具 MCP 服务器",
+     "desc": "本实验把常见的信息获取能力接入同一个 MCP 服务器，按五类场景组织接口：",
+     "code": "perception-tools"
+    },
+    {
+     "id": "4-3",
+     "stars": "★★",
+     "title": "多模态信息提取：三种技术范式的对比分析",
+     "desc": "本实验使用一张季度收入柱状图及包含该图的 PDF 报告，比较三种信息传递方式。图中四个季度的收入依次为 1.2 亿、1.5 亿、9500 万和 1.8 亿美元；报告正文只描述变化趋势。对图片和 PDF 分别提出两个问题：“哪个季度收入最高，具体是多少？”“哪个季度收入最低，收入是多少，第四季度又比它高多少？”",
+     "code": "multimodal-agent"
+    },
+    {
+     "id": "4-4",
+     "stars": "★★",
+     "title": "执行工具 MCP 服务器",
+     "desc": "本实验将文件、程序、外部系统和图形界面操作接入 MCP，并为每类调用组织检查与反馈：",
+     "code": "execution-tools"
+    },
+    {
+     "id": "4-5",
+     "stars": "★★",
+     "title": "协作工具 MCP 服务器",
+     "desc": "本实验实现子 Agent 管理、人工协助与通知接口，练习两种上下文传递方式及同步、异步调用。",
+     "code": "collaboration-tools"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "active-tool-discovery",
+     "title": "主动工具发现",
+     "exp": "4-1",
+     "note": ""
+    },
+    {
+     "name": "active-tool-selection",
+     "title": "主动工具选择",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "collaboration-tools",
+     "title": "协作工具 MCP 服务器",
+     "exp": "4-5",
+     "note": ""
+    },
+    {
+     "name": "execution-tools",
+     "title": "执行工具 MCP 服务器",
+     "exp": "4-4",
+     "note": ""
+    },
+    {
+     "name": "multimodal-agent",
+     "title": "多模态 Agent——三种抽取范式对比",
+     "exp": "4-3",
+     "note": ""
+    },
+    {
+     "name": "perception-tools",
+     "title": "感知工具 MCP 服务器",
+     "exp": "4-2",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 5,
+   "experiments": [
+    {
+     "id": "5-1",
+     "stars": "★★★",
+     "title": "跨厂商的轨迹接管",
+     "desc": "本实验让 Agent 查询机票、住宿、餐费与汇率，计算人民币总额。完成前两次工具调用后，脚本按预设断点切换服务，模拟源服务不可用后的接管；接收端继续处理剩余步骤。实验使用 Moonshot、Anthropic 与 Google 的三个模型，比较六种有方向的切换组合。",
+     "code": "provider-failover"
+    },
+    {
+     "id": "5-2",
+     "stars": "★★",
+     "title": "输出到一半断掉之后的接续",
+     "desc": "本实验在推理输出、正文和工具参数三个位置尝试截断流，比较整轮重发、使用已有正文作为前缀续写，以及追加接续指令三种方式。工具调用在执行前需要完整参数，截断片段先保存在运行记录中，恢复后重新解析并校验。",
+     "code": ""
+    },
+    {
+     "id": "5-3",
+     "stars": "★★",
+     "title": "用代码辅助数学解题",
+     "desc": "本实验让同一个豆包模型完成 AIME 2024 的 30 道题，比较直接推理与 Python 工具辅助两条路径。工具环境提供 SymPy、NumPy 和 SciPy，模型可以生成程序、读取执行结果，再给出最终答案。",
+     "code": "code-for-math"
+    },
+    {
+     "id": "5-4",
+     "stars": "★★",
+     "title": "用约束求解辅助逻辑推理",
+     "desc": "本实验从 K&K 数据集中按人数分层选取 84 道题，比较同一个豆包模型直接推理与调用 `python-constraint` 的表现。代码路径需要识别人物变量、翻译陈述，并调用求解器寻找满足全部条件的身份组合。",
+     "code": "code-for-logic"
+    },
+    {
+     "id": "5-5",
+     "stars": "★★",
+     "title": "小模型与代码化业务规则",
+     "desc": "本实验使用 Qwen3-4B，在 60 个固定航空退款案例上比较两组实现。两组都向模型提供自然语言政策；控制组的取消工具接受调用后直接退款，代码化组则在执行前读取模拟数据库与服务端时钟，检查退款资格。",
+     "code": "small-model-codified-rules"
+    },
+    {
+     "id": "5-6",
+     "stars": "★★",
+     "title": "基于论文的 PPT 自动生成",
+     "desc": "本实验使用《Attention Is All You Need》的论文 PDF，生成 20 页 Slidev 幻灯片。Agent 提取论文结构和要点，使用三张带来源记录的原论文图，逐页组织讲解。渲染后检查文字溢出、图表可读性及图文对应关系，再按反馈修改。",
+     "code": "paper-to-ppt"
+    },
+    {
+     "id": "5-7",
+     "stars": "★★",
+     "title": "论文讲解视频的自动生成",
+     "desc": "在幻灯片基础上，Agent 可以为每页编写口语化讲解，解释图中的对象、关系和结论，再调用 TTS 合成语音。讲稿与页面一起交给视觉审核者，检查讲到的元素是否出现在画面中，以及描述是否与图表一致。",
+     "code": "paper-to-video"
+    },
+    {
+     "id": "5-8",
+     "stars": "★★",
+     "title": "基于 API 的智能视频剪辑",
+     "desc": "本实验把目标定位、脚本生成和效果审查串成一个流程。先将视频引用、目标问题和抽帧间隔交给视频分析子 Agent，由它处理大量画面，向主 Agent 返回时间区间与依据。",
+     "code": "video-edit"
+    },
+    {
+     "id": "5-9",
+     "stars": "★★",
+     "title": "同一个零件的两种生成路线——代码与生成模型",
+     "desc": "本实验要求生成外径 80 mm、厚度 10 mm 的法兰盘，在直径 60 mm 的孔位圆上均布四个安装孔。为明确装配含义，初始规格采用适配 M5 的 5.5 mm 通孔，修改请求改为适配 M6 的 6.5 mm 通孔。",
+     "code": "cad-vs-diffusion"
+    },
+    {
+     "id": "5-10",
+     "stars": "★★★",
+     "title": "自适应的日志解析系统",
+     "desc": "本实验先运行两个日志产生进程，分别输出竖线分隔格式和嵌套括号格式。初始解析器无法处理这些样本，系统随后请求模型生成两个解析函数，测试通过后热加载，再解析原先失败的日志。",
+     "code": "adaptive-log-parser"
+    },
+    {
+     "id": "5-11",
+     "stars": "★★★",
+     "title": "生产日志的智能诊断系统",
+     "desc": "本实验用本地 HTTP 服务产生两条业务轨迹，一条记录显示系统没查订单能不能退就退了款，另一条显示库存查询超时后没有改从缓存取数。模型结合架构文档与需求说明，生成包含轨迹和轮次引用的问题报告，再生成三个可执行回归测试。",
+     "code": "log-diagnosis"
+    },
+    {
+     "id": "5-12",
+     "stars": "★★",
+     "title": "动态表单生成的意图澄清系统",
+     "desc": "本实验从“我想订一张去北京的机票”出发，让模型生成 HTML 表单：出发城市使用文本框，出发日期使用日期选择器，旅行类型提供单程与往返选项，返程日期在选择往返时显示。",
+     "code": "dynamic-form"
+    },
+    {
+     "id": "5-13",
+     "stars": "★★",
+     "title": "自然语言交互的 ERP Agent",
+     "desc": "本实验以 ERP（企业资源规划）中的员工与工资查询为例，学习如何从业务问题生成 SQL，并让数据库结果直接进入页面。PostgreSQL 中建立两张表：员工表包含员工 ID、姓名、部门、级别、入职日期和离职日期，离职日期为空表示在职；工资表包含员工 ID、发薪日期和工资，每位员工每月一条记录。",
+     "code": "erp-agent"
+    },
+    {
+     "id": "5-14",
+     "stars": "★★",
+     "title": "对话式界面定制系统",
+     "desc": "本实验构建 React 前端与 FastAPI 后端组成的聊天应用，在开发环境中启用前端 HMR 和后端 reload。模型根据连续三轮要求修改颜色、字体和标题，浏览器检查每次修改后的实际界面。",
+     "code": "conversational-ui"
+    },
+    {
+     "id": "5-15",
+     "stars": "★★★",
+     "title": "动态生成软件的权限内嵌数据对象",
+     "desc": "本实验提供 PostgreSQL 之上的 Python 对象存储原型，将权限规则、校验器、对象关系和后续反应声明放在数据类型中。读取时检查访问权限；创建和更新时，先执行权限与业务校验、检查引用关系，再持久化，随后将声明的后续反应加入队列，并限制反应链深度。",
+     "code": "permission-embedded-data-objects"
+    },
+    {
+     "id": "5-16",
+     "stars": "★★★",
+     "title": "开发一个能创造 Agent 的 Agent",
+     "desc": "请同一个创建者模型构建一个发布审核 Agent：读完一组部署检查记录，只要有必检项未通过，就拒绝发布并指出依据。从零创建时，模型需要编写运行循环、工具协议、领域工具、命令行入口和测试。模板路线先复制一套能检查结构化记录的 Agent，模型只需填写领域规格。例如，状态存在哪个字段，哪些值表示通过？创建脚本根据规格生成系统提示、工具定义和说明文档。已有的 Pyt",
+     "code": "agent-creator"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "adaptive-log-parser",
+     "title": "实验 5-10：自适应的日志解析系统",
+     "exp": "5-10",
+     "note": ""
+    },
+    {
+     "name": "agent-creator",
+     "title": "生成一个专用 Agent 需要交付什么",
+     "exp": "5-16",
+     "note": ""
+    },
+    {
+     "name": "cad-vs-diffusion",
+     "title": "实验 5-9：同一个零件的两种生成路线——代码与生成模型",
+     "exp": "5-9",
+     "note": ""
+    },
+    {
+     "name": "code-for-logic",
+     "title": "实验 5-4：用约束求解辅助逻辑推理",
+     "exp": "5-4",
+     "note": ""
+    },
+    {
+     "name": "code-for-math",
+     "title": "实验 5-3：用代码辅助数学解题",
+     "exp": "5-3",
+     "note": ""
+    },
+    {
+     "name": "coding-agent",
+     "title": "综合编码 Agent（纯 Python 实现）",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "conversational-ui",
+     "title": "实验 5-14：对话式界面定制系统",
+     "exp": "5-14",
+     "note": ""
+    },
+    {
+     "name": "dynamic-form",
+     "title": "实验 5-12：动态表单生成的意图澄清系统",
+     "exp": "5-12",
+     "note": ""
+    },
+    {
+     "name": "erp-agent",
+     "title": "实验 5-13：自然语言交互的 ERP Agent",
+     "exp": "5-13",
+     "note": ""
+    },
+    {
+     "name": "log-diagnosis",
+     "title": "实验 5-11：生产日志的智能诊断系统",
+     "exp": "5-11",
+     "note": ""
+    },
+    {
+     "name": "paper-to-ppt",
+     "title": "实验 5-6：基于论文的 PPT 自动生成",
+     "exp": "5-6",
+     "note": ""
+    },
+    {
+     "name": "paper-to-video",
+     "title": "实验 5-7：论文讲解视频的自动生成 ★★",
+     "exp": "5-7",
+     "note": ""
+    },
+    {
+     "name": "permission-embedded-data-objects",
+     "title": "实验 5-15：动态生成软件的权限内嵌数据对象（★★★）",
+     "exp": "5-15",
+     "note": ""
+    },
+    {
+     "name": "provider-failover",
+     "title": "5-2：跨厂商的轨迹接管，与输出中断后的接续",
+     "exp": "5-1",
+     "note": ""
+    },
+    {
+     "name": "small-model-codified-rules",
+     "title": "实验 5-5：小模型与代码化业务规则",
+     "exp": "5-5",
+     "note": ""
+    },
+    {
+     "name": "video-edit",
+     "title": "实验 5-8：基于 API 的智能视频剪辑",
+     "exp": "5-8",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 6,
+   "experiments": [
+    {
+     "id": "6-1",
+     "stars": "★★★",
+     "title": "事件驱动的邮件处理 Agent",
+     "desc": "本实验以测试邮箱为入口，练习事件注册、队列和任务处理。先将新邮件整理为结构化事件，按到达顺序处理；再接入邮件历史、附件读取、知识查询和通知等工具。沿图6-4 追踪一次会议邀请：在事件循环里找出日历冲突检查和拟稿两步，再到持久层找这封邮件的处理记录。",
+     "code": "agent-with-event-trigger"
+    },
+    {
+     "id": "6-2",
+     "stars": "★★★",
+     "title": "带并行执行和打断能力的异步 Agent",
+     "desc": "本实验先验证异步运行时，再接入模型检查决策。配套运行记录用真实操作系统子进程完成四个场景，事件调度和报告由确定性脚本驱动。",
+     "code": "async-agent"
+    },
+    {
+     "id": "6-3",
+     "stars": "★★★",
+     "title": "模型原生异步与回合中途引导",
+     "desc": "本实验让 Agent 为模拟会议选择满足预算与人数要求的最便宜场地。初始预算为 2000，人数为 20；查询工具等 8 秒才返回三个场地的报价和容量。",
+     "code": "astra-async-steering"
+    },
+    {
+     "id": "6-4",
+     "stars": "★",
+     "title": "构建传统语音 Agent",
+     "desc": "假设助手正在播报周四的航班，你开口纠正：“等等，我想订周五的。”浏览器通过 WebSocket 把麦克风音频送到后端。Silero VAD 一检测到你开口，后端就发出 `speech_start`，浏览器随即停止播放，清空排队的旧音频。这时助手还不知道你改了哪一天。等你说完、静音超过默认的 500 毫秒，后端才发出 `speech_end`，把这段语音交给本",
+     "code": "live-audio"
+    },
+    {
+     "id": "6-5",
+     "stars": "★",
+     "title": "使用 Qwen2-Audio 模拟流式语音感知",
+     "desc": "本实验逐步扩大音频前缀，每次将从开头到当前时刻的音频重新送入 Qwen2-Audio，观察转录与声学事件随输入变化的过程。对照路径采用 600 毫秒静音端点与 Whisper。测试包含正常语音、插入 900 毫秒停顿的长句，以及混入粉红噪声的语音。",
+     "code": "streaming-speech"
+    },
+    {
+     "id": "6-6",
+     "stars": "★★",
+     "title": "本地运行 MiniCPM-o 4.5，对比端到端与自级联",
+     "desc": "本实验固定同一个 MiniCPM-o 4.5 模型，关闭思考模式，比较两条路径：直接从音频回答问题，以及先由模型转录、再只根据转录回答。输入包含两道口述算术题和两条文字相同、语速不同的语音。",
+     "code": "end-to-end-speech"
+    },
+    {
+     "id": "6-7",
+     "stars": "★★",
+     "title": "语音 Agent 的工具由前台还是后台调用",
+     "desc": "用豆包实时语音模型 3.0 搭建前台，用火山方舟提供的 DeepSeek V4 Pro 搭建后台。准备查天气、查用户记忆、网页搜索、查航班和订票五个模拟工具，让它们按设定时间返回结果，其中查航班和订票需等 2—5 秒。预先合成用户录音，每次回放同一场景的录音。",
+     "code": "voice-tool-routing"
+    },
+    {
+     "id": "6-8",
+     "stars": "★★",
+     "title": "基于 Fish Audio 的控制标记驱动 TTS",
+     "desc": "本实验用 Fish Audio S1 建立 24 条参考音组成的语音库：四种情绪、三档语速与两种风格组合。解析器把带标记的回复转换成语音片段和静音片段，执行层为每段选择参考音并完成合成。",
+     "code": "controllable-tts"
+    },
+    {
+     "id": "6-9",
+     "stars": "★",
+     "title": "运行 Anthropic Computer Use 参考实现",
+     "desc": "本实验使用官方容器示例提供的 Ubuntu 桌面、浏览器与工具执行层。用户输入任务后，模型读取截图并返回动作，执行层操作桌面，再把新截图交回模型。",
+     "code": "claude-computer-use-native"
+    },
+    {
+     "id": "6-10",
+     "stars": "★",
+     "title": "使用 browser-use 实现自动浏览器操作",
+     "desc": "本实验用 Qwen3-VL 32B Instruct 驱动 browser-use，通过浏览器状态、元素信息和截图生成动作。任务是查询旧金山天气：定位搜索框，输入“San Francisco weather today”，提交查询，再提取温度和天气状况。",
+     "code": "computer-use-open-model"
+    },
+    {
+     "id": "6-11",
+     "stars": "★",
+     "title": "真机遥操作 XLeRobot 整理桌面",
+     "desc": "在完成标定、限位和急停检查的 XLeRobot 工作区中，放置红色杯子、托盘、黄色废纸和垃圾盒。通过一种已校准的遥操作方式执行固定任务：“把红色杯子放进托盘，把黄色废纸放进垃圾盒，最后确认桌面状态。”重复多轮，记录摄像头画面、操作者输入、机械臂状态、动作时间、抓取失败和重试次数。",
+     "code": "xlerobot-teleoperation"
+    },
+    {
+     "id": "6-12",
+     "stars": "★",
+     "title": "在模拟器中建立同任务的理想控制基线",
+     "desc": "在二维桌面中随机生成物体位置与目标位置，让控制器直接读取坐标，依次接近物体、移动到对应目标，再处理下一个物体。改变初始位置和物体数量，比较成功率、完成步数与路径长度。",
+     "code": ""
+    },
+    {
+     "id": "6-13",
+     "stars": "★★",
+     "title": "使用 Gemini Robotics-ER 1.5 驱动 XLeRobot 自主整理桌面",
+     "desc": "沿用实验 6-11 的硬件、桌面布置、任务与验收条件，由具身推理模型负责观测和规划。参考 RoboCrew 的编排方式，为本任务设计五个工具：`observe_scene`、`pick`、`place`、`verify_state` 和 `stop`。[^ch6-2]",
+     "code": "gemini-xlerobot-navigation"
+    },
+    {
+     "id": "6-14",
+     "stars": "★★",
+     "title": "在模拟器中比较三种自主整理桌面的闭环",
+     "desc": "用结构化状态表示红色杯子与黄色废纸：每个物体处于“在桌面上”“已拿起”或“已放置”三个阶段，目标区域记录是否可用。模拟器提供观测、抓取、放置、检查和停止五类工具，并在抓取废纸时注入至多一次瞬时失败。",
+     "code": ""
+    },
+    {
+     "id": "6-15",
+     "stars": "★★★",
+     "title": "同一桌面任务的 RGB 跨环境测试",
+     "desc": "用圆形表示物体、方框表示目标区域，生成 RGB 桌面图像。模型根据二者的相对位置，输出左、右、上、下四个移动方向之一；当两个位置足够接近时，输出实验定义的 `grasp` 标签。这个标签表示二维位置满足接近条件。",
+     "code": "rgb-sim2real-grasping"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "agent-with-event-trigger",
+     "title": "事件驱动 AI Agent（MCP 工具）",
+     "exp": "6-1",
+     "note": ""
+    },
+    {
+     "name": "astra-async-steering",
+     "title": "实验 6-3：模型原生异步与回合中途引导",
+     "exp": "6-3",
+     "note": ""
+    },
+    {
+     "name": "async-agent",
+     "title": "带并行执行和打断能力的异步 Agent",
+     "exp": "6-2",
+     "note": ""
+    },
+    {
+     "name": "claude-computer-use-native",
+     "title": "通过截图与动作理解 Computer Use",
+     "exp": "6-9",
+     "note": ""
+    },
+    {
+     "name": "computer-use-open-model",
+     "title": "用可替换模型运行截图操作循环",
+     "exp": "6-10",
+     "note": ""
+    },
+    {
+     "name": "controllable-tts",
+     "title": "实验 6-8：用 Fish Audio S1 调节客服语音的表达",
+     "exp": "6-8",
+     "note": ""
+    },
+    {
+     "name": "end-to-end-speech",
+     "title": "实验 6-6：本地运行 MiniCPM-o 4.5 端到端全模态语音",
+     "exp": "6-6",
+     "note": ""
+    },
+    {
+     "name": "gemini-xlerobot-navigation",
+     "title": "实验 6-13 至 6-14：XLeRobot 自主操作与闭环策略比较",
+     "exp": "6-13",
+     "note": ""
+    },
+    {
+     "name": "live-audio",
+     "title": "搭建语音识别、对话与语音合成的级联链路",
+     "exp": "6-4",
+     "note": ""
+    },
+    {
+     "name": "phone-agent",
+     "title": "附加项目：完整音频链路的 WebRTC 电话 Agent",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "rgb-sim2real-grasping",
+     "title": "实验 6-15：RGB 视觉策略的跨环境测试",
+     "exp": "6-15",
+     "note": ""
+    },
+    {
+     "name": "streaming-speech",
+     "title": "实验 6-5：Qwen2-Audio 递增前缀模拟流式感知",
+     "exp": "6-5",
+     "note": ""
+    },
+    {
+     "name": "voice-tool-routing",
+     "title": "语音 Agent 的工具该由谁来调：前台实时模型，还是后台推理模型",
+     "exp": "6-7",
+     "note": ""
+    },
+    {
+     "name": "xlerobot-teleoperation",
+     "title": "实验 6-11 至 6-12：真机遥操作与模拟控制上限",
+     "exp": "6-11",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 7,
+   "experiments": [
+    {
+     "id": "7-1",
+     "stars": "★",
+     "title": "运行 τ²-bench 并对比 τ-bench 的演进",
+     "desc": "先阅读一条任务的用户场景、初始化动作与评分条件，再运行一次完整交互。沿轨迹标记客服查询、用户操作、状态变化和验收结果，检查每次判断依据了哪条信息。",
+     "code": "tau2-bench-eval"
+    },
+    {
+     "id": "7-2",
+     "stars": "★",
+     "title": "亲自执行基准测试任务",
+     "desc": "从 GAIA、AndroidWorld、SWE-bench Verified、Terminal-Bench、OSWorld-Verified 和 τ²-bench 中选取任务，每类按该基准的难度定义选择简单、中等、困难各一题。先独立完成任务，再检查官方评分；记录操作路径、遇到的歧义和最终产物。",
+     "code": "experiment-7-2-human-benchmark"
+    },
+    {
+     "id": "7-3",
+     "stars": "★★",
+     "title": "构建基于 Rubric 的用户记忆评估系统",
+     "desc": "在第三章的用户记忆评估框架中实现结构化评分，覆盖基础回忆、多会话消歧和跨会话隐藏关联三层任务。评价维度包括事实正确性、事实完整性、关联正确性、主动性，以及独立的幻觉检测。",
+     "code": ""
+    },
+    {
+     "id": "7-4",
+     "stars": "★★",
+     "title": "Advanced JSON Cards 与 RAG 的对比评估",
+     "desc": "在同一组 60 个问题上比较三种记忆方案：纯 Advanced JSON Cards 将结构化卡片放入上下文；纯 RAG 将对话分块后检索相关内容；混合系统让核心事实常驻上下文，并按需检索原始对话。三层任务各 20 题，共形成 180 个“方案—问题”组合。",
+     "code": ""
+    },
+    {
+     "id": "7-5",
+     "stars": "★★",
+     "title": "构建全自动 TTS 质量评估流水线",
+     "desc": "设计四维 Rubric。准确性检查遗漏、错读和添加；自然度检查停顿、重音、流畅度与韵律；情感表达检查是否符合文本语境和指定风格；音色一致性在给定目标说话人时比较参考语音与合成语音。情感评分应提供样例，结合语言习惯判断疑问、强调和悲伤等表达。",
+     "code": "tts-quality-eval"
+    },
+    {
+     "id": "7-6",
+     "stars": "★★",
+     "title": "对 AndroidWorld 失败轨迹做失败归因",
+     "desc": "使用保存的 T3A 运行记录练习离线归因。素材包含逐步动作、说明、摘要和最终验证结果，其中 52 条为任务失败轨迹。完成以下五步。",
+     "code": ""
+    },
+    {
+     "id": "7-7",
+     "stars": "★★",
+     "title": "轨迹前缀边界评估：同一上下文的多种表示",
+     "desc": "将已提供给 Agent 的用户记忆、当前任务、轨迹前缀和环境状态组合成用例，要求模型输出下一步可观测动作。用例按用户纠正、点踩和事后审计等生产问题类型构造，覆盖论文风格与 X 帖子的作用域差异、worktree 与 PR 偏好和仓库规则的冲突、当前指令覆盖旧偏好、低置信度推断、删除前确认及对外发布前预览。",
+     "code": "user-memory-policy-eval"
+    },
+    {
+     "id": "7-8",
+     "stars": "★★",
+     "title": "从配对比较数据构建模型排行榜",
+     "desc": "使用 Chatbot Arena 的公开投票快照实现在线 Elo。配套运行从约 180 万条原始对局中筛出 1,670,250 条。所有模型初始评分为 1000，按时间顺序读取对局，计算预期得分，以固定步长 $K=4$ 更新双方评分。其中有 281,121 场投了平局，另有 295,254 场投了“双方都差”。两种投票都给双方各记半分。若产品团队想知道多少次",
+     "code": "elo-leaderboard"
+    },
+    {
+     "id": "7-9",
+     "stars": "★★",
+     "title": "在固定 Coding Harness 中测量模型的行动阈值",
+     "desc": "为 GPT-5.6-sol 与 Claude Sonnet 5 提供相同的系统提示、工具 schema、任务仓库、测试命令和最大轮次，并通过相同的兼容服务入口调用。中性提示让模型自行决定探索和修改顺序。三个小型代码库分别覆盖局部 bug、跨模块身份规范化和公共契约敏感的缓存修复，每个模型对每题独立运行三次，共 18 条轨迹。",
+     "code": "model-action-threshold"
+    },
+    {
+     "id": "7-10",
+     "stars": "★",
+     "title": "Agent 任务的端到端成本分析",
+     "desc": "先用固定八轮流程学习逐次计量，再换成自己的典型工作负载。使用 LangSmith 或自建追踪系统记录输入、缓存输入、输出与思考 token，工具调用次数和结果大小，以及请求和任务的端到端延迟。按服务计费定义汇总模型、工具和基础设施费用。",
+     "code": "agent-cost-analysis"
+    },
+    {
+     "id": "7-11",
+     "stars": "★★",
+     "title": "多维度模型性能基准测试",
+     "desc": "选择与业务有关的 GPT、Claude、Gemini、豆包、Qwen、Kimi、DeepSeek 等具体模型版本，建立配置矩阵；同一权重或模型版本还可以比较不同服务提供商。记录服务端点、量化与推理配置等可获得信息，并按相同测量定义与第三方监测数据比较。",
+     "code": "model-benchmark"
+    },
+    {
+     "id": "7-12",
+     "stars": "★★",
+     "title": "用户记忆系统的端到端选型评估",
+     "desc": "复用第三章的上下文检索或智能体化 RAG，在同一组 60 个用户记忆问题上比较嵌入模型、重排器和 Agent 主模型三个选择点。",
+     "code": "user-memory-system-evaluation"
+    },
+    {
+     "id": "7-13",
+     "stars": "★★★",
+     "title": "AndroidWorld 的评估和改进",
+     "desc": "从历史报告和 H1、H5、H5C 配对结果开始，完成以下过程。",
+     "code": "android-world"
+    },
+    {
+     "id": "7-14",
+     "stars": "★★",
+     "title": "配置 OpenVLA 与 RoboTwin2 的具身智能环境",
+     "desc": "阅读 OpenVLA 和 SimpleVLA-RL 的架构与接口说明，理解视觉编码、语言条件和动作输出如何连接。配置 RoboTwin2，并明确所用策略与机器人接口：以三视角 RGB 和双臂共 14 维关节状态为观测配置，对应 14 维关节控制向量时，逐项核对关节顺序、夹爪字段和归一化方式。",
+     "code": "openvla-robotwin2-eval"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "agent-cost-analysis",
+     "title": "Agent 任务端到端成本分析（实验 7-10）",
+     "exp": "7-10",
+     "note": ""
+    },
+    {
+     "name": "android-world",
+     "title": "AndroidWorld T3A 评估分析笔记",
+     "exp": "7-13",
+     "note": ""
+    },
+    {
+     "name": "elo-leaderboard",
+     "title": "实验 7-8：从两两比较到模型排名",
+     "exp": "7-8",
+     "note": ""
+    },
+    {
+     "name": "experiment-7-2-human-benchmark",
+     "title": "通过亲自走任务理解基准难度",
+     "exp": "7-2",
+     "note": ""
+    },
+    {
+     "name": "model-action-threshold",
+     "title": "在固定工具环境中比较模型行动方式",
+     "exp": "7-9",
+     "note": ""
+    },
+    {
+     "name": "model-benchmark",
+     "title": "实验 7-11",
+     "exp": "7-11",
+     "note": ""
+    },
+    {
+     "name": "openvla-robotwin2-eval",
+     "title": "实验 7-13：OpenVLA + RoboTwin2 具身智能评估",
+     "exp": "7-14",
+     "note": ""
+    },
+    {
+     "name": "public-health-reporting-eval",
+     "title": "Public-health reporting agent evaluation",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "tau2-bench-eval",
+     "title": "在交互环境中评价客服 Agent",
+     "exp": "7-1",
+     "note": ""
+    },
+    {
+     "name": "tts-quality-eval",
+     "title": "TTS 质量评估流水线",
+     "exp": "7-5",
+     "note": ""
+    },
+    {
+     "name": "user-memory-policy-eval",
+     "title": "实验 7-7：已知用户记忆的边界行为评估",
+     "exp": "7-7",
+     "note": ""
+    },
+    {
+     "name": "user-memory-system-evaluation",
+     "title": "对照记忆系统的完整处理链",
+     "exp": "7-12",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 8,
+   "experiments": [
+    {
+     "id": "8-1",
+     "stars": "★",
+     "title": "Q-learning 在寻宝游戏中的表现",
+     "desc": "寻宝游戏包含钥匙与门、武器效果和物品合成等隐藏规则。通关需要按顺序完成多个步骤，最优路径为 11 步；关键动作与胜利提供奖励，其余步骤的反馈较少。",
+     "code": ""
+    },
+    {
+     "id": "8-2",
+     "stars": "★★",
+     "title": "传统 RL 与 LLM Agent 的对比研究",
+     "desc": "在同一寻宝游戏中比较表格 Q-learning 与 LLM Agent。LLM 配置使用 Kimi K3，并在上下文中维护最多 50 条经验。两者每一步都从环境给出的可选动作中选一项。沿图8-7 的两条路径，可以看到 Q 表和语言模型分别怎样做出这个选择。",
+     "code": ""
+    },
+    {
+     "id": "8-3",
+     "stars": "★★",
+     "title": "从头训练 LLM——算法改进的威力",
+     "desc": "以约一亿参数的 MiniMind 2 为例，在消费级 GPU 上完成预训练、SFT 与偏好优化。比较基线与加入 QK Norm、Muon 优化器的配置，观察损失下降、达到目标质量所需时间和生成结果。配套汇总记录了约 3 倍的收敛速度提升，完整训练约 14 小时、费用约 34 美元。",
+     "code": "MiniMind-pretrain"
+    },
+    {
+     "id": "8-4",
+     "stars": "★★",
+     "title": "自己训练 VLM",
+     "desc": "图8-9 展示“视觉编码器—投影层—语言模型”的连接。视觉编码器如 CLIP 提取图像特征，投影层将特征转换到语言模型输入所需的维度与表示，语言模型结合这些输入生成描述或回答。",
+     "code": ""
+    },
+    {
+     "id": "8-5",
+     "stars": "★★",
+     "title": "继续预训练学习新语言",
+     "desc": "从 Mistral 7B v0.3 出发，用韩语维基百科等材料提高韩语能力。训练先采用约 80% 韩语、20% 英语的混合，再用韩语指令数据进行 SFT，分别观察语言建模与对话行为的变化。",
+     "code": "continued-pretraining"
+    },
+    {
+     "id": "8-6",
+     "stars": "★★★",
+     "title": "语音 SFT——从声音复制到副语言建模 `[扩展实验]`",
+     "desc": "以 Orpheus 和 Sesame CSM 为例，比较说话人条件、对话上下文和表达标记怎样参与语音生成。Orpheus 将语音表示为 token，可利用参考文本—语音片段生成相应音色，也提供 `<laugh>`、`<sigh>` 等表达标记。Sesame CSM 则接收文本、说话人标识与已有音频片段，生成后续语音。[^ch8-speech-conditio",
+     "code": "speech-sft-experiment"
+    },
+    {
+     "id": "8-7",
+     "stars": "★★★",
+     "title": "多语言思考——按指定语言生成推理过程 `[扩展实验]`",
+     "desc": "对 gpt-oss-20b 进行 SFT，用指令指定推理过程的语言。例如，`reasoning language: German` 要求生成德语推理文本。训练样本包含英语、西班牙语、法语等语言，并将中文留到测试阶段。",
+     "code": "MultilingualReasoning"
+    },
+    {
+     "id": "8-8",
+     "stars": "★★",
+     "title": "Prompt 蒸馏——以更小开销复现可用能力",
+     "desc": "一项稳定业务可能依赖数千 token 的系统提示，教师还会生成较长推理。Prompt 蒸馏先让教师在完整条件下产生高质量输出，再把“用户输入—最终回答”组成学生的 SFT 数据。学生使用较短提示，并按目标配置直接回答。",
+     "code": "prompt-distillation"
+    },
+    {
+     "id": "8-9",
+     "stars": "★★★",
+     "title": "思维链（Chain of Thought，CoT）蒸馏",
+     "desc": "CoT 蒸馏将教师提供的推理文本与最终答案一起作为监督，使学生学习分解、计算、检查和修正的过程。DeepSeek-R1 对 Qwen、Llama 系列进行蒸馏，是这一方法的代表。对于希望拥有自主可控模型、又希望控制训练投入的团队，笔者建议优先考虑这条路线。教师在目标任务上明显强于学生，就有条件提供有价值的示范；可以先从能够取得完整推理输出的开放权重模型中选择",
+     "code": "cot-distillation"
+    },
+    {
+     "id": "8-10",
+     "stars": "★★",
+     "title": "AdaptThink——学会“何时不思考”",
+     "desc": "推理模型常用较长的推理过程解决问题。对于简单问题，直接回答可以节省生成开销。AdaptThink 为模型提供 Thinking 与 NoThinking 两种模式：在支持这一协议的模型中，NoThinking 通过 `<think></think>` 结束推理段，随后直接生成答案。训练的目标是让模型根据任务选择合适的推理预算。",
+     "code": "AdaptThink"
+    },
+    {
+     "id": "8-11",
+     "stars": "★★",
+     "title": "GeneralPoints——单轮 RL 的 “记忆与泛化” 对照",
+     "desc": "Chu 等人用类似“24 点”的纸牌游戏 GeneralPoints 检验模型的泛化能力[^ch8-3]。四张牌上的数字各用一次，用加减乘除凑出 24。如果模型学会了解题，更换牌面规则或花色后，它还能算对吗？图8-12 给出了两种题面：GP-L 直接给出文字，GP-VL 则需要模型读出牌面。",
+     "code": ""
+    },
+    {
+     "id": "8-12",
+     "stars": "★★★",
+     "title": "V-IRL-VL——多轮视觉导航",
+     "desc": "在 V-IRL[^ch8-24] 中，Agent 要根据眼前的街景一步步找到目的地。训练用的是纽约的路线，测试换到其他城市，既改变指路的说法，也改变画面中的街景。在规则变化和视觉变化这两类分布外测试中，RL 的表现都明显好于 SFT。实验使用带价值网络的 PPO。每走一步就给反馈，有助于分辨一条长路线中哪些决定值得保留。",
+     "code": "SpatialReasoning"
+    },
+    {
+     "id": "8-13",
+     "stars": "★★★",
+     "title": "SimpleVLA-RL——结果奖励下的开放探索 `[扩展实验]`",
+     "desc": "SimpleVLA-RL 在 LIBERO 机器人任务中采用成功／失败结果奖励。每个任务用一条演示轨迹进行 SFT 冷启动，随后通过 RL 将成功率从 17.3% 提高到 91.7%，并产生演示中未出现的“推切”动作。把这个结果与街景导航对照起来看：如果能可靠地判定中途哪一步走错了，就可以当场给反馈，加快学习。如果还不知道完成任务有哪几种走法，先按结果给奖励",
+     "code": "SimpleVLA-RL"
+    },
+    {
+     "id": "8-14",
+     "stars": "★★★",
+     "title": "ReTool——代码解释器增强数学解题",
+     "desc": "图8-17 用一元二次方程展示文本推理、代码生成和解释器反馈如何交替进行。",
+     "code": "retool"
+    },
+    {
+     "id": "8-15",
+     "stars": "★★★",
+     "title": "AWorld-train——在沙盒中学习使用工具",
+     "desc": "沿图8-18 的上半部走一圈，模型收到一次工具调用的结果，还可以接着尝试。再沿下半部走一圈：这一批任务已经结束，训练程序拿到带奖励的轨迹，更新参数，下一批任务才会用上新策略。",
+     "code": "AWorld-train"
+    },
+    {
+     "id": "8-16",
+     "stars": "★★★",
+     "title": "RLVP——奖励结果、惩罚路径",
+     "desc": "实验在 GRPO 中加入结果奖励 $O$ 与路径信号 $\\Phi$，并与纯结果奖励比较。TerminalBench 代理任务上的违规次数由 3.71 降至 0.66，成功率基本持平；miniF2F 代理任务中，加入可达的部分进展奖励后，达到 0.9 成功率所需的迭代从 7.0 降至 4.4。",
+     "code": "RLVP"
+    },
+    {
+     "id": "8-17",
+     "stars": "★★",
+     "title": "从“过早结束”问题案例到 DPO 修复",
+     "desc": "实验把“失败归因—决策前缀—偏好对—LoRA 训练—留出评估”连成一条流程，使用 7B 模型进行训练。",
+     "code": "premature-completion-dpo"
+    },
+    {
+     "id": "8-18",
+     "stars": "★★",
+     "title": "作用域敏感的中文弯引号 SFT",
+     "desc": "实验使用 Qwen3-8B，以 bf16 进行 LoRA SFT，训练 2 个 epoch，共 256 次更新。训练目标是转换中文自然语言中的引用，同时保留代码和结构化数据中的语法引号。",
+     "code": "curly-quote-sft"
+    },
+    {
+     "id": "8-19",
+     "stars": "★★",
+     "title": "特殊字符串的精确复制 SFT",
+     "desc": "实验以 Qwen3-8B 为基座，使用 bf16 LoRA 训练 2 个 epoch，把提示词排除在损失计算之外。直接复述题用目标字符串作为示范，工具参数题用只含 `old_string` 的完整 JSON 作为示范，连字段名、引号和括号都计入逐 token 监督。实验还单独测试 tokenizer 的编码—解码一致性。",
+     "code": "exact-copy-sft"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "AWorld-train",
+     "title": "把多步 Agent 环境接入训练",
+     "exp": "8-15",
+     "note": ""
+    },
+    {
+     "name": "AdaptThink",
+     "title": "Experiment 8-10 reproduction anchor",
+     "exp": "8-10",
+     "note": ""
+    },
+    {
+     "name": "Intuitor",
+     "title": "用内部反馈训练时怎样避免自信替代正确",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "MiniMind-pretrain",
+     "title": "8-4 reproduction anchor",
+     "exp": "8-3",
+     "note": ""
+    },
+    {
+     "name": "MultilingualReasoning",
+     "title": "让语言控制与任务正确性分别可测",
+     "exp": "8-7",
+     "note": ""
+    },
+    {
+     "name": "RLVP",
+     "title": "实验 8-16：结果做对了，该怎样给出过程反馈？",
+     "exp": "8-16",
+     "note": ""
+    },
+    {
+     "name": "SimpleVLA-RL",
+     "title": "Experiment 8-13 reproduction anchor",
+     "exp": "8-13",
+     "note": ""
+    },
+    {
+     "name": "SpatialReasoning",
+     "title": "Experiment 8-12 reproduction anchor",
+     "exp": "8-12",
+     "note": ""
+    },
+    {
+     "name": "continued-pretraining",
+     "title": "比较学习文本分布与学习指令回答",
+     "exp": "8-5",
+     "note": ""
+    },
+    {
+     "name": "cot-distillation",
+     "title": "从教师轨迹构造学生训练数据",
+     "exp": "8-9",
+     "note": ""
+    },
+    {
+     "name": "curly-quote-sft",
+     "title": "实验 8-18：中文弯引号的作用域敏感 SFT",
+     "exp": "8-18",
+     "note": ""
+    },
+    {
+     "name": "exact-copy-sft",
+     "title": "实验 8-19：特殊字符串的精确复述 SFT",
+     "exp": "8-19",
+     "note": ""
+    },
+    {
+     "name": "orpheus",
+     "title": "Orpheus TTS - Text-to-Speech Fine-tuning with Unsloth",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "premature-completion-dpo",
+     "title": "实验 8-17：过早结束的 DPO 修复",
+     "exp": "8-17",
+     "note": ""
+    },
+    {
+     "name": "prompt-distillation",
+     "title": "把长提示词中的行为转成训练样例",
+     "exp": "8-8",
+     "note": ""
+    },
+    {
+     "name": "retool",
+     "title": "Experiment 8-14 reproduction anchor",
+     "exp": "8-14",
+     "note": ""
+    },
+    {
+     "name": "sesame",
+     "title": "Sesame CSM (1B) TTS - Text-to-Speech Fine-tuning",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "speech-sft-experiment",
+     "title": "用成对音频比较语音微调效果",
+     "exp": "8-6",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 9,
+   "experiments": [
+    {
+     "id": "9-1",
+     "stars": "★★",
+     "title": "为客服 Agent 构建轨迹验证器",
+     "desc": "对同一组客服轨迹比较两种输出：一种仅给总分，另一种逐维度给出结论、证据和置信度。检查后者能否将任务失败、规则违规、虚假承诺和表达问题分别定位，并据此提出对应的更新。",
+     "code": "trajectory-verifier"
+    },
+    {
+     "id": "9-2",
+     "stars": "★★",
+     "title": "从 τ²-bench 失败轨迹提炼转接与工具使用规则",
+     "desc": "沿用第七章的 telecom 环境，将提炼集与迁移集分开。先运行较弱模型收集失败轨迹，再让模型生成规则，追加到原政策中。在迁移集上比较原始版本与两个进化版本，三组只替换政策文件，保持用户模拟器一致。",
+     "code": "tau2-escalation-experience"
+    },
+    {
+     "id": "9-3",
+     "stars": "★★",
+     "title": "基于失败轨迹优化航空客服的系统 Prompt",
+     "desc": "从规则遵从、任务解决和合规变通三个维度分析过早转接轨迹，生成带来源的 Prompt 补丁。将自动提炼版本与初始版本、人工调优版本放在相同条件下比较。",
+     "code": "prompt-auto-optimization"
+    },
+    {
+     "id": "9-4",
+     "stars": "★★",
+     "title": "从用户反馈中进化需求澄清与 Spec 确认 Skill",
+     "desc": "这是一道自行设计对照的练习。可以先配两项任务：改正登录按钮上的错别字，以及给同一页面增加企业登录。前者的验收条件可以直接写出来；后者可能得先问清身份提供商。再加上涉及架构、权限、数据或公开接口的任务，分别试用直接执行、澄清后执行、确认 Spec 后执行三种流程。记录用户回答、Spec 修改、交付结果和返工反馈，据此生成 Skill 的局部更新。",
+     "code": "ai-style-skill"
+    },
+    {
+     "id": "9-5",
+     "stars": "★★★",
+     "title": "从浏览器轨迹生成可验证工作流",
+     "desc": "从成功轨迹生成带参数和状态检查的工作流，与每次重新探索的基线比较完成率、模型调用与耗时。再改变页面结构或构造点击成功但任务未提交的状态，检查程序能否检测失效并回退。",
+     "code": "browser-use-rpa"
+    },
+    {
+     "id": "9-6",
+     "stars": "★★★",
+     "title": "由失败轨迹触发 Agent 自我修改",
+     "desc": "针对工具返回不可重试错误后仍被反复调用的问题，比较 Prompt 提醒与程序重试策略两种修复。修改后的程序根据错误类型决定重试、停止或熔断，再通过失败轨迹重放检查目标问题，通过临时故障任务检查恢复能力。错误类型和重试条件已经能精确判定时，笔者倾向于把这项约束写入程序，让每次调用遵循同一规则，同时减少模型反复理解提示的负担。",
+     "code": "self-modifying-agent"
+    },
+    {
+     "id": "9-7",
+     "stars": "★★",
+     "title": "由用户反馈触发高风险操作确认门禁",
+     "desc": "从用户纠正与事后审查中提炼缺少确认的案例，拟定一条在工具调用前检查授权的规则。第一组测试是尚未确认的高风险操作，第二组是已经授权或无需确认的正常操作。",
+     "code": "harness-safety-gate"
+    },
+    {
+     "id": "9-8",
+     "stars": "★★★",
+     "title": "把这本书交给 Hermes：它能升级自己吗？",
+     "desc": "读者 Grace 提出了一个问题：不给 Hermes 列改进清单，只给它本书十章和自己的源码，它会选什么来改？在这次运行中，Hermes 选择了轨迹记录。它想把工具实际返回的结果整理成可核查的证据，供下一次离线评价使用。它可以提出补丁，稳定版本和验收规则由独立权限保护。",
+     "code": "hermes-self-evolution"
+    },
+    {
+     "id": "9-9",
+     "stars": "★★★",
+     "title": "评估 Agent 是否在持续进化",
+     "desc": "比较静态记忆、只追加记忆，以及支持替换和淘汰的版本化记忆。先让 Agent 在一组任务中获得反馈，再依次改变任务表述、更新规则，并测试原有能力。",
+     "code": "self-evolution-eval"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "ai-style-skill",
+     "title": "AI 写作风格 Skill：开放式提炼 + LLM-as-a-judge",
+     "exp": "9-4",
+     "note": ""
+    },
+    {
+     "name": "browser-use-rpa",
+     "title": "实验 9-5：从浏览器轨迹生成可验证工作流",
+     "exp": "9-5",
+     "note": ""
+    },
+    {
+     "name": "harness-safety-gate",
+     "title": "实验 9-7：由用户反馈触发的高风险操作确认门禁",
+     "exp": "9-7",
+     "note": ""
+    },
+    {
+     "name": "hermes-self-evolution",
+     "title": "实验 9-8：把这本书交给 Hermes：它能升级自己吗？",
+     "exp": "9-8",
+     "note": ""
+    },
+    {
+     "name": "prompt-auto-optimization",
+     "title": "实验 9-3：基于失败轨迹优化系统 Prompt",
+     "exp": "9-3",
+     "note": ""
+    },
+    {
+     "name": "self-evolution-eval",
+     "title": "实验 9-9：评估 Agent 是否在持续进化",
+     "exp": "9-9",
+     "note": ""
+    },
+    {
+     "name": "self-evolving-tools",
+     "title": "从缺少能力到接纳新的工具",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "self-modifying-agent",
+     "title": "实验 9-6：由失败轨迹触发 Agent 自我修改",
+     "exp": "9-6",
+     "note": ""
+    },
+    {
+     "name": "tau2-escalation-experience",
+     "title": "实验 9-2：从 τ²-bench 失败轨迹提炼转人工与工具使用规则",
+     "exp": "9-2",
+     "note": ""
+    },
+    {
+     "name": "trajectory-verifier",
+     "title": "实验 9-1：客服 Agent 的三层轨迹验证器",
+     "exp": "9-1",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "no": 10,
+   "experiments": [
+    {
+     "id": "10-1",
+     "stars": "★★",
+     "title": "共享上下文中的多角色转换——系统提示词与 Skill 的对比",
+     "desc": "两条路径使用同一模型、用户任务、工具实现、角色规程和共享历史。入门演示要求查找中国 2021—2023 年新能源汽车销量，计算年复合增长率（CAGR），并写一段不超过 120 字的投资人摘要。",
+     "code": "multi-role-transfer"
+    },
+    {
+     "id": "10-2",
+     "stars": "★★",
+     "title": "书籍翻译 Agent",
+     "desc": "翻译技术书籍需要同时处理术语、语境和行文。例如，英文 agent 可以有不同译法，如果译稿约定使用“智能体”，后续章节就应沿用同一译法。术语表、章节原文、译文和审校记录需要有清楚的组织方式。一本长书连同中间译稿、工具结果和审校历史会不断挤占上下文，模型可能到第九章已经忘记第二章的译法，也可能反复检查同一段内容。把任务按职责和章节拆开，可以让每个实例集中处理当",
+     "code": "book-translation"
+    },
+    {
+     "id": "10-3",
+     "stars": "★★★",
+     "title": "自主编排的电话 + 电脑 Agent",
+     "desc": "本实验结合第六章的 Computer Use 与语音交互。用户提供注册或航班预订页面，Computer Agent 打开网站、识别表单，再通过 Phone Agent 收集当前缺少的姓名、证件号、联系方式、地址和偏好等字段。",
+     "code": "autonomous-phone-registration"
+    },
+    {
+     "id": "10-4",
+     "stars": "★★★",
+     "title": "同时从多个网站搜集信息的 Agent",
+     "desc": "本实验采用多个同构 Agent 并行搜索，练习第六章的事件驱动与中断机制。任务是在一所大学的多个学院网站中查找指定教师，例如“张伟”，返回学院、职位、研究方向及来源页面。搜索前先约定识别条件，例如姓名、学科与个人主页信息，便于区分同名人员。",
+     "code": "parallel-web-research"
+    },
+    {
+     "id": "10-5",
+     "stars": "★",
+     "title": "运行斯坦福 AI 小镇",
+     "desc": "使用配套 README 中的项目与环境配置，运行包含 25 个 Agent 的两天基线场景。",
+     "code": "generative-agents"
+    },
+    {
+     "id": "10-6",
+     "stars": "★★★",
+     "title": "语音狼人杀 Agent 系统",
+     "desc": "构建一个由真人或独立模拟用户与多个 AI 玩家组成的语音游戏。图10-11 展示了法官、角色 Agent 和语音输入输出的关系。",
+     "code": "voice-werewolf"
+    }
+   ],
+   "dirs": [
+    {
+     "name": "autonomous-phone-registration",
+     "title": "让浏览器与语音角色协作补齐表单信息",
+     "exp": "10-3",
+     "note": ""
+    },
+    {
+     "name": "book-translation",
+     "title": "用分工与文件组织长文档翻译",
+     "exp": "10-2",
+     "note": ""
+    },
+    {
+     "name": "generative-agents",
+     "title": "观察记忆、计划与互动如何形成群体行为",
+     "exp": "10-5",
+     "note": ""
+    },
+    {
+     "name": "multi-role-transfer",
+     "title": "比较角色切换与按需加载技能",
+     "exp": "10-1",
+     "note": ""
+    },
+    {
+     "name": "parallel-web-research",
+     "title": "怎样并行查找教师资料，并在找到后停止搜索",
+     "exp": "10-4",
+     "note": ""
+    },
+    {
+     "name": "staged-system-prompt",
+     "title": "按任务阶段组织行为与工具",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "talkact-reproduction",
+     "title": "比较固定的快慢角色协作",
+     "exp": "",
+     "note": ""
+    },
+    {
+     "name": "voice-werewolf",
+     "title": "用游戏状态机协调多角色语音交互",
+     "exp": "10-6",
+     "note": ""
+    }
+   ]
+  }
+ ],
+ "skills": [
+  {
+   "dir": "agent-evaluation",
+   "name": "agent-evaluation",
+   "desc": "为 Agent 建立或改进评估体系时使用——设计评估指标（Pass@k/Pass^k/成本）、搭建可重复运行的评估环境、选择确定性验证器或 LLM-as-a-Judge 及各自适用边界、编写 Rubric、做失败归因与回归任务、评估驱动的模型选型、判断统计显著性、建设可观测性与内部评估基础设施（消融、AB 测试、特性开关、提示词回归）、从 Benchmark 报告走到系统改进。"
+  },
+  {
+   "dir": "agent-evolution",
+   "name": "agent-evolution",
+   "desc": "让 Agent 从运行经验中持续学习、构建自进化闭环时使用——涵盖从运行轨迹提取学习信号（三层轨迹验证）、四种进化方式（经验知识库、Prompt/Skill、程序/Harness、模型参数）的适用边界与选择依据、Prompt 自动优化、轨迹编译为程序、Agent 自我修改与安全门禁、睡眠学习与长期分层评估。触发词：持续进化、自进化、经验学习、轨迹验证器、自我修改、进化闭环。"
+  },
+  {
+   "dir": "agent-state-bar",
+   "name": "agent-state-bar",
+   "desc": "Agent 陷入无限循环、数不清工具调用次数、遗忘 TODO 或目标偏离、长任务中思考 token 持续膨胀时使用——Agent 状态栏机制、作为 user 消息注入末尾的 KV Cache 理由、每轮替换与持久追加两种实现及成本模型、五种状态栏技术（时间戳、工具计数器、TODO、详细错误、系统状态）与维护铁律。"
+  },
+  {
+   "dir": "async-event-agent",
+   "name": "async-event-agent",
+   "desc": "构建异步/事件驱动 Agent，或让 Agent 响应外部事件（新邮件、webhook 回调、IM 消息、定时器、系统告警）、 处理工具执行期间的用户打断与多任务并发时使用。覆盖事件循环与安全点、三类事件触发工具、用户沟通与多渠道召回、 虚拟身份与隔离执行环境、队列式/取消式/并行式三种事件处理策略及紧急度判定，以及模型原生异步与同步接口兼容两条路线。 触发词：异步 Agent、事件驱动、event-driven、webhook、"
+  },
+  {
+   "dir": "bad-case-to-dpo",
+   "name": "bad-case-to-dpo",
+   "desc": "把生产 bad case / 失败轨迹转成训练数据时使用——从失败归因、轨迹前缀截取、DPO 偏好对构造、LoRA 训练到边界集与保留集双集验证的完整链路；也用于判断某类问题该走 SFT、DPO、RL 还是先修 Harness/工具/tokenizer，以及如何从运行轨迹中提取带证据的结构化学习信号。触发词：bad case、失败归因、DPO、偏好对、轨迹前缀、拒绝采样、过度矫正、边界集、保留集、过早结束、reward hacking、"
+  },
+  {
+   "dir": "coding-agent-harness",
+   "name": "coding-agent-harness",
+   "desc": "搭建 Coding Agent 或设计 Agent 护栏时使用——当你要构建能自主读写代码、跑测试、自我纠错的编码 Agent，或为已有 Agent 系统补约束/验证/纠正机制、设计执行边界与验收基线、判断某类任务是否适合交给 Agent、优化 Harness 提示词与工具集时使用。覆盖 Harness 四组件、任务四象限、四条设计原则与业界实践。"
+  },
+  {
+   "dir": "computer-use",
+   "name": "computer-use",
+   "desc": "构建 GUI 自动化 Agent、让 Agent 像人一样看屏幕并用鼠标键盘操作桌面或浏览器软件时使用。 覆盖感知-思考-行动循环、动作空间（GUI/bash/文件编辑）、视觉定位 Grounding 三条路线 （结构化元素索引、Set-of-Mark、纯坐标预测）、分辨率坐标缩放、关键帧观察接口、世界模型与移动端生态壁垒。 触发词：Computer Use、GUI 自动化、截图、Grounding、browser-use、Set"
+  },
+  {
+   "dir": "context-compression",
+   "name": "context-compression",
+   "desc": "上下文膨胀、工具结果撑爆窗口、Agent 决策质量随轮次下降时使用——上下文压缩的三个动机（长度成本、思考质量、上下文焦虑）、压缩即检索的机制、六种压缩策略实测数据、生产级五层分层压缩、四条设计原则，以及用子 Agent 隔离代替压缩。"
+  },
+  {
+   "dir": "context-engineering",
+   "name": "context-engineering",
+   "desc": "设计 Agent 系统提示词、上下文结构或按需加载的 Skill 时使用——覆盖 API 消息角色与「静态前缀 + 轨迹」结构、系统提示词写法（结构化、SOP、业务规则细化、few-shot）、Agent Skills 渐进式披露与 SKILL.md 编写、提示注入的上下文层防御，以及注意力位置偏好等布局原则。"
+  },
+  {
+   "dir": "error-recovery",
+   "name": "error-recovery",
+   "desc": "排查或加固 Agent 故障恢复机制时使用——当 Agent 陷入无限循环、流式响应中途断开、上下文溢出、模型服务限流过载、需要跨厂商接管跑到一半的轨迹、设计重试与熔断策略、防止错误处理路径自身引发连锁故障时使用。覆盖四层故障分类、检测方法、分级恢复策略、熔断上限与流式中断恢复。"
+  },
+  {
+   "dir": "eval-dataset-design",
+   "name": "eval-dataset-design",
+   "desc": "设计 Agent 评估数据集或单条评估任务时使用——解剖评估任务的四个组成部分、设计验证器与验收标准（含防敷衍性修复）、划分任务难度与陷阱任务、防范训练/评估数据泄漏（参数化实例、canary）、建设评估集的质量控制与长期维护、选择公开基准/自建业务集/生产轨迹回流三个来源。覆盖 τ²-bench、SWE-bench、AndroidWorld、OSWorld、Terminal-Bench、GAIA 的可迁移设计手法。"
+  },
+  {
+   "dir": "knowledge-org",
+   "name": "knowledge-org",
+   "desc": "组织与检索超越扁平文本块的知识时使用——涵盖 RAPTOR/GraphRAG 结构化索引选型、OpenViking 文件系统范式与 L0/L1/L2 按需加载、增量更新 PR 审核流与定期整理、Agentic RAG 与安全边界、上下文感知检索、结构化数据知识发现，以及双层记忆架构。"
+  },
+  {
+   "dir": "kv-cache-design",
+   "name": "kv-cache-design",
+   "desc": "优化 Agent 推理延迟与成本、诊断首 token 变慢或缓存命中率下降时使用——KV Cache 前缀不变性原则、三条铁律、五种破坏缓存的错误上下文管理模式、Chat Template 与历史思维链回传策略、缓存作为架构约束（缓存边界、子 Agent 字节级对齐、替换字符串冻结）。"
+  },
+  {
+   "dir": "loop-engineering",
+   "name": "loop-engineering",
+   "desc": "构建或修复 Agent 迭代循环时使用——解决 Agent 过早宣称完成、活干到一半就停、假成功、循环停不下来等问题，设计验证器与终止条件，实现提议者-审核者（Proposer-Reviewer）双 Agent 循环。覆盖过早终止三种形态、验证器是循环瓶颈的原则、LoopX 持久控制面、LongHorizon-Harness 的 MEA 循环、提议者-审核者最小不变量（审核者读独立证据、退回给可定位修复条件）。"
+  },
+  {
+   "dir": "mcp-skill-hub",
+   "name": "mcp-skill-hub",
+   "desc": "为 Agent 接入第三方能力时使用——决定走 MCP 协议还是 Skill Hub 分发、搭建或选用 MCP 服务器、设计工具/资源/提示三类原语、评估引入第三方能力的 token 成本与安全风险、审查工具描述投毒与同名工具遮蔽、锁定服务器版本与配置最小权限凭证时查阅。含 MCP 客户端-服务器架构、传输层选型与供应链缓解清单。"
+  },
+  {
+   "dir": "memory-system",
+   "name": "memory-system",
+   "desc": "为 Agent 设计、实现或评估用户记忆系统时使用——涵盖记忆能力三层次评估框架、轨迹与长期记忆分层、Simple Notes 到 Advanced JSON Cards 及可执行代码的存储格式选型、Mem0/Memobase 框架取舍、记忆压缩整理与隐私脱敏，以及何时该用记忆而非 RAG 的判断。"
+  },
+  {
+   "dir": "multi-agent-design",
+   "name": "multi-agent-design",
+   "desc": "设计或评审多 Agent 系统、判断该用单 Agent 还是多 Agent 时使用——选择对等/管理者/去中心化协作拓扑、决定上下文是否共享、设计 Agent 间通信与共享文件系统、诊断多 Agent 失败模式（并发冲突、错误级联、同质趋同、互相扯皮、循环失控）。覆盖协作架构选择依据、多 Agent 优于单 Agent 的新信息判据、控制平面四原语与虚拟文件系统四类区域的设计检查表。"
+  },
+  {
+   "dir": "post-training-strategy",
+   "name": "post-training-strategy",
+   "desc": "为 Agent 模型做后训练或选路线时使用——判断该先补 Mid-training、用 SFT 立协议还是直接上 RL；构造 Mid-training 语料与 SFT 数据、搭建 RL 环境、在 GRPO/PPO/DPO 与蒸馏之间取舍；排查 pass@k 近零、格式不稳就训 RL、组内无奖励差异、训练-推理数值失配、过度训练泛化下降。触发词：后训练、Mid-training、继续预训练、SFT、RL、GRPO、PPO、DPO、拒绝采样"
+  },
+  {
+   "dir": "rag-pipeline",
+   "name": "rag-pipeline",
+   "desc": "构建或调优 RAG 检索管道时使用——涵盖文档分块策略与参数、稠密嵌入（BGE-M3、余弦相似度、ANNOY/HNSW 选型）、稀疏嵌入（TF-IDF 到 BM25）、混合检索三阶段（并行召回、RRF 融合、跨编码器重排序）与 recall@k/MRR/nDCG 指标，含稀疏 vs 稠密的胜负判断。"
+  },
+  {
+   "dir": "reward-design",
+   "name": "reward-design",
+   "desc": "为 RL 训练设计奖励函数或排查奖励黑客时使用——决定奖励来自规则、人类偏好还是模型评判，结果奖励还是过程奖励，标量、向量还是生成式诊断，以及如何用路径约束与 RLVP 惩罚违规动作；也用于多轮 Agent 的信用分配、隐藏测试与早停判定设计。触发词：奖励设计、reward hacking、reward seeking、RLVR、RLHF、GRM、ORM、PRM、RLVP、信用分配、隐藏测试、过程奖励、奖励塑形、组内差异。"
+  },
+  {
+   "dir": "tool-design",
+   "name": "tool-design",
+   "desc": "设计 Agent 工具时使用——新增/重构工具集、给 MCP 服务器设计工具、判断能力该做成专用工具还是 Skill、编写工具描述与参数 schema、设计感知工具的输出分页与截断、给执行工具加安全审批与沙盒、设计子 Agent 协作接口时查阅。覆盖工具分类、ACI 通用设计原则、感知/执行/协作三类工具的设计要点。"
+  },
+  {
+   "dir": "tool-discovery",
+   "name": "tool-discovery",
+   "desc": "Agent 工具数量变多、上下文被工具定义占满时使用——设计工具发现与渐进式披露机制、实现 discover_tools 元工具与两层语义路由、选择索引式/检索式/主动发现/Skills 方案、处理动态加载破坏 KV Cache 的问题、评估 token 成本与工具选择准确率时查阅。含渐进式加载五步流程、工具数量阈值与关键实验数据。"
+  }
+ ],
+ "skill_repo": "https://github.com/bojieli/ai-agent-book/tree/main/skills"
+}

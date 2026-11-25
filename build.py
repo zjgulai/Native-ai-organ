@@ -36,6 +36,11 @@ def copy_assets() -> None:
     fdir.mkdir(exist_ok=True)
     for f in (ROOT / "assets/figures").glob("*.webp"):
         shutil.copy2(f, fdir / f.name)
+    b4dir = adir / "book4"
+    if (ROOT / "assets/book4").is_dir():
+        b4dir.mkdir(exist_ok=True)
+        for f in (ROOT / "assets/book4").glob("*.svg"):
+            shutil.copy2(f, b4dir / f.name)
 
 
 def verify() -> list[str]:
@@ -72,6 +77,7 @@ def build(check: bool = False) -> int:
     write_page("synthesis.html", P.render_synthesis(""))
     write_page("triology.html", P.render_trilogy(""))
     write_page("agent-lab.html", P.render_agent_lab(""))
+    write_page("experiments.html", P.render_experiments(""))
     write_page("stack.html", P.render_stack(""))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))

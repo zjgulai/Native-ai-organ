@@ -6,7 +6,7 @@ from html import escape
 from site_data import (BOOK, BOOK2, BOOK3, BOOK4, AGENT_LAB, STACK, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, G1_PACK, TOOLS, TERMS, PILOT, PILOT_ASSETS,
-                       PRODUCT,
+                       PRODUCT, EXPERIMENTS,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP,
                        BOOK4_CONTENT, BOOK4_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
@@ -389,6 +389,10 @@ def render_b4_index(base: str) -> str:
         '<h3>Agent 实验场：书 × 代码 × 项目契约</h3>'
         '<p>26 个 ToyAgent 场景 × 10 章书 × 项目契约 ID 的三方映射——看一个 Agent 从公式到约束到评估的完整工程链路。</p></div>'
         + f'<a class="go" href="{base}agent-lab.html">打开实验场 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">REPRO</span>'
+        '<h3>配套实验：110 个编号实验 + 22 份 Skill</h3>'
+        '<p>每章可运行实验与配套代码目录直达 GitHub 仓库——读完想动手验证，从这里进。</p></div>'
+        + f'<a class="go" href="{base}experiments.html">打开实验地图 →</a></div>'
     )
     return page_shell(f'{BOOK4["short_title"]} · 全书地图', base, "book4", inner,
                       BOOK4.get("thesis", "")[:120])
@@ -434,6 +438,87 @@ def render_stack(base: str) -> str:
         + body_html)
     return reader_page(base, "", inner, heads, STACK["title"],
                        STACK.get("lead", "")[:120], nav_current="stack")
+
+
+def render_experiments(base: str) -> str:
+    """Book4 companion experiments + skills index page."""
+    repo = EXPERIMENTS["repo"]
+    ch_title = {int(c["no"]): c["title"] for c in BOOK4["chapters"]}
+    deep_of = {int(c["no"]): c.get("deep", "") for c in BOOK4["chapters"]}
+    n_exp = sum(len(c["experiments"]) for c in EXPERIMENTS["chapters"])
+    n_dir = sum(len(c["dirs"]) for c in EXPERIMENTS["chapters"])
+
+    parts = [
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span>'
+        '<a href="' + base + 'book4/index.html">Agent书</a><span>/</span><span>配套实验</span></div>',
+        '<div class="cat">BOOK4 · EXPERIMENTS &amp; SKILLS</div>',
+        f'<h1>配套实验与主题 Skill（{n_exp} 实验 · {n_dir} 代码目录 · {len(EXPERIMENTS["skills"])} Skill）</h1>',
+        '<p class="lead">《深入理解 AI Agent》每章配有可运行实验与配套代码——Apache-2.0 开源在 '
+        f'<a href="{repo}" target="_blank" rel="noopener">bojieli/ai-agent-book</a> 仓库的 '
+        '<code>chapter1~10/</code> 目录；另有 22 份主题 SKILL.md 把各章方法封装为可复用 Agent Skill。'
+        '下表按章列出书中编号实验（★ 为书中推荐度）、验证目标与对应代码目录；实验编号与精读页内容一一对应。</p>',
+        '<div class="note" style="margin:18px 0">使用方式：多数实验需要 API Key 或本地模型，README 内含环境准备、运行命令与预期现象。'
+        '标注「代码」的实验可点击直达对应目录；未标注的实验为论文复现或需要硬件（机器人/语音设备）的进阶项目，代码入口见章末目录清单。</div>',
+    ]
+
+    for c in EXPERIMENTS["chapters"]:
+        no = c["no"]
+        title = ch_title.get(no, f"第{no}章")
+        deep = deep_of.get(no, "")
+        head_link = (f'<a href="{base}book4/{deep}.html" style="color:var(--r-blue)">{escape(title)}</a>'
+                     if deep else escape(title))
+        rows = []
+        for e in c["experiments"]:
+            code_cell = ""
+            if e["code"]:
+                code_cell = (f'<a href="{repo}/tree/main/chapter{no}/{e["code"]}" target="_blank" rel="noopener">'
+                             f'<code>{escape(e["code"])}</code> ↗</a>')
+            else:
+                code_cell = (f'<a href="{repo}/tree/main/chapter{no}" target="_blank" rel="noopener">章目录 ↗</a>')
+            stars = e["stars"] or "—"
+            rows.append(
+                f'<tr><td class="mono">{e["id"]}</td><td>{stars}</td>'
+                f'<td><b>{escape(e["title"])}</b><br><span style="color:#8a97a8;font-size:13px">{escape(e["desc"])}</span></td>'
+                f'<td style="white-space:nowrap">{code_cell}</td></tr>')
+        # extra dirs not mapped to a numbered experiment
+        extra = [d for d in c["dirs"] if not d["exp"]]
+        extra_html = ""
+        if extra:
+            links = "".join(
+                f'<a href="{repo}/tree/main/chapter{no}/{d["name"]}" target="_blank" rel="noopener" '
+                f'style="display:inline-block;margin:2px 8px 2px 0;padding:2px 10px;border:1px solid #d8dee8;'
+                f'border-radius:999px;font-size:12.5px;color:var(--r-blue);text-decoration:none">'
+                f'{escape(d["name"])} ↗</a>' for d in extra)
+            extra_html = ('<p style="margin:10px 0 4px;font-size:13px;color:#8a97a8">附加代码目录（书中未单独编号）：</p>'
+                          f'<div>{links}</div>')
+        parts.append(
+            f'<h2 id="ch-{no}"><span class="sec-no">{no:02d}</span>{head_link}</h2>'
+            '<div class="table-wrap"><table><thead><tr><th style="width:64px">编号</th><th style="width:56px">推荐</th>'
+            '<th>实验与验证目标</th><th style="width:170px">代码</th></tr></thead><tbody>'
+            + "".join(rows) + '</tbody></table></div>' + extra_html)
+
+    # skills section
+    sk_rows = []
+    for s in EXPERIMENTS["skills"]:
+        sk_rows.append(
+            f'<tr><td class="mono"><a href="{EXPERIMENTS["skill_repo"]}/{s["dir"]}" target="_blank" rel="noopener">'
+            f'{escape(s["dir"])} ↗</a></td><td><b>{escape(s["name"])}</b><br>'
+            f'<span style="color:#8a97a8;font-size:13px">{escape(s["desc"])}</span></td></tr>')
+    parts.append(
+        '<h2 id="skills"><span class="sec-no">SK</span>主题 Skill 索引（22 份）</h2>'
+        '<p style="color:#8a97a8;font-size:14px;margin:-6px 0 14px">书中配套的 Agent Skill——把各章方法封装为标准 SKILL.md，'
+        '可直接放入 Agent 运行环境按需加载；与本站<a href="' + base + 'agent-lab.html" style="color:var(--r-blue)">三方映射</a>'
+        '中「Skill 按需加载」的工程实践互为印证。</p>'
+        '<div class="table-wrap"><table><thead><tr><th style="width:220px">Skill 目录</th><th>用途</th></tr></thead><tbody>'
+        + "".join(sk_rows) + '</tbody></table></div>')
+
+    inner = "".join(parts)
+    inner += (f'<div class="cta-card" style="margin-top:30px"><div><span class="idx">NEXT</span>'
+              '<h3>回到 Agent书全书地图</h3>'
+              '<p>10 章全章精读、三条阅读路径与官方在线版入口。</p></div>'
+              + f'<a class="go" href="{base}book4/index.html">Agent书全书地图 →</a></div>')
+    return page_shell("配套实验与主题 Skill · Agent书", base, "book4", inner,
+                      "《深入理解 AI Agent》配套实验地图：110 个编号实验、111 个代码目录与 22 份主题 SKILL.md，按章索引并直达 GitHub 仓库。")
 
 
 def render_trilogy(base: str) -> str:
