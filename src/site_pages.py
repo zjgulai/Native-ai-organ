@@ -381,7 +381,7 @@ def render_b4_index(base: str) -> str:
         f'<span>仓库 <b><a href="{BOOK4["repo"]}" style="color:var(--r-blue)">bojieli/ai-agent-book ↗</a></b></span>'
         f'<span>在线版 <b><a href="{BOOK4["online"]}" style="color:var(--r-blue)">bojieli.github.io ↗</a></b></span>'
         f'<span>精读 <b>{len(BOOK4_DEEP)} / 10 章</b></span></div></div>'
-        f'<div class="note" style="margin:18px 0">{escape(BOOK4.get("source_note", ""))}本站对该书采用「全书地图 + 战略章节精读」结构：10 章全部收录为框架索引，其中 {len(BOOK4_DEEP)} 个与 Agent 工程实践最相关的章节提供深度解读。本书在本站的角色是运行时层的方法源——其工程概念与 <a href="{base}agent-lab.html">Agent 实验场</a> 三方映射、<a href="{base}stack.html">四层架构</a> 0→1 路径互为表里。</div>'
+        f'<div class="note" style="margin:18px 0">{escape(BOOK4.get("source_note", ""))}本站对该书采用「全书地图 + 全章精读」结构：10 章全部提供原创深度解读（含实践映射），每章保留核心论点与工程实验入口作为框架索引。本书在本站的角色是运行时层的方法源——其工程概念与 <a href="{base}agent-lab.html">Agent 实验场</a> 三方映射、<a href="{base}stack.html">四层架构</a> 0→1 路径互为表里。</div>'
         + "".join(grouped)
         + '<h2 style="margin-top:44px">三条阅读路径</h2>'
         + f'<div class="path-grid" style="margin-top:14px">{paths}</div>'
@@ -586,7 +586,7 @@ def render_home(base: str) -> str:
          [("章节解读", "书1 · 15 篇深度解读", "chapters/index.html"),
           ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
           ("本体书·本体驱动AI数据管理", "书3 · 10 章框架 + 6 篇精读", "book3/index.html"),
-          ("Agent书·深入理解AI Agent", "书4 · 10 章框架 + 精读推进中", "book4/index.html"),
+          ("Agent书·深入理解AI Agent", "书4 · 10 章全章精读（Apache-2.0 开源书）", "book4/index.html"),
           ("Agent实验场", "书4 × ToyAgent × 项目契约三方映射", "agent-lab.html"),
           ("四层架构", "组织×业务×语义×工程 0→1 路径", "stack.html"),
           ("三书合璧", "组织 × 品牌 × 语义三层支撑", "triology.html"),
@@ -665,7 +665,7 @@ def render_home(base: str) -> str:
 <p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {10 - len(BOOK3_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}book3/index.html" style="color:var(--r-blue)">本体书全书地图</a>；本书方法论的工程化落地见<a href="{base}semantic.html" style="color:var(--r-blue)">语义底座 v0 全景页</a>。</p></div></section>
 <section class="section tint"><div class="wrap">
 <h2>第四本书：《{escape(BOOK4["short_title"])}》</h2>
-<p class="sec-sub">运行时层的方法源——前三本书回答组织怎么变、业务干什么、机器怎么懂，书四回答一个 Agent 怎么被造出来、跑起来、被约束。Apache-2.0 开源书，配套 ToyAgent 代码库做可运行参照。本站采用「全书地图 + 战略章节精读」结构。</p>
+<p class="sec-sub">运行时层的方法源——前三本书回答组织怎么变、业务干什么、机器怎么懂，书四回答一个 Agent 怎么被造出来、跑起来、被约束。Apache-2.0 开源书，配套 ToyAgent 代码库做可运行参照。本站采用「全书地图 + 全章精读」结构。</p>
 <div class="cta-card">
 <div><span class="idx">BOOK FOUR</span><h3>{escape(BOOK4["title"])}</h3>
 <p>{escape(BOOK4["author"])} 著 · {escape(BOOK4["publisher"])} · <a href="{BOOK4["repo"]}" style="color:inherit">GitHub ↗</a> · <a href="{BOOK4["online"]}" style="color:inherit">在线版 ↗</a> · {escape(BOOK4.get("thesis", ""))}</p></div>
@@ -673,9 +673,9 @@ def render_home(base: str) -> str:
 <a class="go" href="{base}book4/index.html">Agent书全书地图 →</a>
 <a class="go" href="{base}agent-lab.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">Agent实验场 →</a>
 <a class="go" href="{base}stack.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">四层架构 →</a></div></div>
-<h3 style="margin:26px 0 6px">精选精读（{len(BOOK4_DEEP)} / 10 章）</h3>
-<div class="ch-list">{b4_deep_rows if b4_deep_rows else '<div class="ch-item"><span class="t">精读按波次推进中——第一波：第 1、2 章（Agent 构件与上下文工程）</span><span class="st"><span class="soon">进行中</span></span></div>'}</div>
-<p style="margin-top:14px;font-size:13px;color:#8a97a8">其余章节收录为框架索引（含每章核心论点与工程实验入口），见<a href="{base}book4/index.html" style="color:var(--r-blue)">Agent书全书地图</a>；书 × 代码 × 项目契约的三方映射见<a href="{base}agent-lab.html" style="color:var(--r-blue)">Agent 实验场</a>。</p></div></section>
+<h3 style="margin:26px 0 6px">全章精读（{len(BOOK4_DEEP)} / 10 章）</h3>
+<div class="ch-list">{b4_deep_rows}</div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">每章均含「实践映射」块——对照项目契约 ID；全书框架与官方原文入口见<a href="{base}book4/index.html" style="color:var(--r-blue)">Agent书全书地图</a>；书 × 代码 × 项目契约的三方映射见<a href="{base}agent-lab.html" style="color:var(--r-blue)">Agent 实验场</a>。</p></div></section>
 <section class="section tint"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>

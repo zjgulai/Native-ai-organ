@@ -12,7 +12,7 @@
    ["独有覆盖", "评估方法论（ch7）、模型后训练（ch8）、持续进化闭环（ch9）、多 Agent 社会（ch10）", "step19-22 人机协同与安全栈（书内散见 Harness 章节）、可视化轨迹与 27 篇原理文章"],
    ["资产形态", "136 张 SVG 矢量图、109 个配套实验、22 份主题 SKILL.md、在线版", "26 场景代码（Java 零依赖）、MockChatModel 确定性剧本、5 语言等价实现"],
    ["协议", "Apache-2.0 开源书（bojieli/ai-agent-book，59.8k+ stars）", "Apache-2.0（fuzhengwei/ToyAgent）"],
-   ["在本站的角色", "书4 读书轨：框架索引 + 5 篇精读（见[Agent书全书地图](book4/index.html)）", "本页映射对象 + 外部可运行参照（[GitHub 仓](https://github.com/fuzhengwei/ToyAgent)）"]
+   ["在本站的角色", "书4 读书轨：10 章全章精读（见[Agent书全书地图](book4/index.html)）", "本页映射对象 + 外部可运行参照（[GitHub 仓](https://github.com/fuzhengwei/ToyAgent)）"]
   ]}},
   {"h2": "二十六场景全景映射"},
   {"p": "ToyAgent 按七条主题弧线递进。下表把每个场景映射到书4 章节与本项目契约——「项目契约」列中的 ID 均可在[姊妹仓库](https://github.com/zjgulai/AI-Native-Organization)公开规格中查到原文。"},
@@ -97,7 +97,7 @@
   {"p": "书 ch7 的评估体系（Pass@k vs Pass^k 区分「能做一次」与「次次能做」、LLM-as-Judge 逐项评分、失败归因定位首个错误、消融基础设施、A/B 测试区分机制改动与业务目标）正是本项目两层验收设计的方法学基础：20 份场景契约各 16 条事理规则中的「必须回放」清单，预设了轨迹级回归验证；G1 证据包六要件（脱敏样例/粒度时滞/PII 声明/hash/缺口/口径）则是评估数据集的企业侧采集规范。"},
   {"h2": "去哪看：三个入口"},
   {"list": [
-   "**书4 全书地图**：[Agent书·深入理解AI Agent](book4/index.html)——10 章框架索引 + 官方在线版/仓库源码三链；5 篇精读按波次推进中",
+   "**书4 全书地图**：[Agent书·深入理解AI Agent](book4/index.html)——10 章全章精读 + 官方在线版/仓库源码三链",
    "**ToyAgent 仓库**：[github.com/fuzhengwei/ToyAgent](https://github.com/fuzhengwei/ToyAgent)（Apache-2.0）——26 场景源码 + web 可视化测试页说明 + 27 篇原理文章；本地零依赖运行（JDK 17+ `javac` 即跑），未配 Key 时用 Mock 模型看完整轨迹",
    "**书4 开源仓**：[github.com/bojieli/ai-agent-book](https://github.com/bojieli/ai-agent-book)——全书 Markdown 源码、136 张 SVG 图、109 个配套实验、22 份主题 Skill；[在线版](https://bojieli.github.io/ai-agent-book/astro/)可直接读"
   ]},
