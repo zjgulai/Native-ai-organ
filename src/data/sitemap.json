@@ -35,6 +35,7 @@
    "[Agent书·深入理解AI Agent](book4/index.html) 书4 的 10 章框架与精读（开源书，附官方在线版）",
    "[Agent实验场](agent-lab.html) 书4 × ToyAgent 26 场景 × 项目契约映射",
    "[配套实验](experiments.html) 书4 的 110 个编号实验 + 22 份主题 Skill 索引",
+   "[原理文章蒸馏](toyagent-steps.html) ToyAgent 27 篇原理文章的方法论提炼（定位/机制/边界）",
    "[三书合璧](triology.html) / [四层架构](stack.html) 收束到整合方案"]},
   {"h3": "路径③ 实战项目线（看方法论落地）"},
   {"olist": [
@@ -60,6 +61,7 @@
    ["Agent书", "书4《深入理解AI Agent》10 章全章精读（Apache-2.0 开源书）", "Agent 工程师/组织设计者", "[book4](book4/index.html)"],
    ["Agent实验场", "书4 × ToyAgent 26 场景 × 项目契约 ID 三方映射", "想看工程落地", "[agent-lab](agent-lab.html)"],
    ["配套实验", "书4 的 110 个编号实验、111 个代码目录与 22 份主题 SKILL.md", "想动手复现", "[experiments](experiments.html)"],
+   ["原理文章蒸馏", "ToyAgent 27 篇原理文章蒸馏：每篇的定位/机制/边界/代码链接", "想读机制细节", "[toyagent-steps](toyagent-steps.html)"],
    ["四层架构", "组织×业务×语义×工程四层 + 0→1 设计路径", "看全局结构", "[stack](stack.html)"],
    ["两书合璧", "两书分工、五层结合点、FLOW-09 工程化", "看整合方案", "[synthesis](synthesis.html)"],
    ["三书合璧", "组织 × 品牌 × 语义三层支撑与试点汇合点", "看三书怎么拼", "[triology](triology.html)"],

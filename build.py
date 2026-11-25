@@ -78,6 +78,7 @@ def build(check: bool = False) -> int:
     write_page("triology.html", P.render_trilogy(""))
     write_page("agent-lab.html", P.render_agent_lab(""))
     write_page("experiments.html", P.render_experiments(""))
+    write_page("toyagent-steps.html", P.render_toyagent_steps(""))
     write_page("stack.html", P.render_stack(""))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))

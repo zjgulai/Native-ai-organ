@@ -6,7 +6,7 @@ from html import escape
 from site_data import (BOOK, BOOK2, BOOK3, BOOK4, AGENT_LAB, STACK, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, G1_PACK, TOOLS, TERMS, PILOT, PILOT_ASSETS,
-                       PRODUCT, EXPERIMENTS,
+                       PRODUCT, EXPERIMENTS, TOYAGENT_STEPS,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP,
                        BOOK4_CONTENT, BOOK4_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
@@ -413,7 +413,11 @@ def render_agent_lab(base: str) -> str:
         f'<span>约 <b>{AGENT_LAB.get("minutes", "12")}</b> 分钟读完</span>'
         '<span>覆盖 <b>书4 × ToyAgent 26 场景 × 项目契约</b></span></div></div>'
         + body_html
-        + f'<div class="cta-card" style="margin-top:30px"><div><span class="idx">STACK</span>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">DISTILL</span>'
+        '<h3>ToyAgent 原理文章：27 篇方法论蒸馏</h3>'
+        '<p>每个 step 配一篇机制讲解——本站逐篇蒸馏为「定位 / 机制 / 边界 / 代码链接」，读机制细节从这里进。</p></div>'
+        + f'<a class="go" href="{base}toyagent-steps.html">打开原理文章蒸馏 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">STACK</span>'
         '<h3>四层架构：0→1 设计总纲</h3>'
         '<p>组织 × 业务 × 语义 × 工程四层如何拼成「AI Native Agent 从 0 到 1」的完整路径。</p></div>'
         + f'<a class="go" href="{base}stack.html">打开四层架构 →</a></div>')
@@ -519,6 +523,30 @@ def render_experiments(base: str) -> str:
               + f'<a class="go" href="{base}book4/index.html">Agent书全书地图 →</a></div>')
     return page_shell("配套实验与主题 Skill · Agent书", base, "book4", inner,
                       "《深入理解 AI Agent》配套实验地图：110 个编号实验、111 个代码目录与 22 份主题 SKILL.md，按章索引并直达 GitHub 仓库。")
+
+
+def render_toyagent_steps(base: str) -> str:
+    blocks = TOYAGENT_STEPS["blocks"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span>'
+        '<a href="' + base + 'agent-lab.html">Agent实验场</a><span>/</span><span>ToyAgent 原理文章</span></div>'
+        '<div class="cat">AGENT LAB · ARTICLE DISTILLATION</div>'
+        f'<h1>{escape(TOYAGENT_STEPS["title"])}</h1>'
+        f'<p class="lead">{inline(TOYAGENT_STEPS.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创蒸馏 · 非原文转载</b></span>'
+        f'<span>约 <b>{escape(TOYAGENT_STEPS.get("minutes", "18"))}</b> 分钟读完</span>'
+        '<span>覆盖 <b>27 篇原理文章 × 26 场景 × 7 弧线</b></span></div></div>'
+        + body_html
+        + f'<div class="cta-card" style="margin-top:30px"><div><span class="idx">MAP</span>'
+        '<h3>Agent 实验场：三方映射总表</h3>'
+        '<p>每个 step 与书4 章节、项目契约 ID 的映射——先建坐标再读机制。</p></div>'
+        + f'<a class="go" href="{base}agent-lab.html">打开三方映射 →</a></div>')
+    return reader_page(base, "", inner, heads, TOYAGENT_STEPS["title"],
+                       TOYAGENT_STEPS.get("lead", "")[:120], nav_current="toyagent-steps")
 
 
 def render_trilogy(base: str) -> str:

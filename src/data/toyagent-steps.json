@@ -1,0 +1,312 @@
+{
+ "title": "ToyAgent 原理文章蒸馏：27 篇方法论提炼",
+ "lead": "ToyAgent 仓库 web/ 目录内置 27 篇原理文章——每个场景配一篇「是什么 → 怎么实现 → 对应教程章节」。本文把 27 篇的工程方法论逐篇蒸馏为「定位 / 机制 / 边界 / 链接」四段式：不复制原文与代码，只提炼每篇真正证明了什么、关键机制是什么、以及它自己承认的生产化差距。阅读顺序与 agent-lab 三方映射页一致：先看映射建立坐标，再回这里读机制细节。",
+ "status": "v1.0",
+ "minutes": "18",
+ "repo": "https://github.com/fuzhengwei/ToyAgent",
+ "web": "https://github.com/fuzhengwei/ToyAgent#readme",
+ "blocks": [
+  {"h2": "这是什么"},
+  {"p": "ToyAgent（fuzhengwei，小傅哥）是 Java 17 **零依赖**的教学项目：26 个场景 = 26 个接口类 = 26 个 .java 文件，每个文件嵌套实现类即全部逻辑。配套 `web/` 测试页除对话界面与执行轨迹外，还内置 **27 篇原理文章**（`web/js/articles.js`）——这是全网少见的「每个 Agent 能力点配一篇机制讲解」的开源项目。"},
+  {"p": "本页与 [Agent 实验场](agent-lab.html) 分工：实验场回答「书 × 代码 × 项目契约怎么映射」，本页回答「每篇文章的方法论本身讲了什么」。两者互补——映射给坐标，蒸馏给机制。"},
+  {"note": "**版权与使用**：ToyAgent 为 Apache-2.0。本站蒸馏为原创改写，不复制原文段落与代码；每篇末尾链接直达 GitHub 对应 step 目录与原文文章位置。配套还有 5 种语言移植（Python / TypeScript / Go / JavaScript），机制完全同构。"},
+
+  {"h2": "弧线一 · 基础内核（step01-04）：一个 Agent 的最小骨架"},
+  {"h3": "01 · 对话智能体 <code>ChatAgent</code>"},
+  {"p": "**定位**：智能体的工程起点极其朴素——把用户的话交给模型，把模型的话还给用户，全部实现一行 <code>model.chat()</code>。剥掉概念外衣后，「Agent」与「Chatbot」在 MVP 阶段没有区别。"},
+  {"list": [
+   "**抽象分层**：<code>Agent.chat(String)</code> 是契约，<code>ChatModel</code> 屏蔽「模型是谁」——策略代码不感知端点是 OpenAI 还是 Mock",
+   "**模型调用的本质**：所谓调模型就是一次 HTTP POST <code>/chat/completions</code>，没有魔法",
+   "**MVP 三无**：无策略（不预处理）、无状态（每轮独立）、无工具（只能用参数知识）——后续 25 个场景每次只往骨架里加一种能力"
+  ]},
+  {"note": "**边界**：本场景是刻意的「零能力基线」。Agent 与 Chatbot 的区别不在这里产生，而在工具、记忆、循环与目标导向逐层叠加之后才显现。"},
+  {"p": "[代码 step01 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step01) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "02 · 提示词工程 <code>PromptAgent</code>"},
+  {"p": "**定位**：同一个模型换一份系统提示词就换一种人格——成本最低的「能力开发」。与 step01 唯一的区别是调用前塞入一条 system 消息。"},
+  {"list": [
+   "**三层结构**：角色（你是谁）/ 背景（什么语境）/ 任务与约束（怎么干、什么不能干）",
+   "**C.L.E.A.R 原则**：Concise 删冗词、Logical 约束不矛盾、Explicit「50字以内」优于「简短」、Adaptive 用 Few-shot 校准、Robust 声明边界行为（不知道就拒答）",
+   "**提示词的本质**：用自然语言写一份可执行的规格说明——「你是个 AI 助手」一句话等于风格随机"
+  ]},
+  {"note": "**边界**：约束条款的「执行力」要靠实测验证（本场景用「用一句话」指令观察模型是否严格遵守），提示词不是写完就生效的法律。"},
+  {"p": "[代码 step02 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step02) · [三方映射](agent-lab.html) · [书4 ch1/ch2](book4/b4-02-shangxiawen-gongcheng.html)"},
+
+  {"h3": "03 · ReAct 循环 <code>ReActAgent</code>"},
+  {"p": "**定位**：补上模型两个短板——幻觉（编造实时信息）与一次成型（复杂问题不拆步）。Thought → Action → Observation → 循环至 Final Answer，是几乎所有 Agent 框架的内核。"},
+  {"list": [
+   "**协议约定**：让模型每轮只输出一个 JSON——<code>{thought, action, action_input}</code> 或 <code>{thought, final}</code>，格式二选一",
+   "**循环体 20 行**：模型思考 → 解析 → 有 final 则结束 → 执行工具 → 观察结果作为新消息追加回上下文",
+   "**灵魂所在**：第 4 步把工具结果喂回对话——模型并不「感知世界」，它的一切认知都来自上下文，上下文里有什么它就活在什么世界里",
+   "**MAX_STEPS 保险丝**：防止模型反复调同一工具或工具持续报错造成无限烧钱；生产系统里这叫 Budget Guard"
+  ]},
+  {"note": "**边界**：ReAct 只解决「边想边做」的节奏，不解决「做得对不对」——结果质量取决于工具可靠性与上下文质量。"},
+  {"p": "[代码 step03 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step03) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "04 · 工具调用 <code>ToolCallAgent</code>"},
+  {"p": "**定位**：Function Calling 的安全基石——模型负责决定「用什么工具、传什么参数」，执行永远在你手里。模型输出的只是一段文本，永远无法直接触达数据库或文件系统。"},
+  {"list": [
+   "**三步舞**：声明工具清单 → 模型返回结构化调用请求 → execute() 执行并把结果回填为新消息",
+   "**教学版 vs 生产版同语义**：提示词清单 vs <code>tools</code> 数组 + JSON Schema；JSON 文本 vs <code>tool_calls</code> 字段；拼接 vs role=tool 消息——形式不同语义一致",
+   "**好工具三原则**：单一职责、参数自描述（模型只见过 schema）、失败要可读（返回「城市未收录」而非堆栈，让模型能自我纠错）"
+  ]},
+  {"note": "**边界**：所有副作用都发生在你的 execute() 里——校验参数、权限检查、白名单都在那里做。这就是 Function Calling 与「让模型直接执行代码」的本质区别。"},
+  {"p": "[代码 step04 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step04) · [三方映射](agent-lab.html) · [书4 ch4](book4/b4-04-gongju.html)"},
+
+  {"h2": "弧线二 · 记忆与知识（step05-08）：Agent 的认知底座"},
+  {"h3": "05 · 记忆系统 <code>MemoryAgent</code>"},
+  {"p": "**定位**：先破除误解——模型没有数据库、没有存储。所谓记忆 = 把历史消息重新放进上下文窗口，外加超限后的压缩策略。「我叫小傅哥」能被记住，只是因为那轮对话还在这次的上下文里。"},
+  {"list": [
+   "**记忆的全部秘密**：<code>context.addAll(history)</code>——历史就是发给模型的消息列表本身",
+   "**两板斧**：滑动窗口（只留最近 N 轮，丢早期信息）+ 摘要压缩（旧对话摘成一条 system 消息，有损）——本场景混合并用",
+   "**三层记忆**：短期（会话内历史）/ 长期（跨会话持久化，技术上就是 RAG）/ 工作记忆（ReAct 循环中的中间状态）",
+   "**Context Engineering**：提示词工程决定模型「怎么答」，上下文工程决定模型「看见什么」——看见什么决定它知道什么"
+  ]},
+  {"note": "**边界**：上下文窗口是稀缺资源（128K 起步但昂贵且存在「中间遗忘」）——历史无限增长时不压缩就会撑爆或稀释注意力。"},
+  {"p": "[代码 step05 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step05) · [三方映射](agent-lab.html) · [书4 ch2/ch3](book4/b4-03-jiyi-zhishi-ku.html)"},
+
+  {"h3": "06 · 意图路由 <code>RouterAgent</code>"},
+  {"p": "**定位**：不是所有问题都需要同一个处理流程——先识别意图，再分流，从单车道升级为立交桥。把天气、计算、闲聊全塞进一个 ReAct 循环会同时踩中延迟高、成本贵、不可控三个问题。"},
+  {"list": [
+   "**两步实现**：模型输出分类 JSON（intent + reason）→ switch 按意图走专属通道",
+   "**路由器三重身份**：意图分类器、任务规划器（复杂请求拆子任务）、Agent Loop 的节拍器",
+   "**三种路由对比**：关键词规则（0 延迟但易误判）/ LLM 分类（语义级但 +1 次调用）/ 混合（规则快筛 + LLM 兜底，生产推荐）"
+  ]},
+  {"note": "**边界**：路由是多智能体协作的前置能力——入口 Agent 识别意图后分发给领域 Agent。但注意本站项目刻意不用 LLM 路由：模型外 Case Control 已承担该职责（D-020），这是两种「决策位置」的对照样本。"},
+  {"p": "[代码 step06 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step06) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "07 · RAG 检索增强 <code>RagAgent</code>"},
+  {"p": "**定位**：模型不知道你的私有知识——检索找资料、提示词喂资料、生成有出处，三步缓解幻觉。解决知识过期、私有知识、编造三类问题。"},
+  {"list": [
+   "**三步骨架**：Retrieve（命中片段打分取 Top-K）→ Augment（带来源编号 [1][2] 注入提示词）→ Generate（约束「优先依据资料回答，不足则拒答」）",
+   "**教学版 vs 生产版**：bigram 重合率 vs Embedding 余弦；内存 List vs 向量库；手工条目 vs 切分-向量化-入库管道",
+   "**骨架不变论**：把 score() 换成 Embedding 相似度、List 换成向量库，本场景立刻变生产级——三步骨架永不过时",
+   "**拒答也是能力**：允许模型说「不知道」是 RAG 工程里最容易被忽略却最重要的设计"
+  ]},
+  {"note": "**边界**：进阶形态（重排序、HyDE、GraphRAG、Agentic RAG）都在同一骨架上加层，不改变检索-增强-生成的语义。"},
+  {"p": "[代码 step07 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step07) · [三方映射](agent-lab.html) · [书4 ch3](book4/b4-03-jiyi-zhishi-ku.html)"},
+
+  {"h3": "08 · LLM-Wiki 知识编译 <code>WikiAgent</code>"},
+  {"p": "**定位**：RAG 每次提问都从头翻文档；LLM-Wiki 把项目知识编译成条目、持久维护——编译一次，持续复用。源自 Karpathy 的提法，AGENTS.md / CLAUDE.md 就是它的工程形态。"},
+  {"list": [
+   "**两类知识的区分**：检索型知识（文档、网页，量大且杂 → RAG）vs 项目知识（架构约定、规范、业务规则 → 编译成结构化条目随启动加载）",
+   "**三步骨架**：加载 Wiki → 命中条目 → 增强生成；「编译：」指令把对话知识沉淀为条目并持久化到 wiki/user-wiki.md",
+   "**与 RAG 三个不同**：知识来源（静态只读 vs 内置+增量编译）、生命周期（每次重检索 vs 持久化重启恢复）、典型问题（文档说了什么 vs 项目约定是什么）"
+  ]},
+  {"note": "**边界**：生产化路径——条目存仓库、bigram 换 Embedding、编译动作交给 Agent 自主维护（自我更新 Wiki）。"},
+  {"p": "[代码 step08 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step08) · [三方映射](agent-lab.html) · [书4 ch3/ch9](book4/b4-09-chixu-jinhua.html)"},
+
+  {"h2": "弧线三 · 工具的进化（step09-11）：从调用到生态"},
+  {"h3": "09 · MCP 协议 <code>McpAgent</code>"},
+  {"p": "**定位**：工具不再写死在智能体里——统一注册、动态发现、标准调用，智能体世界的 USB-C 接口。解的是 M×N 集成问题：没有 MCP 时 M 个智能体对接 N 个工具要 M×N 份胶水代码，有了只需 M+N 份。"},
+  {"list": [
+   "**协议只需两个方法**：<code>tools/list</code>（发现）+ <code>tools/call</code>（调用）——教学版用进程内接口模拟，真实 MCP 是 JSON-RPC 2.0 over stdio/HTTP",
+   "**解耦三收益**：工具热插拔（Server 换实现智能体零改动）、生态复用（一个合规模块到处用）、权限收敛（执行都在 Server 侧）",
+   "**核心方法完全一致**：进程内模拟与真实协议的差别只在传输层，Agent 侧逻辑一行不改"
+  ]},
+  {"note": "**边界**：教学版模拟的是「协议语义」而非网络细节——真实对接见 step09-real。"},
+  {"p": "[代码 step09 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step09) · [三方映射](agent-lab.html) · [书4 ch4](book4/b4-04-gongju.html)"},
+
+  {"h3": "09+ · MCP 真实对接 <code>McpRealAgent</code>"},
+  {"p": "**定位**：把教学版协议换成真网络——SSE 长连接 + JSON-RPC 2.0，接入百度 AI 搜索 MCP Server，Agent 骨架零改动。证明 MCP 的价值：工具侧怎么实现、走什么网络，智能体只认两个方法。"},
+  {"list": [
+   "**会话报文流**：GET /mcp/sse 建长连接 → Server 下发 endpoint（带 session_id）→ 所有请求 POST 到该地址（202 Accepted）→ 响应从 SSE 异步推回",
+   "**零依赖实现**：JDK 原生 HttpClient + BufferedReader 逐行解析 SSE + ConcurrentHashMap&lt;id, 响应&gt; + CountDownLatch 按 id 配对等待",
+   "**为什么 POST+SSE**：SSE 是单向服务器推送通道天然适合异步下发；POST 承载请求可让报文任意大——两条通道 + id 配对构成双向全双工底座"
+  ]},
+  {"note": "**边界**：教学版与真实对接只差一层传输——SseMcpClient 换掉 McpClient，其余代码一行不改。这正是标准协议的意义。"},
+  {"p": "[代码 step09-real ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step09) · [三方映射](agent-lab.html) · [书4 ch4](book4/b4-04-gongju.html)"},
+
+  {"h3": "10 · 技能编排 <code>SkillAgent</code>"},
+  {"p": "**定位**：工具解决一步的问题，技能解决一类的问题。「做一份杭州旅行攻略」需要查天气+看时间+结合日期给建议+排版——让模型每次现场思考既慢又不稳，把验证过的流程封装起来就是技能。"},
+  {"list": [
+   "**三层抽象**：L0 提示词技能（纯 Prompt 模板）/ L1 工具组合（固定调一组工具+拼装）/ L2 子流程（完整 ReAct 循环封成技能）",
+   "**先选技能再执行**：模型按语义匹配 skill → switch 走确定性编排——L1 技能内部没有循环、没有不确定性",
+   "**编排重于自主**：能确定的流程绝不交给模型现场决策，把不确定性留给真正需要它的环节",
+   "**沉淀机制**：Claude Skills、GPTs、企业插件市场本质相同——把个人/组织经验固化为可复用资产；好技能包 = 描述文档 + 执行逻辑 + Few-shot 示例"
+  ]},
+  {"note": "**边界**：技能库越厚 Agent 越强而模型不用换——这是「能力在资产层积累、不在模型层堆料」的工程路线。"},
+  {"p": "[代码 step10 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step10) · [三方映射](agent-lab.html) · [书4 ch2](book4/b4-02-shangxiawen-gongcheng.html)"},
+
+  {"h3": "11 · 工具注册表 <code>RegistryAgent</code>"},
+  {"p": "**定位**：把工具从写死的 switch 里解放出来——加一个工具要改两处（提示词清单 + 执行器分支），工具多了必然失同步。解法：统一协议 + 注册表，注册即生效、注销即消失。"},
+  {"list": [
+   "**协议四件套**：<code>ToolDefinition</code> = name + description（模型选工具的唯一依据）+ parameters + execute",
+   "**注册表三职责**：register 返回<strong>注销器 Runnable</strong>（注册-回收对称性）/ lookup（执行器只查表不认具体工具）/ promptCatalog（自动渲染系统提示词清单，注册即生效注销即消失）",
+   "**一个 record 就是一个工具**——协议即文档，清单永远与实际可调用工具一致"
+  ]},
+  {"note": "**边界**：生产对照——dsh-java 插件停止/卸载时靠注销器回收工具、提示词与 Hook 注册项，插件贡献的每样东西都能被完整收回。MCP（step09）是这套协议的跨进程标准化版本。"},
+  {"p": "[代码 step11 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step11) · [三方映射](agent-lab.html) · [书4 ch4](book4/b4-04-gongju.html)"},
+
+  {"h2": "弧线四 · 协作与派遣（step12-14）：从单 Agent 到多 Agent"},
+  {"h3": "12 · 多智能体 <code>MultiAgent</code>"},
+  {"p": "**定位**：什么时候该拆出多个智能体——上下文装不下、职责混杂（自己查自己容易放水）、有并行需求。规划者拆任务、研究员找素材、写手出内容、审查员把关，结构化消息在角色间流动。"},
+  {"list": [
+   "**协作没有魔法**：每个角色都是同一个模型换了份系统提示词，区别只在消息流的结构——设计多 Agent 系统 = 设计「谁在什么时刻看见什么信息」",
+   "**一条流水线**：规划者输出 JSON 计划 → 研究员笔记作为写手输入 → 审查员可打回触发修改循环",
+   "**三种经典模式**：流水线（顺序传递单向）/ 主管-工人（动态分派汇总）/ 辩论评审（多 Agent 互审博弈）",
+   "**成本警示**：每加一个角色延迟与 Token 成本线性上涨——能用单 Agent + 好提示词解决的，不要上多 Agent"
+  ]},
+  {"note": "**边界**：跨系统协作需要 A2A 类协议（能力卡片 + 任务协商）；审查打回循环要设上限，否则成本失控。本站项目刻意单 Case 单 Agent（D-020），Lead/Worker 受控组队（D-053）是更保守的变体——见 agent-lab 弧线四的对照分析。"},
+  {"p": "[代码 step12 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step12) · [三方映射](agent-lab.html) · [书4 ch10](book4/b4-10-duoagent-xiezuo.html)"},
+
+  {"h3": "13 · 子代理 <code>SubagentAgent</code>"},
+  {"p": "**定位**：主代理不必亲自做所有事——把子任务派给带独立上下文的分身，主代理只派任务、收结论，中间过程不占主会话。与 step12 的区别：固定流水线是角色编排写死在代码里，本步是模型自己决定派谁、怎么派。"},
+  {"list": [
+   "**spawn vs fork**：spawn 全新出发（只有职责提示词，适合无状态专项任务）/ fork 复制父会话再出发（知道对话里出现过的一切，适合「接着当前话题继续做」）",
+   "**派遣流程**：主代理决策 → dispatch_subagent → 子代理独立循环 → 结果回填主会话",
+   "**上下文差异可验证**：先说「我喜欢紫色」再 fork 写贺词（带紫色）vs spawn 写贺词（通用）——差异即 spawn 与 fork 的差异"
+  ]},
+  {"note": "**边界**：生产化路径——子代理挂独立工具集与模型档位、结果结构化校验、派遣深度限制（防子代理再生子代理失控）、SubagentRegistry 支持注册表化复用。本站对应物是窄范围只读 Delegate 与 ArtifactEnvelope 交接（D-020/D-053）。"},
+  {"p": "[代码 step13 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step13) · [三方映射](agent-lab.html) · [书4 ch10](book4/b4-10-duoagent-xiezuo.html)"},
+
+  {"h3": "14 · A2A 协作 <code>A2AAgent</code>"},
+  {"p": "**定位**：step13 的子代理是自家分身（同进程）；A2A 解决跨进程、跨主人的协作——类比「请同事帮忙 vs 外包给合作公司」。A2A = 代理之间的 REST：发现靠名片，调用靠统一信封，不猜对方内部接口。"},
+  {"list": [
+   "**三块基石**：Agent Card 名片发现（name/url/version/skills，生产中托管在 /.well-known/agent.json）/ 标准信封（task_id + submitted→working→completed 状态机）/ 异步回执（拿 task_id 即可离开，结果异步取回）",
+   "**派遣流程**：a2a_discover 拉名片 → 按 skill 路由 → a2a_send 发信封 → task_id 回执",
+   "**与 step13 分工**：子代理同进程可继承上下文；A2A 跨进程只能靠任务描述传递，信任模型是「标准协议 + 名片声明的能力边界」"
+  ]},
+  {"note": "**边界**：生产化路径——名片加认证签名、长任务轮询/回调、失败重试与幂等、多代理编排请求。本站对应物是跨价值流 correlation_id 与状态独立（D-025），跨组织 A2A 为远期方向。"},
+  {"p": "[代码 step14 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step14) · [三方映射](agent-lab.html) · [书4 ch10](book4/b4-10-duoagent-xiezuo.html)"},
+
+  {"h2": "弧线五 · 运行时与工程化（step15-18）：从能跑到能兜底"},
+  {"h3": "15 · Loop 运行时 <code>LoopAgent</code>"},
+  {"p": "**定位**：step03 的循环在裸奔——它有四个致命假设：用户输入无害、模型永远按协议输出、工具永不失败、循环总会收敛。生产环境里四个都会破。运行时四件套给循环装上兜底。"},
+  {"list": [
+   "**四件套**：① 输入守卫（长度 + 敏感词/注入检测，不通过直接返回不烧钱）② Agent Loop ③ 输出守卫（合规检查后才放行）④ 异常兜底（模型调用 try-catch，工具异常不拖垮循环）+ 保险丝熔断",
+   "**Prompt 注入**：最常见安全威胁——防线是分层的：输入侧过滤、提示词声明边界、工具侧最小权限、输出侧合规审查。没有银弹，只有纵深防御",
+   "**运行时五层架构**：接入层（鉴权限流）→ 守卫层（输入/输出安全）→ 编排层（Loop/状态/重试）→ 工具层（执行与隔离）→ 模型层（推理服务）"
+  ]},
+  {"note": "**边界**：模型负责聪明，运行时负责可靠——稳定性的答案不在模型侧而在工程侧：预算保险丝、超时重试、工具降级、输出校验、全链路 Trace。本站对应物是 Emergency Guard（D-026）+ Policy Gate + SCN-018/020 冻结语义。"},
+  {"p": "[代码 step15 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step15) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "16 · 工作流状态机 <code>WorkflowAgent</code>"},
+  {"p": "**定位**：ReAct 是模型说了算，工作流是流程说了算。灵活但业务方睡不着觉的场景（客服、工单、审批）需要流程可控——LangGraph 思想的确定性编排。"},
+  {"list": [
+   "**图编排三要素**：节点（能力单元：模型调用/工具/纯逻辑）+ 边（固定流转 + 条件路由）+ 状态（节点间共享数据通道）",
+   "**执行路径**：固定入口 classify → 条件边分流 tool/faq → 汇合点 polish——每一步状态显式可见",
+   "**Checkpoint 招牌能力**：每个节点执行后把 State 落盘——流程任意位置可暂停、人工审批后继续、失败从最近检查点重放。ReAct 做不到是因为它的状态埋在对话历史里，而状态机的状态是显式的、可序列化的",
+   "**混合范式（生产主流）**：工作流管骨架（确定性），节点内部跑 ReAct（灵活性）——宏观可控、微观灵活"
+  ]},
+  {"note": "**边界**：纯工作流牺牲灵活性，纯 ReAct 牺牲可控性——生产系统几乎都是「骨架状态机 + 节点内自主循环」的混合体。本站对应物是八阶段产物驱动、门禁推进协议（D-024）。"},
+  {"p": "[代码 step16 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step16) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "17 · ReAct 运行时 <code>RuntimeAgent</code>"},
+  {"p": "**定位**：参考 dsh-java 的 ReactLoopAgent（994 行）拆出的教学骨架——真实运行时比 while 循环多三样东西：两级循环、上下文预算、统一的结束原因。"},
+  {"list": [
+   "**turn/step 两级循环**：chat() = 1 个 turn，while = step 循环——工具执行完不结束回合而是续步（mid-turn continuation），观察结果进历史直到出现结束原因",
+   "**TurnEndReason sealed 封闭类型**：Completed / MaxSteps / Error——所有「循环为什么停」收敛成封闭代数类型，编译器穷尽检查保证新增结束原因时所有处理点被提醒",
+   "**上下文裁剪 truncateToBudget**：token 估算（字符数/4）→ 超预算从最老消息丢起、保底留最近 4 条——历史跨对话累积必须有预算闸",
+   "**步数保险丝**：单回合步数上限（教学 6 步，生产 50）——发「死循环测试」可亲眼看到 MAX_STEPS 起跳"
+  ]},
+  {"note": "**边界**：与 step15 分工——15 管「跑飞了怎么办」（守卫/兜底），17 管「循环怎么停、上下文怎么管」（结构本身）。消化完这两个再看 dsh-java 源码就是完整阶梯：ToolDefinition → ToolRegistry → ReactLoopAgent → ToolCallExecutor。"},
+  {"p": "[代码 step17 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step17) · [三方映射](agent-lab.html) · [书4 ch1/ch2](book4/b4-02-shangxiawen-gongcheng.html)"},
+
+  {"h3": "18 · 全流程智能体 <code>FullAgent</code>"},
+  {"p": "**定位**：前 17 个场景是教学拆解——每次只看清一个零件。真实系统里这些零件同时在线：守卫在模型之前拦一道、记忆在上下文里垫一层、循环在中间转、保险丝在旁边盯预算。FullAgent 把它们组装进一个 chat()，方法签名不变——骨架永远不变，变厚的只是策略层。"},
+  {"list": [
+   "**七环节生命周期**：输入守卫 → 读取记忆+画像 → 组装上下文 → ReAct 循环 → 保险丝 → 输出校验 → 回写记忆（超阈值触发压缩）",
+   "**复用而非重写**：runReAct() 与 step03 一字不差、compress 是 step05 的简化版、守卫来自 step15——全流程场景的价值在组装顺序：守卫在最前、记忆在两侧、循环在核心、保险丝贴着循环",
+   "**画像兜底细节**：用户问「我叫什么」时信息可能已被压缩裁掉——画像单独持久化、问答先查档案。记忆分两层：对话历史（易失会压缩）vs 用户画像（持久结构化）",
+   "**距生产六条差距**（坦率清单）：流式输出、并发会话隔离、真实工具网关、按 Token 计费裁剪、结构化可观测、评测回归"
+  ]},
+  {"note": "**边界**：守卫不只管输入也管输出——模型是不可靠的（可能被注入、可能胡说），工程上它被夹在两道校验中间。这就是「模型聪明，运行时可靠」的落地形态，也是本站 Case Agent 完整运行时画像（D-053）的参照系。"},
+  {"p": "[代码 step18 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step18) · [三方映射](agent-lab.html) · [书4 全书](book4/index.html)"},
+
+  {"h2": "弧线六 · 人机协同与安全（step19-22）：治理增量最密集的一段"},
+  {"h3": "19 · 人工介入 <code>AskAgent</code>"},
+  {"p": "**定位**：「帮我订机票」没说出发地——猜一个错了浪费时间、对了纯属运气。聪明的智能体要懂得什么时候该开口问。核心思想：把「异步的人」翻译成「同步的工具结果」。"},
+  {"list": [
+   "**生产版（dsh-java）**：CompletableFuture 阻塞-唤醒——工具执行线程阻塞在 Future 上，问题推给前端，人的回复一到就 complete，线程醒来拿到「工具结果」继续跑",
+   "**教学版（同步 HTTP）**：会话挂起 + 续答——pendingQuestion 持久化在会话状态，turn 暂停；用户回复不进模型而是作为「人工答复」回填挂起位，turn 恢复",
+   "**两种实现同语义**：人的一次回答 = 一次工具结果注入——人的答复没有经过模型决策，它直接作为事实注入，是权威输入",
+   "**人在回路谱系**：主动提问（ask）、方案选择（ask_user_question）、打断纠偏（steer）"
+  ]},
+  {"note": "**边界**：本站对应物是 C1 审核会话 / C2 高风险逐条确认（D-080）——真人 HITL 在本站属后置设计，治理面由模型外确认流承担。"},
+  {"p": "[代码 step19 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step19) · [三方映射](agent-lab.html) · [书4 ch6](book4/b4-06-jiaohu-kuozhan.html)"},
+
+  {"h3": "20 · 审批门禁 <code>ApprovalAgent</code>"},
+  {"p": "**定位**：让智能体发邮件、删文件、执行命令——能力越强，误操作（或被诱导）的代价越大。一道运行期审批链路：工具按风险分级，高危动作必须等人点头。**模型的决策权与人的一票否决权分离。**"},
+  {"list": [
+   "**四个设计点**：风险分级（只读 vs 高危写）/ 三档模式（AUTO_MANUAL_SAFE·ALWAYS_ASK·FULL_AUTO）/ 会话免审（「批准并记住」→ 本会话同工具自动放行）/ 超时默认 DENY（宁可不执行）",
+   "**一条挂起-决策链**：needAsk 判定 → pendingTool 挂起先答复人 → 人回复 resolveApproval：批准→执行、拒绝→终止、批准并记住→加入免审名单",
+   "**设计哲学**：拒绝后操作根本没发生，而不是发生后再回滚；超时默认 DENY 而非 ALLOW，是把不确定性的代价留给可用性而非安全"
+  ]},
+  {"note": "**边界**：本站最强同构映射——C1 审核会话（批量但语义仍逐条绑定哈希）/ C2 高风险逐条确认 / C3 EG 规则级预授权（D-080），底层是 Action Intent → Policy Gate → Execution Broker → Receipt（PV-20/21/28/29）。注意「会话免审」与 C1 的区别：C1 是批量确认而非免审。"},
+  {"p": "[代码 step20 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step20) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "21 · 沙箱纵深防御 <code>SandboxAgent</code>"},
+  {"p": "**定位**：不信任模型的输出——它生成的命令照样要过四层校验，任何一层拦截即 DENY。只靠提示词约束「别执行危险命令」是脆弱的：提示词注入、模型幻觉都能绕过它。"},
+  {"list": [
+   "**四道关卡**：① 策略档位（READ_ONLY 全拒）→ ② 内容黑名单（rm -rf、sudo、mkfs、fork 炸弹）→ ③ 空间边界（绝对路径必须在工作区内）→ ④ 路径规范化（canonicalize 后复查）",
+   "**③和④为何分两层**：<code>sandbox/../../etc/passwd</code> 字面上「以 sandbox/ 开头」第③层看是合法的，只有规范化解析符号链接、压平 .. 之后才暴露真实落点——字面检查 + 语义检查是路径安全的标准打法",
+   "**红蓝对抗可验证**：ls 放行 / rm -rf 第②层拦 / cat /etc/passwd 第③层拦 / cat sandbox/../../etc/passwd 第④层拦——每条轨迹标注拦截层与原因"
+  ]},
+  {"note": "**边界**：拦截器是独立防线，模型再聪明也改变不了判定结果。本站对应物是 ES-M/ES-A/ES-X 执行面三层（EXECUTION-SURFACE-V01）——手动交接面是当前唯一执行面，API 执行器与永久人工面是演进与兜底。"},
+  {"p": "[代码 step21 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step21) · [三方映射](agent-lab.html) · [书4 ch1](book4/b4-01-agent-rumen.html)"},
+
+  {"h3": "22 · 事件溯源 <code>EventSourcedAgent</code>"},
+  {"p": "**定位**：换个方式存状态——不存「当前状态」，只存「发生过什么」。对话的每一刻追加为不可变事件（JSONL），Agent 的记忆从日志回放投影而来。这是 Event Sourcing / Kafka / Git 的共同思想。"},
+  {"list": [
+   "**三件套**：事件追加（SESSION/USER/AGENT_REPLY/TURN_COMPLETED 四类，append-only，seq 单调递增一行一 JSON）→ 回放投影（每轮开始前重放全部事件重建上下文）→ 类型过滤（投影只取 USER/AGENT 进上下文，其余留在日志里服务审计——视图与真相分离）",
+   "**白送的四种能力**：持久化（重启状态完整恢复）/ 审计（谁在何时说了什么一条不缺，合规刚需）/ 时间旅行与 fork（截取日志前 N 条 = 任意历史时点快照——dsh-java 子代理 fork 正是「复制事件前缀」）/ 调试（精确复原模型当时看到了什么）",
+   "**题眼**：删日志 = 删状态——状态只存在于日志里，没有第二份真相"
+  ]},
+  {"note": "**边界**：生产对照——dsh-java 有 16 种 sealed 领域事件（含 TOOL_CALLED、审批、压缩、子代理）+ 校验和防篡改；教学版 4 种足够看清骨架。本站对应物是八阶段产物驱动 + ArtifactEnvelope（D-024/D-053）+ 评估回流。"},
+  {"p": "[代码 step22 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step22) · [三方映射](agent-lab.html) · [书4 ch9](book4/b4-09-chixu-jinhua.html)"},
+
+  {"h2": "弧线七 · 扩展与形态（step23-26）：生态与边界"},
+  {"h3": "23 · 插件机制 <code>PluginAgent</code>"},
+  {"p": "**定位**：step11 解决「工具怎么注册」，本步解决「工具从哪来」——插件是一批工具的动态载体：安装即批量注册，卸载即批量注销。插件 = 工具的 JAR 包。"},
+  {"list": [
+   "**dsh-java 四层设计**：契约（JavaHarnessPlugin + PluginManifest 声明入口）→ 加载（独立 URLClassLoader 隔离，entrypoint 优先 SPI 兜底）→ 生命周期（安装→激活→运行→卸载热插拔）→ 桥接（工具批量注册进 ToolRegistry，disposers 按 pluginId 归档）",
+   "**本场景骨架**：释放插件包 → 隔离加载 → onStart + 收集工具 → 批量注册；卸载三步回收：批量 disposer → onStop → cl.close()",
+   "**与 step11 分工**：注册表管「工具怎么注册、怎么被发现」（单个工具级）；插件管「工具从哪来、怎么装进来、怎么卸掉」（插件级批量 + ClassLoader 隔离）",
+   "**双模式**：进程内（URLClassLoader）/ 进程外（JsonRpcPluginToolBridge JSON-RPC 桥接）"
+  ]},
+  {"note": "**边界**：生产化路径——真 JAR + MANIFEST 声明、maven archetype 脚手架、版本冲突校验与签名验证、双模式桥接。本站插件生态为远期方向（AGENTS.md 保留边界）。"},
+  {"p": "[代码 step23 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step23) · [三方映射](agent-lab.html) · [书4 ch4](book4/b4-04-gongju.html)"},
+
+  {"h3": "24 · Hooks 钩子 <code>HooksAgent</code>"},
+  {"p": "**定位**：工具执行前后不是裸奔的——宿主在 before / after 两个生命周期点暴露钩子位，审计、风控、脱敏都从这里挂进去，工具代码一行不改。钩子 = 工具调用链上的 AOP。"},
+  {"list": [
+   "**两个挂载点三种干预**：before（拦截 DENY / 改写参数 / 只记录）/ after（改写输出 / 脱敏 / 追加告警）——handler 返回 null=放行、\"DENY:原因\"=拦截、否则替换内容",
+   "**HookMatcher 匹配规则**：每条钩子声明挂在哪些工具上，'*'=全部；enabled=false 时整条链路直通",
+   "**HookOutputMerger**：多条 after 钩子按注册顺序依次加工输出",
+   "**对照实验可验证**：「查询：张三」看手机号打码 / 「发送：密码是123456」看风控拦截 / 「钩子：关」再查询看明文裸奔 / 「审计日志」看 before 记录"
+  ]},
+  {"note": "**边界**：横切需求（审计、脱敏、风控）的共同点是横切在所有工具上——写进每个工具改一次规则要改 N 处；钩子把它们抽出来挂生命周期上，挂钩即生效、摘钩即消失。本站 hooks 方向为保留边界 + 审计轨迹。"},
+  {"p": "[代码 step24 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step24) · [三方映射](agent-lab.html) · [书4 ch2/ch4](book4/b4-04-gongju.html)"},
+
+  {"h3": "25 · CLI 智能体 <code>CliAgent</code>"},
+  {"p": "**定位**：形态变了，灵魂不变——仍是 Agent.chat(input)：外面套一层终端 REPL，工具侧换成沙箱执行器。REPL 只是 Agent.chat 的 while 循环，单命令 -p 模式只是调用一次就退出。形态即壳。"},
+  {"list": [
+   "**三个要点**：shell 执行器（ProcessBuilder 按空格拆分不经 shell，无管道/重定向注入面）/ 四层沙箱直接复用 step21 / 工作区上下文（cwd 进入系统提示词，像终端会话一样「知道自己在哪」）",
+   "**零依赖可跑**：<code>java -cp target/classes ...CliAgent</code> 进 REPL；<code>-p \"...\"</code> 非交互单命令（Claude Code 同款习惯）",
+   "**一个接口类设计的回报**：换形态不动骨架——Web 版、CLI 版、将来的 GUI 版共享同一 Agent 契约"
+  ]},
+  {"note": "**边界**：生产化路径——shlex 级命令解析、白名单升级权限配置、输出截断与超时、高危命令接 step20 审批门禁。本站边界声明：不实例化 CLI agent，HITL 走审核会话。"},
+  {"p": "[代码 step25 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step25) · [三方映射](agent-lab.html) · [书4 ch6](book4/b4-06-jiaohu-kuozhan.html)"},
+
+  {"h3": "26 · 定时工具 <code>ScheduleAgent</code>"},
+  {"p": "**定位**：之前的工具都是即时的：调用→执行→返回。定时工具把「什么时候做」也变成决策对象——「每天早上 8 点汇总新闻」「30 秒后提醒我开会」的共同点是：请求已返回，行动在未来。"},
+  {"list": [
+   "**关键工程点**：HTTP 响应已经返回，任务却在未来执行——触发结果不能塞进本次响应，要落盘（事件溯源，呼应 step22），并在后续对话中汇报",
+   "**三种调度能力**：一次性（schedule + delay）/ 循环（scheduleAtFixedRate）/ 管理（列表 / 取消 job_id 定位）",
+   "**骨架**：注册任务拿 job_id → 响应立即返回 → 调度线程到点触发 → 结果 append 到事件日志（events/step26-tasks.jsonl）",
+   "**异步可感知**：「定时：5秒 提醒我喝水」→ 立刻「任务列表」看到 pending → 等 5 秒变 done → 「完成了什么」从日志读回"
+  ]},
+  {"note": "**边界**：生产化路径——任务持久化到数据库（重启不丢）、到点推送改 SSE/WebSocket、循环任务加最大次数与退避、与审批门禁联动（高危定时任务需审批）。本站对应物是定时巡检类场景候选 + FLOW-07 Emergency Guard 触发源。"},
+  {"p": "[代码 step26 ↗](https://github.com/fuzhengwei/ToyAgent/tree/main/src/main/java/cn/xiaofuge/ai/agent/step26) · [三方映射](agent-lab.html) · [书4 ch1/ch6](book4/b4-06-jiaohu-kuozhan.html)"},
+
+  {"h2": "怎么用这份蒸馏"},
+  {"olist": [
+   "**先建坐标**：[Agent 实验场](agent-lab.html) 给出每个 step 与书4 章节、项目契约 ID 的三方映射——先看哪里对得上",
+   "**再读机制**：回本页按弧线顺序读蒸馏——每篇四段式（定位/机制/边界/链接），机制部分是文章的工程干货",
+   "**动手验证**：每篇末尾链接直达 GitHub step 目录——Java 零依赖 clone 即跑，配 OpenAI 兼容 API 换真脑，不配 Key 用 MockChatModel 看完整轨迹",
+   "**对照原文**：需要完整论证与代码细节时，点链接回 ToyAgent web 原理文章或 step 目录 README"
+  ]},
+  {"note": "**一句话总结全项目**：智能体 = 大模型（大脑）+ 工具（手脚）+ 记忆（延续）+ 循环（节拍）+ 工程化（兜底）。26 个场景就是这个公式逐项展开的过程——本页 27 篇蒸馏就是展开过程的机制注解。"}
+ ]
+}

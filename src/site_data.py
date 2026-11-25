@@ -35,6 +35,7 @@ SYNTHESIS = _load("synthesis.json")
 TRILOGY = _load("triology.json")
 PRODUCT = _load("product.json")
 EXPERIMENTS = _load("experiments.json")
+TOYAGENT_STEPS = _load("toyagent-steps.json")
 FIG_SRC = json.loads((ROOT / "assets/figures/figures.json").read_text(encoding="utf-8"))
 _manifest = ROOT / "assets/figures/manifest.json"
 FIG_OUT = json.loads(_manifest.read_text(encoding="utf-8")) if _manifest.exists() else {}
