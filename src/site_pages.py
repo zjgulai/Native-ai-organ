@@ -3,13 +3,14 @@ import json
 import re
 from html import escape
 
-from site_data import (BOOK, BOOK2, BOOK3, BRAND2_CONTENT, BRAND2_DEEP,
+from site_data import (BOOK, BOOK2, BOOK3, BOOK4, AGENT_LAB, STACK, BRAND2_CONTENT, BRAND2_DEEP,
                        BRAND_PLAN, CHAPTERS, CHAPTER_CONTENT, CONCEPTS,
                        ORGMAP, SITEMAP, SEMANTIC, G1_PACK, TOOLS, TERMS, PILOT, PILOT_ASSETS,
                        PRODUCT,
-                       SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP)
+                       SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP,
+                       BOOK4_CONTENT, BOOK4_DEEP)
 from site_render import (inline, render_blocks, page_shell, reader_page,
-                         sidebar_html_b2, sidebar_html_b3)
+                         sidebar_html_b2, sidebar_html_b3, sidebar_html_b4)
 
 
 def chapter_headings(blocks: list) -> list[tuple[str, str]]:
@@ -294,6 +295,147 @@ def render_b3_index(base: str) -> str:
                       BOOK3.get("thesis", "")[:120])
 
 
+def _b4_chapter_meta(deep_slug: str) -> dict:
+    for c in BOOK4["chapters"]:
+        if c.get("deep") == deep_slug:
+            return c
+    return {}
+
+
+def render_b4_chapter_page(deep_slug: str, base: str) -> str:
+    doc = BOOK4_CONTENT[deep_slug]
+    c = _b4_chapter_meta(deep_slug)
+    blocks = doc["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    idx = next(i for i, x in enumerate(BOOK4_DEEP) if x["deep"] == deep_slug)
+    prev_c = BOOK4_DEEP[idx - 1] if idx > 0 else None
+    next_c = BOOK4_DEEP[idx + 1] if idx + 1 < len(BOOK4_DEEP) else None
+    pager = '<nav class="pager">'
+    pager += (f'<a href="{base}book4/{prev_c["deep"]}.html"><span class="dir-label">← 上一篇精读</span>'
+              f'<span class="ttl">第 {prev_c["no"]} 章 · {escape(prev_c["title"])}</span></a>' if prev_c
+              else '<span></span>')
+    pager += (f'<a class="next" href="{base}book4/{next_c["deep"]}.html"><span class="dir-label">下一篇精读 →</span>'
+              f'<span class="ttl">第 {next_c["no"]} 章 · {escape(next_c["title"])}</span></a>' if next_c
+              else '<span></span>')
+    pager += '</nav>'
+    chars = sum(len(str(v)) for b in blocks for v in b.values())
+    minutes = max(8, round(chars / 900))
+    inner = (
+        f'<div class="crumb"><a href="{base}index.html">首页</a><span>/</span>'
+        f'<a href="{base}book4/index.html">Agent书·深入理解AI Agent</a><span>/</span>'
+        f'<span>第 {c["no"]} 章</span></div>'
+        f'<div class="cat">{escape(BOOK4["short_title"])} · 第 {c["no"]} 章 · 精读</div>'
+        f'<h1>{escape(c["title"])}</h1>'
+        f'<p class="lead">{inline(doc.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>原书 <b>Apache-2.0 开源书</b></span>'
+        f'<span>约 <b>{minutes}</b> 分钟读完</span>'
+        f'<span>全书进度 <b>{c["no"]} / 10</b></span>'
+        '<span>状态 <b>深度解读已发布</b></span></div></div>'
+        + body_html + pager
+    )
+    title = f'第{c["no"]}章 {c["title"]}'
+    return reader_page(base, deep_slug, inner, heads, title,
+                       doc.get("lead", "")[:120], nav_current="book4",
+                       sidebar=sidebar_html_b4(base, deep_slug))
+
+
+def _b4_row(c: dict, base: str) -> str:
+    anchor = f' id="ch-{c["no"]}"'
+    deep = c.get("deep")
+    if deep and deep in BOOK4_CONTENT:
+        return (f'<div class="ch-item live"{anchor}>'
+                f'<span class="no">{c["no"]}</span>'
+                f'<span class="t"><a href="{base}book4/{deep}.html">{escape(c["title"])}</a>'
+                f'<small>{escape(c.get("essence", ""))}</small></span>'
+                f'<span class="st">精读已发布</span></div>')
+    return (f'<div class="ch-item"{anchor}>'
+            f'<span class="no">{c["no"]}</span>'
+            f'<span class="t">{escape(c["title"])}<small>{escape(c.get("essence", ""))}</small></span>'
+            f'<span class="st"><span class="soon">框架索引</span></span></div>')
+
+
+def render_b4_index(base: str) -> str:
+    paths = "".join(
+        f'<div class="path-card"><h4>{escape(p["name"])}</h4><p>{escape(p["desc"])}</p>'
+        f'<div class="path-seq">{escape(p["seq"])}</div></div>'
+        for p in BOOK4["reading_paths"])
+    grouped = []
+    for part in BOOK4["parts"]:
+        part_rows = "".join(_b4_row(c, base) for c in BOOK4["chapters"]
+                            if c["part"] == part["key"])
+        grouped.append(
+            f'<h3 style="margin:30px 0 4px">{escape(part["name"])}</h3>'
+            f'<p style="font-size:13px;color:#8a97a8;margin:0 0 10px">{escape(part["desc"])} · 第 {escape(part["chapters"])} 章</p>'
+            f'<div class="ch-list">{part_rows}</div>')
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>Agent书·深入理解AI Agent</span></div>'
+        '<div class="cat">BOOK FOUR · AGENT ENGINEERING</div>'
+        f'<h1>{escape(BOOK4["title"])}</h1>'
+        f'<p class="lead">{escape(BOOK4.get("thesis", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>作者 <b>{escape(BOOK4["author"])}</b></span>'
+        f'<span>协议 <b>{escape(BOOK4.get("license", "Apache-2.0"))}</b></span>'
+        f'<span>仓库 <b><a href="{BOOK4["repo"]}" style="color:var(--r-blue)">bojieli/ai-agent-book ↗</a></b></span>'
+        f'<span>在线版 <b><a href="{BOOK4["online"]}" style="color:var(--r-blue)">bojieli.github.io ↗</a></b></span>'
+        f'<span>精读 <b>{len(BOOK4_DEEP)} / 10 章</b></span></div></div>'
+        f'<div class="note" style="margin:18px 0">{escape(BOOK4.get("source_note", ""))}本站对该书采用「全书地图 + 战略章节精读」结构：10 章全部收录为框架索引，其中 {len(BOOK4_DEEP)} 个与 Agent 工程实践最相关的章节提供深度解读。本书在本站的角色是运行时层的方法源——其工程概念与 <a href="{base}agent-lab.html">Agent 实验场</a> 三方映射、<a href="{base}stack.html">四层架构</a> 0→1 路径互为表里。</div>'
+        + "".join(grouped)
+        + '<h2 style="margin-top:44px">三条阅读路径</h2>'
+        + f'<div class="path-grid" style="margin-top:14px">{paths}</div>'
+        + f'<div class="cta-card" style="margin-top:34px"><div><span class="idx">MAPPING</span>'
+        '<h3>Agent 实验场：书 × 代码 × 项目契约</h3>'
+        '<p>26 个 ToyAgent 场景 × 10 章书 × 项目契约 ID 的三方映射——看一个 Agent 从公式到约束到评估的完整工程链路。</p></div>'
+        + f'<a class="go" href="{base}agent-lab.html">打开实验场 →</a></div>'
+    )
+    return page_shell(f'{BOOK4["short_title"]} · 全书地图', base, "book4", inner,
+                      BOOK4.get("thesis", "")[:120])
+
+
+def render_agent_lab(base: str) -> str:
+    blocks = AGENT_LAB["blocks"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>Agent实验场</span></div>'
+        '<div class="cat">AGENT LAB · THREE-WAY MAP</div>'
+        f'<h1>{escape(AGENT_LAB["title"])}</h1>'
+        f'<p class="lead">{inline(AGENT_LAB.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创整合 · 非原书内容</b></span>'
+        f'<span>约 <b>{AGENT_LAB.get("minutes", "12")}</b> 分钟读完</span>'
+        '<span>覆盖 <b>书4 × ToyAgent 26 场景 × 项目契约</b></span></div></div>'
+        + body_html
+        + f'<div class="cta-card" style="margin-top:30px"><div><span class="idx">STACK</span>'
+        '<h3>四层架构：0→1 设计总纲</h3>'
+        '<p>组织 × 业务 × 语义 × 工程四层如何拼成「AI Native Agent 从 0 到 1」的完整路径。</p></div>'
+        + f'<a class="go" href="{base}stack.html">打开四层架构 →</a></div>')
+    return reader_page(base, "", inner, heads, AGENT_LAB["title"],
+                       AGENT_LAB.get("lead", "")[:120], nav_current="agent-lab")
+
+
+def render_stack(base: str) -> str:
+    blocks = STACK["blocks"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>四层架构</span></div>'
+        '<div class="cat">STACK · FOUR LAYERS</div>'
+        f'<h1>{escape(STACK["title"])}</h1>'
+        f'<p class="lead">{inline(STACK.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        '<span>性质 <b>本站原创整合 · 非原书内容</b></span>'
+        f'<span>约 <b>{STACK.get("minutes", "10")}</b> 分钟读完</span>'
+        '<span>覆盖 <b>四书 70 章框架 + 实战轨</b></span></div></div>'
+        + body_html)
+    return reader_page(base, "", inner, heads, STACK["title"],
+                       STACK.get("lead", "")[:120], nav_current="stack")
+
+
 def render_trilogy(base: str) -> str:
     blocks = TRILOGY["sections"]
     counters = {"h2": 0, "h3": 0}
@@ -382,11 +524,11 @@ def render_home(base: str) -> str:
 <div>
 <p class="eyebrow">READING NOTES × AI NATIVE PRACTICE</p>
 <h1>Native AI Organ</h1>
-<p class="lead">《AI Native 组织：从思考到实践》《弱品牌强品牌》《本体驱动的AI数据管理》三本书的原创深度解读——以及 AI Native 组织变革方案的实战化公开版。读书笔记与实战项目，同一仓库。</p>
+<p class="lead">《AI Native 组织：从思考到实践》《弱品牌强品牌》《本体驱动的AI数据管理》《深入理解 AI Agent》四本书的原创深度解读——以及 AI Native 组织变革方案的实战化公开版。读书笔记与实战项目，同一仓库。</p>
 <div class="meta">
-<div><b>3</b>本书</div>
-<div><b>{len(CHAPTERS) + len(BOOK2["chapters"]) + len(BOOK3["chapters"])}</b>章框架</div>
-<div><b>{len(CHAPTER_CONTENT) + len(BRAND2_DEEP)}</b>篇精读</div>
+<div><b>4</b>本书</div>
+<div><b>{len(CHAPTERS) + len(BOOK2["chapters"]) + len(BOOK3["chapters"]) + len(BOOK4["chapters"])}</b>章框架</div>
+<div><b>{len(CHAPTER_CONTENT) + len(BRAND2_DEEP) + len(BOOK3_DEEP) + len(BOOK4_DEEP)}</b>篇精读</div>
 <div><b>20</b>场景规格</div>
 <div><b>{n_assets}</b>项资产</div>
 </div></div>
@@ -396,6 +538,7 @@ def render_home(base: str) -> str:
 <div class="site-entry"><b>书一 · AI Native 组织</b><span>《{escape(BOOK['title'])}》{escape(BOOK['author'])} 著 · {len(CHAPTER_CONTENT)} 篇深度解读</span><a href="{base}chapters/index.html">章节解读 →</a></div>
 <div class="site-entry"><b>书二 · 弱品牌强品牌</b><span>《{escape(BOOK2["short_title"])}》{escape(BOOK2["author"])} 著 · {len(BOOK2["chapters"])} 章框架 + {len(BRAND2_DEEP)} 篇精读</span><a href="{base}brand2/index.html">品牌书全书地图 →</a></div>
 <div class="site-entry"><b>书三 · 本体驱动的AI数据管理</b><span>《{escape(BOOK3["short_title"])}》{escape(BOOK3["author"])} 著 · {len(BOOK3["chapters"])} 章框架 + {len(BOOK3_DEEP)} 篇精读</span><a href="{base}book3/index.html">本体书全书地图 →</a></div>
+<div class="site-entry"><b>书四 · 深入理解 AI Agent</b><span>《{escape(BOOK4["short_title"])}》{escape(BOOK4["author"])} 著 · Apache-2.0 开源书 · {len(BOOK4["chapters"])} 章框架 + {len(BOOK4_DEEP)} 篇精读</span><a href="{base}book4/index.html">Agent书全书地图 →</a></div>
 <div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、语义底座方法、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
 </div>
 <a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""
@@ -431,12 +574,21 @@ def render_home(base: str) -> str:
         f'<small>{escape(c.get("essence", ""))}</small></span>'
         f'<span class="st">精读</span></div>'
         for c in BOOK3_DEEP)
+    b4_deep_rows = "".join(
+        f'<div class="ch-item live"><span class="no">{c["no"]}</span>'
+        f'<span class="t"><a href="{base}book4/{c["deep"]}.html">{escape(c["title"])}</a>'
+        f'<small>{escape(c.get("essence", ""))}</small></span>'
+        f'<span class="st">精读</span></div>'
+        for c in BOOK4_DEEP)
     track_cards = [
         ("读书笔记轨 · READING",
-         "三本书的原创深度解读——先理解方法论本身：AI Native 组织怎么建、品牌增长该干什么、机器如何懂业务、干得好是什么样。",
+         "四本书的原创深度解读——先理解方法论本身：AI Native 组织怎么变、品牌增长该干什么、机器如何懂业务、一个 Agent 怎么被造出来，干得好是什么样。",
          [("章节解读", "书1 · 15 篇深度解读", "chapters/index.html"),
           ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
           ("本体书·本体驱动AI数据管理", "书3 · 10 章框架 + 6 篇精读", "book3/index.html"),
+          ("Agent书·深入理解AI Agent", "书4 · 10 章框架 + 精读推进中", "book4/index.html"),
+          ("Agent实验场", "书4 × ToyAgent × 项目契约三方映射", "agent-lab.html"),
+          ("四层架构", "组织×业务×语义×工程 0→1 路径", "stack.html"),
           ("三书合璧", "组织 × 品牌 × 语义三层支撑", "triology.html"),
           ("两书合璧", "书1×书2 分工与五层结合点", "synthesis.html"),
           ("概念索引", "44 个核心概念词条", "concepts/index.html"),
@@ -444,7 +596,7 @@ def render_home(base: str) -> str:
         ("实战项目轨 · PRACTICE",
          "AI 组织变革方案的实战化公开版——看同一套方法论如何落成约 50 个 AI 岗位的组织设计，并在 Momcozy 品牌域走到试点门前。全部为设计基线，不构成业务授权。",
          [("从书到试点", "读完书第一步做什么", "pilot.html"),
-          ("试点资产地图", "44 项设计资产可点查规格", "pilot-assets.html"),
+          ("试点资产地图", "45 项设计资产可点查规格", "pilot-assets.html"),
           ("实战路线图", "P0~P4 阶段门与场景波次", "brand-plan.html"),
           ("组织与价值流一张图", "50 岗位 × 13 流 × 20 场景交互图", "orgmap.html"),
           ("Sage 产品层规划", "出海产品 v5：52 场景 117 工作", "product.html"),
@@ -461,8 +613,8 @@ def render_home(base: str) -> str:
         for t, d, links in track_cards)
     practice_items = [
         ("BRIDGE", "从书到试点", "读完书第一步做什么——价值链断点地图、首个 Case 模板、授权八问实例、十二道门、90 天节奏与 KPI 口径，全部写成可对照的操作清单。本站原创，非原书内容，不构成任何业务授权。", "pilot.html", "打开试点指南 →"),
-        ("ASSETS", "试点资产地图", "44 项设计资产：FLOW-09 价值流、20 份场景规格、4 份 Skill 契约、语义底座十件套（含术语表、两份契约与对象模型/权限声明）、双层 KPI 字典与试点五件套，每项可点查姊妹仓库规格原文。", "pilot-assets.html", "打开资产地图 →"),
-        ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：六层结构（含语义底座层）、P0~P4 阶段门、20 场景波次、双层 KPI 落地与三本书理论锚点。", "brand-plan.html", "打开路线图 →"),
+        ("ASSETS", "试点资产地图", "45 项设计资产：FLOW-09 价值流、20 份场景规格、4 份 Skill 契约、语义底座十件套（含术语表、两份契约与对象模型/权限声明）、双层 KPI 字典、G1 企业交付包与试点五件套，每项可点查姊妹仓库规格原文。", "pilot-assets.html", "打开资产地图 →"),
+        ("ROADMAP", "实战路线图", "品牌域从设计基线到 AI Native 实战案例的完整演进：六层结构（含语义底座层）、P0~P4 阶段门、20 场景波次、双层 KPI 落地与四本书理论锚点。", "brand-plan.html", "打开路线图 →"),
         ("ORGMAP", "组织与价值流一张图", "50 个 AI 岗位 × 13 条价值流 × 20 个业务场景的交互式绑定图：点选任意节点高亮全部绑定关系，四平面职责与跨平面契约一图看清。设计基线静态版。", "orgmap.html", "打开组织图 →"),
         ("SEMANTIC", "语义底座 v0", "《本体驱动的AI数据管理》吸收的落地层：48 条术语、20 对象 34 关系、38 条契约规则、24 条权限四元组——让机器真正懂 Momcozy 业务语义。全部 v0 基线，待数据激活。", "semantic.html", "打开语义底座 →"),
         ("PRODUCT", "Sage 产品层规划", "出海产品的完整蓝图：一个主产品 Sage（数字员工团队）+ 三个单点工具 + 四档购买，覆盖 Shopify/Amazon/TikTok Shop，52 个细分场景、117 项可验收工作，含两个标杆场景与七条主线。规划 v5，全为设计状态。", "product.html", "打开产品规划 →"),
@@ -512,6 +664,19 @@ def render_home(base: str) -> str:
 <div class="ch-list">{b3_deep_rows}</div>
 <p style="margin-top:14px;font-size:13px;color:#8a97a8">其余 {10 - len(BOOK3_DEEP)} 章收录为框架索引（含每章核心论点），见<a href="{base}book3/index.html" style="color:var(--r-blue)">本体书全书地图</a>；本书方法论的工程化落地见<a href="{base}semantic.html" style="color:var(--r-blue)">语义底座 v0 全景页</a>。</p></div></section>
 <section class="section tint"><div class="wrap">
+<h2>第四本书：《{escape(BOOK4["short_title"])}》</h2>
+<p class="sec-sub">运行时层的方法源——前三本书回答组织怎么变、业务干什么、机器怎么懂，书四回答一个 Agent 怎么被造出来、跑起来、被约束。Apache-2.0 开源书，配套 ToyAgent 代码库做可运行参照。本站采用「全书地图 + 战略章节精读」结构。</p>
+<div class="cta-card">
+<div><span class="idx">BOOK FOUR</span><h3>{escape(BOOK4["title"])}</h3>
+<p>{escape(BOOK4["author"])} 著 · {escape(BOOK4["publisher"])} · <a href="{BOOK4["repo"]}" style="color:inherit">GitHub ↗</a> · <a href="{BOOK4["online"]}" style="color:inherit">在线版 ↗</a> · {escape(BOOK4.get("thesis", ""))}</p></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<a class="go" href="{base}book4/index.html">Agent书全书地图 →</a>
+<a class="go" href="{base}agent-lab.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">Agent实验场 →</a>
+<a class="go" href="{base}stack.html" style="background:transparent;border:1px solid var(--r-blue);color:var(--r-blue)">四层架构 →</a></div></div>
+<h3 style="margin:26px 0 6px">精选精读（{len(BOOK4_DEEP)} / 10 章）</h3>
+<div class="ch-list">{b4_deep_rows if b4_deep_rows else '<div class="ch-item"><span class="t">精读按波次推进中——第一波：第 1、2 章（Agent 构件与上下文工程）</span><span class="st"><span class="soon">进行中</span></span></div>'}</div>
+<p style="margin-top:14px;font-size:13px;color:#8a97a8">其余章节收录为框架索引（含每章核心论点与工程实验入口），见<a href="{base}book4/index.html" style="color:var(--r-blue)">Agent书全书地图</a>；书 × 代码 × 项目契约的三方映射见<a href="{base}agent-lab.html" style="color:var(--r-blue)">Agent 实验场</a>。</p></div></section>
+<section class="section tint"><div class="wrap">
 <h2>章节解读</h2>
 <p class="sec-sub">已发布章节可直接阅读；其余章节正在蒸馏中。</p>
 <div class="ch-list">{ch_rows}</div></div></section>
@@ -530,7 +695,7 @@ def render_home(base: str) -> str:
 <div class="cta-grid">{practice_html}</div>
 <p style="margin-top:14px;font-size:13px;color:#8a97a8">站内可视化：<a href="{base}orgmap.html" style="color:var(--r-blue)">组织与价值流一张图</a>（静态交互版）；外部交互原型：<a href="https://native.sagegogo.com/src/orgmap/" target="_blank" rel="noopener" style="color:var(--r-blue)">三宝 · 3D 组织与经营空间 ↗</a>——50 个数字员工工位 × 20 个天幕业务节点 × 38 条跨层光柱的设计态原型（外部项目门户 · 生产权限 0/53 · 非运行系统）。</p></div></section>"""
     return page_shell("首页", base, "index", f"<main>{body}</main>",
-                      "两本书深度解读 + AI Native 组织变革方案实战化公开版")
+                      "四本书深度解读 + AI Native 组织变革方案实战化公开版")
 
 
 _NO2SLUG = {c["no"]: c["slug"] for c in CHAPTERS}

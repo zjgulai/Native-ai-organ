@@ -1,0 +1,113 @@
+{
+ "title": "Agent 实验场：书 × 代码 × 项目契约",
+ "lead": "《深入理解 AI Agent》按模块讲原理，ToyAgent 把同一套原理串成 26 个可运行场景，本项目把它落成约 50 个 AI 岗位的组织设计。本页是三方映射：每章书、每个 step、每条项目契约，指向同一组工程事实。",
+ "status": "方法论整合页 · DESIGN_ONLY",
+ "minutes": "12",
+ "blocks": [
+  {"h2": "这是什么"},
+  {"p": "本页回答一个问题：**一本讲模块的书 + 一个讲串联的代码库 + 一套组织级设计，它们之间到底是什么关系？**答案是三层视角看同一座桥——书给原理纵深（每章一个主题：上下文、记忆、工具、评估、多 Agent），ToyAgent 给可运行实现（26 个场景 = 26 个接口类，每个文件嵌套实现类即全部逻辑，配 Mock 模型零成本看轨迹），本项目给治理增量（模型外 Case Control、Policy Gate、Execution Broker、Role Release Bundle——把「Agent 能做什么」收敛为「被允许建议什么」）。"},
+  {"h2": "两份素材的分工"},
+  {"table": {"head": ["维度", "《深入理解 AI Agent》（书4）", "ToyAgent（代码库）"], "rows": [
+   ["粒度", "10 章 + 引言/后记，每章一个主题：原理 + 实验 + 边界 + 前沿", "26 个 step 场景，每个 = 一个接口类 = 一个 .java 文件"],
+   ["独有覆盖", "评估方法论（ch7）、模型后训练（ch8）、持续进化闭环（ch9）、多 Agent 社会（ch10）", "step19-22 人机协同与安全栈（书内散见 Harness 章节）、可视化轨迹与 27 篇原理文章"],
+   ["资产形态", "136 张 SVG 矢量图、109 个配套实验、22 份主题 SKILL.md、在线版", "26 场景代码（Java 零依赖）、MockChatModel 确定性剧本、5 语言等价实现"],
+   ["协议", "Apache-2.0 开源书（bojieli/ai-agent-book，59.8k+ stars）", "Apache-2.0（fuzhengwei/ToyAgent）"],
+   ["在本站的角色", "书4 读书轨：框架索引 + 5 篇精读（见[Agent书全书地图](book4/index.html)）", "本页映射对象 + 外部可运行参照（[GitHub 仓](https://github.com/fuzhengwei/ToyAgent)）"]
+  ]}},
+  {"h2": "二十六场景全景映射"},
+  {"p": "ToyAgent 按七条主题弧线递进。下表把每个场景映射到书4 章节与本项目契约——「项目契约」列中的 ID 均可在[姊妹仓库](https://github.com/zjgulai/AI-Native-Organization)公开规格中查到原文。"},
+  {"h3": "弧线一 · 基础内核（step01-04）：一个 Agent 的最小骨架"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["01", "对话智能体 `ChatAgent`——最小 MVP：接通模型", "ch1 §1.1 Agent=LLM+上下文+工具", "Case Agent 最小形态（[D-053](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）"],
+   ["02", "提示词工程 `PromptAgent`——系统提示词三层结构", "ch1 §1.1.4 上下文五要素 / ch2 提示工程", "Soul Contract + Role Playbook（D-053 / [D-022](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md) Business 契约）"],
+   ["03", "ReAct 循环 `ReActAgent`——思考-行动-观察", "ch1 §1.1.5 ReAct 循环与轨迹", "Case 运行时主循环（[D-024](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md) 八阶段协议）"],
+   ["04", "工具调用 `ToolCallAgent`——Function Calling", "ch4 工具分类与设计原则", "工具/Skill 契约（D-022）+ MCP/tools/hooks 保留方向（AGENTS.md）"]
+  ]}},
+  {"h3": "弧线二 · 记忆与知识（step05-08）：Agent 的认知底座"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["05", "记忆系统 `MemoryAgent`——多轮记忆 + 上下文压缩", "ch2 压缩策略 / ch3 记忆分层与四种存储格式", "四层上下文装配（[D-027](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）+ Stage Artifact 边界（D-024/D-025）"],
+   ["06", "意图路由 `RouterAgent`——意图识别 + 决策中枢", "ch1 编排模式：工作流 vs 自主", "【对照点】项目不用 LLM 路由：模型外 Case Control（[D-020](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）"],
+   ["07", "RAG `RagAgent`——检索增强生成", "ch3 RAG 管道：分块/混合检索/重排", "书3 语义底座 = Agent 的上下文源（[语义底座页](semantic.html)）+ G1 数据需求"],
+   ["08", "LLM-Wiki `WikiAgent`——知识编译、持久维护、增量沉淀", "ch3 知识组织与更新 / ch9 持续进化", "Skill/Playbook 版本化沉淀（D-022/D-023）+ G1C 客户规则集回流"]
+  ]}},
+  {"h3": "弧线三 · 工具的进化（step09-11）：从调用到生态"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["09", "MCP 协议 `McpAgent` / `McpRealAgent`——工具标准化接口", "ch4 MCP 与 Skill Hub", "MCP/tools/API/hooks 连接方向（AGENTS.md 保留边界）"],
+   ["10", "技能编排 `SkillAgent`——Skills L0/L1/L2", "ch2 Skills：可组合能力单元", "Skill 契约按需加载（[D-020](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)/D-022）"],
+   ["11", "工具注册表 `RegistryAgent`——ToolDefinition 协议：注册/发现/热注销", "ch4 层次化组织与主动工具发现", "工具契约 + Runtime 契约版本化（D-022）"]
+  ]}},
+  {"h3": "弧线四 · 协作与派遣（step12-14）：从单 Agent 到多 Agent"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["12", "多智能体 `MultiAgent`——规划-执行-审查协作", "ch10 多 Agent 协作分类框架", "【对照点】项目单 Case 单 Agent（D-020）；Lead/Worker 受控组队（[D-053](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）"],
+   ["13", "子代理 `SubagentAgent`——spawn 全新上下文 / fork 继承父会话", "ch10 不共享上下文的多 Agent", "窄范围只读 Delegate（D-020 注）；Worker 只通过 ArtifactEnvelope 交接（D-053）"],
+   ["14", "A2A 协作 `A2AAgent`——Agent Card 名片 + task_id 信封 + 异步回执", "ch10 跨组织协作：A2A 协议", "跨价值流信号拆 `correlation_id`、状态独立（[D-025](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）；跨组织 A2A 为远期方向"]
+  ]}},
+  {"h3": "弧线五 · 运行时与工程化（step15-18）：从能跑到能兜底"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["15", "Loop 运行时 `LoopAgent`——守卫 + 保险丝 + 异常兜底", "ch1 Harness 五项功能（约束/验证/纠正）", "Emergency Guard（[D-026](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）+ Policy Gate + SCN-018/020 冻结语义"],
+   ["16", "工作流状态机 `WorkflowAgent`——LangGraph 思想编排", "ch1 编排模式：工作流 vs 自主", "八阶段产物驱动、门禁推进协议（D-024）"],
+   ["17", "ReAct 运行时 `RuntimeAgent`——turn/step 两级循环 + 上下文裁剪 + TurnEndReason", "ch2 上下文压缩 / ch1 ReAct", "Case 运行时 + 上下文裁剪边界（D-024/D-027）"],
+   ["18", "全流程智能体 `FullAgent`——守卫+记忆+ReAct+工具+保险丝综合链路", "全书综合（ch1-ch4 主线）", "Case Agent 完整运行时画像（D-053：独立寻址 + 按需加载 Skills）"]
+  ]}},
+  {"h3": "弧线六 · 人机协同与安全（step19-22）：治理增量最密集的一段"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["19", "人工介入 `AskAgent`——ask_user_question：提问挂起 → 人工答复续跑", "ch6 交互：观测与动作空间扩展", "C1 审核会话 / C2 高风险逐条确认（[D-080](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/00-project/DECISIONS.md)）；真人 HITL 后置（AGENTS.md）"],
+   ["20", "审批门禁 `ApprovalAgent`——风险分级 + 审批挂起 + 会话免审 + 超时默认 DENY", "ch1 Harness 约束验证（散见）", "★ 最强映射：C1/C2/C3 三级确认流 ≈ 审批门禁四要素（见下方详解）；Action Intent→Policy Gate→Receipt（PV-20/21/28/29）"],
+   ["21", "沙箱纵深防御 `SandboxAgent`——策略/黑名单/边界/规范化四层拦截", "ch1 护栏与安全性", "★ ES-M/ES-A/ES-X 执行面三层（[EXECUTION-SURFACE-V01](https://github.com/zjgulai/AI-Native-Organization/blob/main/docs/08-data/EXECUTION-SURFACE-V01.md)）≈ 纵深防御分层"],
+   ["22", "事件溯源 `EventSourcedAgent`——JSONL 事件流 append-only + 回放投影重建状态", "ch9 持续进化：从轨迹获得学习信号", "八阶段产物驱动 + ArtifactEnvelope（D-024/D-053）+ 评估回流（书 ch7 方法论）"]
+  ]}},
+  {"h3": "弧线七 · 扩展与形态（step23-26）：生态与边界"},
+  {"table": {"head": ["Step", "场景 / 接口类", "对应书4 章节", "项目契约映射"], "rows": [
+   ["23", "插件机制 `PluginAgent`——AgentPlugin 契约 + 隔离 ClassLoader + 工具桥接", "ch4 工具生态扩展", "插件生态为远期方向（AGENTS.md 保留边界）"],
+   ["24", "Hooks 钩子 `HooksAgent`——before 拦截/改写 · after 脱敏/审计", "ch2/ch4 横切逻辑", "hooks 方向（AGENTS.md 保留边界）+ 审计轨迹"],
+   ["25", "CLI 智能体 `CliAgent`——终端 REPL + 沙箱 shell 执行器", "ch6 交互形态", "【边界】交互形态演示；项目不实例化 CLI agent，HITL 走审核会话"],
+   ["26", "定时工具 `ScheduleAgent`——一次性/循环调度，触发结果 append 到事件日志", "ch1 异步与事件驱动（书 ch6）", "定时巡检类场景候选 + 事件日志（FLOW-07 Emergency Guard 触发源之一）"]
+  ]}},
+  {"h2": "四个关键映射详解"},
+  {"h3": "① step20 审批门禁 ≈ C1/C2/C3 确认流（最强同构）"},
+  {"p": "ToyAgent step20 的四要素与本项目 R4 确认流三级几乎逐项对应："},
+  {"table": {"head": ["ToyAgent step20", "本项目（D-080 / PV-20/21/28/29）"], "rows": [
+   ["风险分级", "高风险子集逐条确认（C2）；标准级走审核会话（C1）"],
+   ["审批挂起", "Action Intent → Policy Gate 决议 → Execution Broker 执行（D-029）"],
+   ["会话免审", "C1 审核会话批量——语义上仍逐条绑定哈希、可单独撤销（与「免审」不同：是批量确认不是免确认）"],
+   ["超时默认 DENY", "确认会话 24h 有效期、未确认自动 expired；EG 走 C3 规则级预授权而非逐动作确认"]
+  ]}},
+  {"p": "差异同样重要：step20 是单机演示级实现，会话免审是真免审；本项目 C1 只是 UX 批量、语义仍逐条绑定，且全部动作最终落 Receipt 可追溯——**演示仓给形态，项目给语义**。"},
+  {"h3": "② 书 ch10 六种失败模式 = D-020 保守决策的理论依据"},
+  {"p": "书 ch10 列出多 Agent 协作的六种失败模式。本项目「一张紧耦合工单只运行一个 Case Agent、绑定一个主岗位人格、按需加载 Skills、取消 LLM 多 Agent 路由与岗位 Agent 互聊」（D-020），以及「Worker 只通过已验收 ArtifactEnvelope 交接」（D-053），可逐条对应为对这些失败的工程性规避："},
+  {"table": {"head": ["书 ch10 失败模式", "本项目的规避设计"], "rows": [
+   ["共享文件系统并发冲突", "Stage Artifact 产物驱动 + 门禁推进（D-024），交接物是验收产物不是自由读写"],
+   ["错误的级联放大", "单 Case 单结果责任（D-020）；跨 Case 只共享 correlation_id、状态独立（D-025）"],
+   ["同质趋同", "50 岗位各自独立 Soul Contract/Playbook/Preset（D-053），人格差异是设计目标"],
+   ["职责争议与目标冲突", "每 Case 唯一主价值流 + 唯一主场景（D-025）；冲突走治理面不仲裁"],
+   ["循环失控", "八阶段门禁 + Emergency Guard 只执行预定义最小保护动作（D-026），模型不可扩展"],
+   ["理解债与认知投降", "ArtifactEnvelope 验收制交接（D-053）；Action Intent 不直接执行（D-029）"]
+  ]}},
+  {"p": "这组对应是融合页最重要的叙事点：**书解释了为什么本项目比通用演示仓更保守——不是保守，是对已知失败模式的前置规避。**"},
+  {"h3": "③ Harness 五项功能 ↔ 项目控制面"},
+  {"p": "书 ch1 把生产 Agent 分解为 Model + Harness，Harness 负责上下文组织、工具接口、运行循环、状态、约束/验证/纠正。本项目的模型外控制面正是这五项功能的企业级实例："},
+  {"table": {"head": ["Harness 功能（书 ch1）", "项目对应物"], "rows": [
+   ["上下文组织", "四层上下文装配 + Stage Artifact（D-024/D-027）；书3 语义底座供数"],
+   ["工具接口", "工具契约 + 按需加载 Skills（D-020/D-022）；MCP/tools/hooks 方向保留"],
+   ["运行循环", "八阶段产物驱动、门禁推进协议（D-024）"],
+   ["状态", "Case/Event Ledger + Role Release Bundle 七状态生命周期（D-023）"],
+   ["约束·验证·纠正", "Policy Gate 决议 + Execution Broker 执行 + Receipt 回执（D-029/PV-20/28/29）；Emergency Guard 最小保护动作（D-026/D-080）"]
+  ]}},
+  {"h3": "④ 书 ch7 评估方法论 ↔ SCN 契约与证据包"},
+  {"p": "书 ch7 的评估体系（Pass@k vs Pass^k 区分「能做一次」与「次次能做」、LLM-as-Judge 逐项评分、失败归因定位首个错误、消融基础设施、A/B 测试区分机制改动与业务目标）正是本项目两层验收设计的方法学基础：20 份场景契约各 16 条事理规则中的「必须回放」清单，预设了轨迹级回归验证；G1 证据包六要件（脱敏样例/粒度时滞/PII 声明/hash/缺口/口径）则是评估数据集的企业侧采集规范。"},
+  {"h2": "去哪看：三个入口"},
+  {"list": [
+   "**书4 全书地图**：[Agent书·深入理解AI Agent](book4/index.html)——10 章框架索引 + 官方在线版/仓库源码三链；5 篇精读按波次推进中",
+   "**ToyAgent 仓库**：[github.com/fuzhengwei/ToyAgent](https://github.com/fuzhengwei/ToyAgent)（Apache-2.0）——26 场景源码 + web 可视化测试页说明 + 27 篇原理文章；本地零依赖运行（JDK 17+ `javac` 即跑），未配 Key 时用 Mock 模型看完整轨迹",
+   "**书4 开源仓**：[github.com/bojieli/ai-agent-book](https://github.com/bojieli/ai-agent-book)——全书 Markdown 源码、136 张 SVG 图、109 个配套实验、22 份主题 Skill；[在线版](https://bojieli.github.io/ai-agent-book/astro/)可直接读"
+  ]},
+  {"h2": "边界声明"},
+  {"list": [
+   "本页为方法论整合：映射关系是本站原创分析，不构成对任一方内容的转载或背书；",
+   "项目侧引用均为公开规格 ID（D-020~D-080、PV-*、SCN-*、ES-*），原文见[姊妹仓库](https://github.com/zjgulai/AI-Native-Organization)；",
+   "ToyAgent 为教学级实现（Mock 模型 + 单文件场景），本项目为组织级设计基线——映射展示「同一工程事实的不同抽象层」，不表示代码可直接复用；",
+   "书 ch5 Coding Agent、ch6 语音/机器人/Computer Use、ch8 模型后训练为模型侧或非项目范围，映射表中已标注边界；",
+   "全部仍为 DESIGN_ONLY 设计态，无生产授权。"
+  ]}
+ ]
+}

@@ -17,6 +17,9 @@ def _load(name: str):
 BOOK = _load("book.json")
 BOOK2 = _load("book2.json")
 BOOK3 = _load("book3.json")
+BOOK4 = _load("book4.json")
+AGENT_LAB = _load("agent-lab.json")
+STACK = _load("stack.json")
 CHAPTERS = _load("chapters-index.json")
 CONCEPTS = _load("concepts.json")
 TOOLS = _load("tools.json")
@@ -54,5 +57,14 @@ for f in sorted((DATA / "book3").glob("*.json")):
     BOOK3_CONTENT[doc["slug"]] = doc
 
 BOOK3_DEEP = [c for c in BOOK3["chapters"] if c.get("deep") in BOOK3_CONTENT]
+
+BOOK4_CONTENT: dict[str, dict] = {}
+_b4dir = DATA / "book4"
+if _b4dir.is_dir():
+    for f in sorted(_b4dir.glob("*.json")):
+        doc = json.loads(f.read_text(encoding="utf-8"))
+        BOOK4_CONTENT[doc["slug"]] = doc
+
+BOOK4_DEEP = [c for c in BOOK4["chapters"] if c.get("deep") in BOOK4_CONTENT]
 
 SITE_NAME = "Native AI Organ"

@@ -1,0 +1,117 @@
+{
+ "title": "深入理解 AI Agent：设计原理与工程实践",
+ "short_title": "深入理解 AI Agent",
+ "author": "李博杰",
+ "publisher": "开源书 · Apache-2.0",
+ "isbn": "—",
+ "pub_date": "2026（持续更新）",
+ "repo": "https://github.com/bojieli/ai-agent-book",
+ "online": "https://bojieli.github.io/ai-agent-book/astro/",
+ "license": "Apache-2.0",
+ "source_note": "Apache-2.0 开源书（GitHub bojieli/ai-agent-book，59.8k+ stars，16 种语言版本）。全书 Markdown 源码、136 张 SVG 配图、109 个配套实验与 22 份主题 Skill 均开源。本站采用「全书地图 + 精选精读」结构：10 章全部收录为框架索引，5 个与工程实践最相关的章节提供深度解读；每章附官方在线版与仓库源码链接。本站内容为原创解读，非原书转载。",
+ "thesis": "Agent = LLM + 上下文 + 工具——用 10 章把 AI Agent 从原理讲到工程实战：Model + Harness 的生产分工、上下文工程、记忆与 RAG、工具生态、评估方法论、模型后训练、多 Agent 协作与持续进化。",
+ "parts": [
+  {
+   "key": "diji",
+   "name": "地基篇 · 第 1–4 章",
+   "desc": "一个 Agent 的全部构件：LLM/上下文/工具三要素与 Model+Harness 分工、ReAct 循环与 Harness 五项功能；上下文窗口与 KV Cache、提示工程、Skills 与压缩；记忆分层与 RAG 管道；工具分类、MCP 与按需发现。",
+   "chapters": "1-4"
+  },
+  {
+   "key": "xingtai",
+   "name": "形态篇 · 第 5–6 章",
+   "desc": "Agent 的能力边界向外扩展：Coding Agent 与代码作为元能力；观测与动作空间的扩展——异步事件、语音全双工、Computer Use 与机器人。",
+   "chapters": "5-6"
+  },
+  {
+   "key": "shijian",
+   "name": "工程篇 · 第 7–10 章",
+   "desc": "从能跑到能进化：评估方法论（基准、LLM-as-Judge、可观测性、消融与 A/B）；模型后训练（SFT/RL/奖励设计）；从运行轨迹中持续进化；多 Agent 协作的拓扑、失败模式与 A2A。",
+   "chapters": "7-10"
+  }
+ ],
+ "chapters": [
+  {
+   "no": "01",
+   "title": "AI Agent 入门",
+   "part": "diji",
+   "deep": "b4-01-agent-rumen",
+   "essence": "Agent = LLM + 上下文 + 工具；生产实现是 Model + Harness——Harness 五项功能（上下文管理/工具接口/约束/验证/纠正）与三层学习机制（上下文适应→外部产物→参数更新）。"
+  },
+  {
+   "no": "02",
+   "title": "上下文工程",
+   "part": "diji",
+   "deep": "b4-02-shangxiawen-gongcheng",
+   "essence": "上下文是 Agent 的当前决策视野：KV Cache 友好设计、提示工程三层结构、Skills 作为可组合能力单元、分层压缩与子 Agent 上下文隔离。"
+  },
+  {
+   "no": "03",
+   "title": "用户记忆和知识库",
+   "part": "diji",
+   "deep": "b4-03-jiyi-zhishi-ku",
+   "essence": "记忆的三层评估框架与四种存储格式；RAG 管道（分块/稠密+稀疏混合检索/重排）；知识组织、更新与智能体化检索。"
+  },
+  {
+   "no": "04",
+   "title": "工具",
+   "part": "diji",
+   "deep": "b4-04-gongju",
+   "essence": "工具分类与设计原则；MCP 标准化接口与 Skill Hub；工具太多时的层次化组织、按需加载与模型原生主动发现。"
+  },
+  {
+   "no": "05",
+   "title": "Coding Agent 与通用 Agent",
+   "part": "xingtai",
+   "essence": "Coding 是 Agent 的基础能力；代码作为思考工具、业务规则约束、系统适配器、生成式 UI 与自举元能力；从 Manus 到 OpenClaw 的通用 Agent 演进。"
+  },
+  {
+   "no": "06",
+   "title": "交互：观测与动作空间的扩展",
+   "part": "xingtai",
+   "essence": "模态与触发时机扩展：异步与事件驱动、语音三级范式（级联/全模态/全双工）、Computer Use GUI 自动化、移动端与机器人操作。"
+  },
+  {
+   "no": "07",
+   "title": "Agent 的评估",
+   "part": "shijian",
+   "essence": "从 τ²-bench 一条任务理解评估：Pass@k vs Pass^k、评估环境五要素、LLM-as-Judge、失败归因、消融基础设施与 A/B 测试、可观测性。"
+  },
+  {
+   "no": "08",
+   "title": "模型后训练",
+   "part": "shijian",
+   "essence": "预训练→mid-training→SFT→RL 四阶段；SFT 数据合成与 RL 环境仿真；奖励设计（规则/人类偏好/模型评判）；在轨蒸馏与多轮信用分配。"
+  },
+  {
+   "no": "09",
+   "title": "Agent 的持续进化",
+   "part": "shijian",
+   "essence": "从运行轨迹获得学习信号；经验沉淀四法（知识/指令/程序/参数）；可长期运行的进化闭环、开放式任务证据评价与安全边界、睡眠学习。"
+  },
+  {
+   "no": "10",
+   "title": "多 Agent 协作",
+   "part": "shijian",
+   "deep": "b4-10-duoagent-xiezuo",
+   "essence": "上下文共享 × 协作拓扑分类框架；多 Agent 何时优于单 Agent；对等/管理者/去中心化模式与 A2A 协议；六种失败模式与 Agent 社会实验。"
+  }
+ ],
+ "reading_paths": [
+  {
+   "name": "工程实现者路径",
+   "desc": "想把一个 Agent 真正跑起来：先公式与循环，再上下文与工具，最后评估与演进",
+   "seq": "第 1 章入门 → 第 2 章上下文 → 第 4 章工具 → 第 7 章评估 → 第 10 章多 Agent"
+  },
+  {
+   "name": "组织设计者路径",
+   "desc": "想知道 Agent 工程方法论对岗位组织设计意味着什么",
+   "seq": "第 1 章 Harness 分工 → 第 3 章记忆知识 → 第 9 章持续进化 → 第 10 章协作边界"
+  },
+  {
+   "name": "评估与演进路径",
+   "desc": "Agent 上线之后怎么知道它变好没有、怎么持续变好",
+   "seq": "第 7 章评估 → 第 9 章持续进化 → 第 8 章后训练（模型侧）→ 第 10 章多 Agent 失败模式"
+  }
+ ]
+}

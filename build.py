@@ -71,11 +71,14 @@ def build(check: bool = False) -> int:
     write_page("sitemap.html", P.render_sitemap(""))
     write_page("synthesis.html", P.render_synthesis(""))
     write_page("triology.html", P.render_trilogy(""))
+    write_page("agent-lab.html", P.render_agent_lab(""))
+    write_page("stack.html", P.render_stack(""))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))
     write_page("tools/index.html", P.render_tools_index("../"))
     write_page("brand2/index.html", P.render_b2_index("../"))
     write_page("book3/index.html", P.render_b3_index("../"))
+    write_page("book4/index.html", P.render_b4_index("../"))
     for c in D.CHAPTERS:
         if c["slug"] in D.CHAPTER_CONTENT:
             write_page(f"chapters/{c['slug']}.html", P.render_chapter_page(c, "../"))
@@ -83,6 +86,8 @@ def build(check: bool = False) -> int:
         write_page(f"brand2/{c['deep']}.html", P.render_b2_chapter_page(c["deep"], "../"))
     for c in D.BOOK3_DEEP:
         write_page(f"book3/{c['deep']}.html", P.render_b3_chapter_page(c["deep"], "../"))
+    for c in D.BOOK4_DEEP:
+        write_page(f"book4/{c['deep']}.html", P.render_b4_chapter_page(c["deep"], "../"))
     for t in D.TOOLS:
         write_page(f"tools/{t['slug']}.html", P.render_tool_page(t, "../"))
 
