@@ -1,0 +1,188 @@
+{
+  "source": "https://ai-agent-guide.xiaofuge.cn/",
+  "repo": "https://github.com/fuzhengwei/ai-agent-guide",
+  "fetched": "2026-11-26",
+  "chapter_count": 30,
+  "chapters": [
+    {
+      "file": "ch00-fundamentals",
+      "sha256": "552c592e755a3bf7",
+      "bytes": 71311,
+      "status": "new"
+    },
+    {
+      "file": "ch01-llm-basics",
+      "sha256": "4e59e960c053f2ab",
+      "bytes": 148440,
+      "status": "new"
+    },
+    {
+      "file": "ch02-what-is-agent",
+      "sha256": "c873caa6fc7030ab",
+      "bytes": 84081,
+      "status": "new"
+    },
+    {
+      "file": "ch03-weather-agent",
+      "sha256": "9c3def1dedc37f9c",
+      "bytes": 139527,
+      "status": "new"
+    },
+    {
+      "file": "ch04-prompt-engineering",
+      "sha256": "3f9ee0c81f168838",
+      "bytes": 108961,
+      "status": "new"
+    },
+    {
+      "file": "ch04b-context-engineering",
+      "sha256": "982ce38c72c8410e",
+      "bytes": 56376,
+      "status": "new"
+    },
+    {
+      "file": "ch04-react-pattern",
+      "sha256": "fda2990c744eafc2",
+      "bytes": 163567,
+      "status": "new"
+    },
+    {
+      "file": "ch05-memory",
+      "sha256": "e9196a18064ec964",
+      "bytes": 302322,
+      "status": "new"
+    },
+    {
+      "file": "ch06-brain-intent-router",
+      "sha256": "5d9fd401bef5e139",
+      "bytes": 78574,
+      "status": "new"
+    },
+    {
+      "file": "ch21-loop-runtime-sandbox",
+      "sha256": "7b40168b2267ca3f",
+      "bytes": 95288,
+      "status": "new"
+    },
+    {
+      "file": "ch22-harness",
+      "sha256": "e03fbb6170496eaa",
+      "bytes": 78674,
+      "status": "new"
+    },
+    {
+      "file": "ch27-dsh-java-anatomy",
+      "sha256": "fb22312a9d293de3",
+      "bytes": 50508,
+      "status": "new"
+    },
+    {
+      "file": "ch16-rag",
+      "sha256": "ca3a761618a28e76",
+      "bytes": 180516,
+      "status": "new"
+    },
+    {
+      "file": "ch26-llm-wiki",
+      "sha256": "330b832228b21812",
+      "bytes": 53514,
+      "status": "new"
+    },
+    {
+      "file": "ch06-tools",
+      "sha256": "fdc628cd797a6994",
+      "bytes": 230012,
+      "status": "new"
+    },
+    {
+      "file": "ch07-mcp",
+      "sha256": "9601cca2e0092d3f",
+      "bytes": 114661,
+      "status": "new"
+    },
+    {
+      "file": "ch08-skills",
+      "sha256": "d69dd60dc23405e7",
+      "bytes": 181003,
+      "status": "new"
+    },
+    {
+      "file": "ch09-cli-capability",
+      "sha256": "a6e7dddc9ba71cf2",
+      "bytes": 74514,
+      "status": "new"
+    },
+    {
+      "file": "ch10-multi-agent",
+      "sha256": "1431bb64341bcf34",
+      "bytes": 116240,
+      "status": "new"
+    },
+    {
+      "file": "ch11-langgraph",
+      "sha256": "711d29b326b765c1",
+      "bytes": 97998,
+      "status": "new"
+    },
+    {
+      "file": "ch12-framework-comparison",
+      "sha256": "bc532986bfe48312",
+      "bytes": 224882,
+      "status": "new"
+    },
+    {
+      "file": "ch13-dify-coze",
+      "sha256": "eeabab1410f97cda",
+      "bytes": 73112,
+      "status": "new"
+    },
+    {
+      "file": "ch14-cli-agent",
+      "sha256": "d725e36b6cc75644",
+      "bytes": 158893,
+      "status": "new"
+    },
+    {
+      "file": "ch15-gui-agent",
+      "sha256": "d935dc690c92fe7b",
+      "bytes": 209753,
+      "status": "new"
+    },
+    {
+      "file": "ch17-evaluation",
+      "sha256": "800b8b074ac9f464",
+      "bytes": 121727,
+      "status": "new"
+    },
+    {
+      "file": "ch18-security",
+      "sha256": "f71d1b54ad68dabb",
+      "bytes": 84709,
+      "status": "new"
+    },
+    {
+      "file": "ch19-deployment",
+      "sha256": "f5b40dc2b8f23520",
+      "bytes": 60002,
+      "status": "new"
+    },
+    {
+      "file": "ch20-inference-framework",
+      "sha256": "cb59220806c54427",
+      "bytes": 91256,
+      "status": "new"
+    },
+    {
+      "file": "ch24-jev-decision-model",
+      "sha256": "fcc8795a64900e97",
+      "bytes": 39701,
+      "status": "new"
+    },
+    {
+      "file": "ch23-future-summary",
+      "sha256": "384ae2e52faf325f",
+      "bytes": 119974,
+      "status": "new"
+    }
+  ]
+}

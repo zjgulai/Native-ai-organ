@@ -1,0 +1,761 @@
+{
+ "title": "Agent Playbook：从 0 到 1 搭建完整 Agent",
+ "short_title": "Agent Playbook",
+ "lead": "把《AI Agent 通识教程》30 章按构建依赖重排为一条可执行的工程路线：P0–P8 构建脊柱 + 11 个节点页 + 模型边界矩阵。以 DeepSeek Chat + Function Calling 为基线，逐节点标注「模型已具备什么、不用重建什么」与「Harness 必须人来建什么」。",
+ "thesis": "模型给你会思考的大脑，Harness 给你身体、神经、免疫、记忆与档案——本 playbook 只讲后者怎么按顺序造出来。",
+ "source_url": "https://ai-agent-guide.xiaofuge.cn/",
+ "source_note": "素材为小傅哥《AI Agent 通识教程》（ai-agent-guide.xiaofuge.cn，GitHub fuzhengwei/ai-agent-guide，30 章）。教程仓库无 LICENSE，本 playbook 全部为原创蒸馏重写：叙述性内容一律改写，代码只保留模式骨架，结构性接口事实（JSON Schema、MCP 报文、状态枚举）可引用。每个节点页链回官方原章。",
+ "nodes": [
+  {
+   "no": "N0",
+   "slug": "pb-n0-renwu-dingyi",
+   "title": "任务定义：Agent 是什么、边界在哪里",
+   "phase": "P0",
+   "tier": "必建",
+   "status": "published",
+   "essence": "不写代码先定义：Chatbot vs Agent、可逆性与授权范围",
+   "chapters": [
+    "第0章 能力全景",
+    "第2章 什么是AI Agent"
+   ]
+  },
+  {
+   "no": "N1",
+   "slug": "pb-n1-zuixiao-xunhuan",
+   "title": "最小循环：让 Agent 第一次端到端跑起来",
+   "phase": "P1",
+   "tier": "必建",
+   "status": "published",
+   "essence": "消息→模型→tool_call?→执行→观察→循环的最小骨架",
+   "chapters": [
+    "第3章 第一个Agent",
+    "第6章 ReAct",
+    "第14章 FC骨架部分"
+   ]
+  },
+  {
+   "no": "N2",
+   "slug": "pb-n2-shangxiawen",
+   "title": "上下文工程：给大脑喂什么、喂多少",
+   "phase": "P2",
+   "tier": "必建",
+   "status": "published",
+   "essence": "提示词三层结构 + 消息裁剪五策略 + 上下文预算",
+   "chapters": [
+    "第4章 提示词工程",
+    "第5章 上下文工程"
+   ]
+  },
+  {
+   "no": "N3",
+   "slug": "pb-n3-gongju-nengli",
+   "title": "工具与能力层：FC / MCP / Skills / CLI",
+   "phase": "P3",
+   "tier": "必建",
+   "status": "published",
+   "essence": "工具 schema、注册表、执行器、MCP 标准化、Skills 组合、CLI 能力",
+   "chapters": [
+    "第14章 FC路由管理",
+    "第15章 MCP",
+    "第16章 Skills",
+    "第17章 CLI能力"
+   ]
+  },
+  {
+   "no": "N4",
+   "slug": "pb-n4-jiyi-zhishi",
+   "title": "记忆与知识：会话记忆、RAG 与知识编译",
+   "phase": "P4",
+   "tier": "必建",
+   "status": "published",
+   "essence": "三层记忆、向量库、RAG 检索策略、LLM-Wiki 知识编译",
+   "chapters": [
+    "第7章 记忆系统",
+    "第12章 RAG",
+    "第13章 LLM-Wiki"
+   ]
+  },
+  {
+   "no": "N5",
+   "slug": "pb-n5-yunxing-harness",
+   "title": "运行时与 Harness：Loop 引擎、工程化外壳与工业级解剖",
+   "phase": "P5",
+   "tier": "必建·核心",
+   "status": "published",
+   "essence": "Loop 六步流程、三层嵌套架构、Harness 六组件、dsh-java 事件溯源解剖",
+   "chapters": [
+    "第9章 运行时",
+    "第10章 Harness工程",
+    "第11章 dsh-java解剖"
+   ]
+  },
+  {
+   "no": "N6",
+   "slug": "pb-n6-anquan-zhi-li",
+   "title": "安全治理：注入防御、权限、审批与沙箱",
+   "phase": "P6",
+   "tier": "必建",
+   "status": "published",
+   "essence": "Prompt 注入三防线、权限控制体系、HITL、资源限制、红队测试",
+   "chapters": [
+    "第25章 安全与防护"
+   ]
+  },
+  {
+   "no": "N7",
+   "slug": "pb-n7-guancheng-bushu",
+   "title": "观测与部署：评估、可观测性与生产运维",
+   "phase": "P7",
+   "tier": "必建",
+   "status": "published",
+   "essence": "评估六维度、LLM-as-Judge、监控指标、Docker/K8s 部署、成本优化",
+   "chapters": [
+    "第24章 评估与可观测性",
+    "第26章 部署与运维"
+   ]
+  },
+  {
+   "no": "N8",
+   "slug": "pb-n8-duoagent",
+   "title": "编排与多 Agent：拓扑、状态机与框架选型",
+   "phase": "P8",
+   "tier": "扩展·选型",
+   "status": "planned",
+   "essence": "四种协作模式、A2A、LangGraph 状态机、框架对比",
+   "chapters": [
+    "第18章 多Agent",
+    "第19章 LangGraph",
+    "第20章 框架对比"
+   ],
+   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html"
+  },
+  {
+   "no": "N9",
+   "slug": "pb-n9-jiaohu-xingtai",
+   "title": "交互形态：低代码平台、CLI Agent 与 GUI Agent",
+   "phase": "P8",
+   "tier": "扩展·选型",
+   "status": "planned",
+   "essence": "Dify/Coze 可视化编排、CLI Agent、GUI Agent 技术栈",
+   "chapters": [
+    "第21章 Dify/Coze",
+    "第22章 CLI Agent",
+    "第23章 GUI Agent"
+   ],
+   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch13-dify-coze.html"
+  },
+  {
+   "no": "N10",
+   "slug": "pb-n10-moxing-fuwu",
+   "title": "模型服务化与前沿：推理框架、决策模型与展望",
+   "phase": "P8",
+   "tier": "运维·前沿",
+   "status": "planned",
+   "essence": "Ollama/vLLM/SGLang、量化、Jev 决策模型、2026 展望",
+   "chapters": [
+    "第27章 推理框架",
+    "第28章 Jev决策模型",
+    "第29章 2026展望"
+   ],
+   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch23-future-summary.html"
+  }
+ ],
+ "blocks": [
+  {
+   "h2": "这是什么"
+  },
+  {
+   "p": "本页是本站的第四种 Agent 内容体裁：**施工顺序**。前三种各有分工——[Agent书](../book4/index.html) 讲每个零件的原理纵深，[Agent 实验场](../agent-lab.html) 给书 × 代码 × 项目契约的三方坐标，[原理文章蒸馏](../toyagent-steps.html) 逐篇提炼 ToyAgent 机制；本 playbook 回答一个一直缺的问题：**一个 Agent 从 0 到 1 按什么顺序造出来**。"
+  },
+  {
+   "p": "素材是小傅哥《AI Agent 通识教程》30 章——与 ToyAgent 同作者的配套教程。教程按**学习顺序**编排（先概念、再能力、再工程、后选型），本 playbook 按**构建依赖顺序**重排为 P0–P8 脊柱：先定义任务，再跑通最小循环，然后喂上下文、给工具、加记忆，上可靠性与治理，最后按需扩展形态。教程原顺序降级为各节点内的「预备知识」。"
+  },
+  {
+   "p": "全程以 **DeepSeek Chat 模型 + Function Calling + OpenAI 兼容 API** 为基线。核心方法：逐节点标注「模型已具备什么（不重建）」与「Harness 必建什么（人的工程）」——这是全站叙事的分水岭，详见下方模型边界矩阵。"
+  },
+  {
+   "h2": "为什么需要它：三书栈缺的那块拼图"
+  },
+  {
+   "p": "本站前三本书是自上而下的栈：书1 组织层、书2 业务层、书3 语义层；书4 补上了运行时层的**原理**，agent-lab 给了**坐标**，但一直没有一条**按依赖排序的施工路线**——读者知道每个零件是什么，却不知道先装哪个。"
+  },
+  {
+   "p": "教程恰好把这条路线的全部原料备齐了：30 章覆盖从「什么是 Agent」到「工业级 Harness 解剖」的完整光谱。本 playbook 的工作是把它从「教材」转成「playbook」——每个节点回答三个问题：**目的是什么、价值在哪、技术怎么选**，外加一行「模型边界」告诉你这层有多少是模型白送的。"
+  },
+  {
+   "h2": "P0–P8 构建脊柱"
+  },
+  {
+   "p": "排序逻辑：P0–P1 是「能跑」的最小集；P2–P4 决定「跑得对不对」；P5–P7 决定「敢不敢上生产」；P8 全部是「需要时才装」的扩展。"
+  },
+  {
+   "table": {
+    "head": [
+     "阶段",
+     "构建什么",
+     "回答的问题",
+     "覆盖教程章节",
+     "节点"
+    ],
+    "rows": [
+     [
+      "P0",
+      "任务定义",
+      "Agent 干什么、不干什么、边界在哪",
+      "第0章 · 第2章",
+      "[N0](pb-n0-renwu-dingyi.html)"
+     ],
+     [
+      "P1",
+      "最小循环",
+      "怎么让模型第一次端到端跑起来",
+      "第3章 · 第6章 · 第14章骨架",
+      "[N1](pb-n1-zuixiao-xunhuan.html)"
+     ],
+     [
+      "P2",
+      "上下文装配",
+      "喂给大脑什么、喂多少、何时压缩",
+      "第4章 · 第5章",
+      "[N2](pb-n2-shangxiawen.html)"
+     ],
+     [
+      "P3",
+      "工具与能力层",
+      "怎么给 Agent 装手脚并标准化",
+      "第14章 · 第15章 · 第16章 · 第17章",
+      "[N3](pb-n3-gongju-nengli.html)"
+     ],
+     [
+      "P4",
+      "记忆与知识",
+      "跨轮次记住什么、从哪查知识",
+      "第7章 · 第12章 · 第13章",
+      "[N4](pb-n4-jiyi-zhishi.html)"
+     ],
+     [
+      "P5",
+      "运行时与 Harness",
+      "循环怎么工程化、外壳怎么搭、工业级什么样",
+      "第9章 · 第10章 · 第11章",
+      "[N5](pb-n5-yunxing-harness.html)"
+     ],
+     [
+      "P6",
+      "安全治理",
+      "怎么防注入、控权限、设审批、隔离执行",
+      "第25章",
+      "[N6](pb-n6-anquan-zhi-li.html)"
+     ],
+     [
+      "P7",
+      "观测与部署",
+      "怎么评估、观测、上线、控成本",
+      "第24章 · 第26章",
+      "[N7](pb-n7-guancheng-bushu.html)"
+     ],
+     [
+      "P8",
+      "扩展形态",
+      "多 Agent / 交互形态 / 模型服务化——按需选装",
+      "第18–23章 · 第27–29章",
+      "N8–N10（规划中）"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "模型边界矩阵：DeepSeek 基线下什么不用建"
+  },
+  {
+   "note": "基线假设：DeepSeek Chat 模型具备 function calling（选工具+填参数）、指令遵循、JSON 输出、窗口内上下文理解；经 OpenAI 兼容 API 接入。以下「模型已具备」为能力边界推断而非实测 benchmark；若你的部署形态不同（如深度求索 reasoner 或其他厂商模型），各节点页的边界行需相应修正。"
+  },
+  {
+   "p": "一句话结论：**模型给你「会思考的大脑」，Harness 给你「身体 + 神经 + 免疫 + 记忆 + 档案」**。下表八层中，记忆、安全、观测三层几乎全部是 Harness 的活——这正是「从没完整建过 Agent」的人最容易低估的部分。"
+  },
+  {
+   "table": {
+    "head": [
+     "层",
+     "模型已具备（不重建）",
+     "Harness 必建（人的工程）",
+     "节点"
+    ],
+    "rows": [
+     [
+      "理解",
+      "意图识别、指令遵循、文本/JSON 生成",
+      "—",
+      "N0 / N1"
+     ],
+     [
+      "推理",
+      "多步思考（prompt 可引导 ReAct）",
+      "循环节拍：何时调工具、何时停、步数预算",
+      "N1 / N5"
+     ],
+     [
+      "工具",
+      "FC：选工具 + 填参数",
+      "schema 定义、注册表、执行器、结果校验回填",
+      "N3"
+     ],
+     [
+      "上下文",
+      "窗口内理解",
+      "装什么 / 多少 / 何时压缩 / 优先级裁剪",
+      "N2 / N4"
+     ],
+     [
+      "记忆",
+      "无（模型无状态）",
+      "全部：历史管理、压缩、长期记忆、知识库",
+      "N4"
+     ],
+     [
+      "安全",
+      "提示词约束（不可靠）",
+      "全部确定性防线：守卫 / 权限 / 审批 / 沙箱",
+      "N6 / N5"
+     ],
+     [
+      "观测",
+      "无",
+      "全部：日志、trace、评估、事件溯源",
+      "N7"
+     ],
+     [
+      "编排",
+      "单点推理",
+      "多 Agent 拓扑、状态机、编排者",
+      "N8"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "AutoAgent 映射：造出来的东西长什么样"
+  },
+  {
+   "p": "站长提供了一张 draw.io 构想草图《The AutoAgent framework》——用操作系统内核做隐喻描述 Agent 产品形态：OS Kernel 是运行时，System Utilities 是上下文与记忆的系统调用，Tools Pool / workflows Pool 是能力注册表，Orchestrator Agent 是编排者，User Interface: Language 是交互面，Developer Mode 承载 Agents/Workflows Creation。**该图是产品形态隐喻，不是已实现系统**；本节只做静态映射，帮你在造完每个节点后看清「自己正在造 OS 的哪一部分」。"
+  },
+  {
+   "table": {
+    "head": [
+     "AutoAgent 层",
+     "playbook 节点",
+     "对应关系"
+    ],
+    "rows": [
+     [
+      "OS Kernel（运行时）",
+      "N5",
+      "Loop 引擎 / Harness / 事件溯源 ≈ Agent 的内核态"
+     ],
+     [
+      "System Utilities（Retrieve/Organize/Parse/Constraint）",
+      "N2 / N4",
+      "上下文装配与记忆检索 ≈ 系统调用"
+     ],
+     [
+      "Tools Pool / workflows Pool",
+      "N3",
+      "工具 schema、注册表、Skills ≈ 能力池"
+     ],
+     [
+      "Orchestrator Agent",
+      "N8",
+      "多 Agent 拓扑与编排 ≈ 调度器"
+     ],
+     [
+      "User Interface: Language",
+      "N9",
+      "CLI / GUI / 低代码平台 ≈ 交互面"
+     ],
+     [
+      "Developer Mode · Agents/Workflows Creation",
+      "N0 / N1",
+      "创建面 = 构建路径本身"
+     ],
+     [
+      "ANY LLMs",
+      "全局",
+      "模型可替换 → Harness 才是产品"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "节点地图：11 个节点"
+  },
+  {
+   "p": "必建节点（N0–N7）按 P0–P7 顺序构成最小可生产路径；扩展节点（N8–N10）在核心跑通后按需选装。已发布节点可直接进入，规划中节点暂链官方原章。"
+  },
+  {
+   "table": {
+    "head": [
+     "节点",
+     "标题",
+     "层级",
+     "状态",
+     "入口"
+    ],
+    "rows": [
+     [
+      "N0",
+      "任务定义",
+      "P0 · 必建",
+      "已发布",
+      "[进入](pb-n0-renwu-dingyi.html)"
+     ],
+     [
+      "N1",
+      "最小循环",
+      "P1 · 必建",
+      "已发布",
+      "[进入](pb-n1-zuixiao-xunhuan.html)"
+     ],
+     [
+      "N2",
+      "上下文工程",
+      "P2 · 必建",
+      "已发布",
+      "[进入](pb-n2-shangxiawen.html)"
+     ],
+     [
+      "N3",
+      "工具与能力层",
+      "P3 · 必建",
+      "已发布",
+      "[进入](pb-n3-gongju-nengli.html)"
+     ],
+     [
+      "N4",
+      "记忆与知识",
+      "P4 · 必建",
+      "已发布",
+      "[进入](pb-n4-jiyi-zhishi.html)"
+     ],
+     [
+      "N5",
+      "运行时与 Harness",
+      "P5 · 必建·核心",
+      "已发布",
+      "[进入](pb-n5-yunxing-harness.html)"
+     ],
+     [
+      "N6",
+      "安全治理",
+      "P6 · 必建",
+      "已发布",
+      "[进入](pb-n6-anquan-zhi-li.html)"
+     ],
+     [
+      "N7",
+      "观测与部署",
+      "P7 · 必建",
+      "已发布",
+      "[进入](pb-n7-guancheng-bushu.html)"
+     ],
+     [
+      "N8",
+      "编排与多 Agent",
+      "P8 · 扩展·选型",
+      "规划中",
+      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html)"
+     ],
+     [
+      "N9",
+      "交互形态",
+      "P8 · 扩展·选型",
+      "规划中",
+      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch13-dify-coze.html)"
+     ],
+     [
+      "N10",
+      "模型服务化与前沿",
+      "P8 · 运维·前沿",
+      "规划中",
+      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch23-future-summary.html)"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "教程 30 章总索引"
+  },
+  {
+   "p": "全部 30 章的落点核对——每章蒸馏进哪个节点、属于哪一层。第 1 章（大模型基础）不单独成节点，并入本页模型边界矩阵作为「模型已具备」的证据层；第 14、8 章跨节点分摊（Function Calling 骨架进 N1、路由管理进 N3；意图识别思想在 N1/N3 交叉引用）。"
+  },
+  {
+   "table": {
+    "head": [
+     "章",
+     "章名",
+     "落点节点",
+     "层级",
+     "官方原章"
+    ],
+    "rows": [
+     [
+      "第0章",
+      "Agent 能力全景展示",
+      "N0",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch00-fundamentals.html)"
+     ],
+     [
+      "第1章",
+      "大模型与 Agent 基础概念",
+      "框架页·模型基线",
+      "背景",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch01-llm-basics.html)"
+     ],
+     [
+      "第2章",
+      "什么是 AI Agent",
+      "N0",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch02-what-is-agent.html)"
+     ],
+     [
+      "第3章",
+      "第一个 Agent：天气查询助手",
+      "N1",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch03-weather-agent.html)"
+     ],
+     [
+      "第4章",
+      "提示词工程",
+      "N2",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch04-prompt-engineering.html)"
+     ],
+     [
+      "第5章",
+      "上下文工程",
+      "N2",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch04b-context-engineering.html)"
+     ],
+     [
+      "第6章",
+      "ReAct：让 Agent 学会思考",
+      "N1",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch04-react-pattern.html)"
+     ],
+     [
+      "第7章",
+      "Agent 的记忆系统",
+      "N4",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch05-memory.html)"
+     ],
+     [
+      "第8章",
+      "意图识别与决策中枢",
+      "N1 / N3 交叉",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-brain-intent-router.html)"
+     ],
+     [
+      "第9章",
+      "Agent 运行时：Loop 引擎与沙箱",
+      "N5",
+      "必建·核心",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch21-loop-runtime-sandbox.html)"
+     ],
+     [
+      "第10章",
+      "Harness 工程：大脑的工程化外壳",
+      "N5",
+      "必建·核心",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch22-harness.html)"
+     ],
+     [
+      "第11章",
+      "工业级 Harness 解剖：deepseek-harness-java",
+      "N5",
+      "必建·核心",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch27-dsh-java-anatomy.html)"
+     ],
+     [
+      "第12章",
+      "RAG：检索增强生成",
+      "N4",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch16-rag.html)"
+     ],
+     [
+      "第13章",
+      "LLM-Wiki：项目知识文件",
+      "N4",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch26-llm-wiki.html)"
+     ],
+     [
+      "第14章",
+      "Function Calling 与工具设计",
+      "N1 骨架 / N3 路由",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-tools.html)"
+     ],
+     [
+      "第15章",
+      "MCP：工具的标准化接口",
+      "N3",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch07-mcp.html)"
+     ],
+     [
+      "第16章",
+      "Skills：工具的组合与复用",
+      "N3",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch08-skills.html)"
+     ],
+     [
+      "第17章",
+      "CLI 能力：Agent 操作本地工具",
+      "N3",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch09-cli-capability.html)"
+     ],
+     [
+      "第18章",
+      "多 Agent 系统架构",
+      "N8",
+      "扩展",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html)"
+     ],
+     [
+      "第19章",
+      "LangGraph 与状态机",
+      "N8",
+      "扩展",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch11-langgraph.html)"
+     ],
+     [
+      "第20章",
+      "主流 Agent 框架对比",
+      "N8",
+      "选型",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch12-framework-comparison.html)"
+     ],
+     [
+      "第21章",
+      "Dify、Coze 与可视化编排",
+      "N9",
+      "选型",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch13-dify-coze.html)"
+     ],
+     [
+      "第22章",
+      "CLI Agent：命令行智能助手",
+      "N9",
+      "扩展",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch14-cli-agent.html)"
+     ],
+     [
+      "第23章",
+      "GUI Agent：浏览器自动化",
+      "N9",
+      "扩展",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch15-gui-agent.html)"
+     ],
+     [
+      "第24章",
+      "Agent 评估与可观测性",
+      "N7",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch17-evaluation.html)"
+     ],
+     [
+      "第25章",
+      "Agent 安全与防护",
+      "N6",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch18-security.html)"
+     ],
+     [
+      "第26章",
+      "Agent 部署与运维",
+      "N7",
+      "必建",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch19-deployment.html)"
+     ],
+     [
+      "第27章",
+      "推理框架与模型服务化",
+      "N10",
+      "运维",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch20-inference-framework.html)"
+     ],
+     [
+      "第28章",
+      "Jev 决策模型：Agent 的反射神经",
+      "N10",
+      "前沿",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch24-jev-decision-model.html)"
+     ],
+     [
+      "第29章",
+      "2026 Agent 技术展望",
+      "N10 + 路线图印证",
+      "前沿",
+      "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch23-future-summary.html)"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "三条阅读路径"
+  },
+  {
+   "h3": "路径① 必建路径（推荐给要造 Agent 的人）"
+  },
+  {
+   "olist": [
+    "先读本页模型边界矩阵——建立「模型白送什么、Harness 自己建什么」的总判断",
+    "按 N0 → N7 顺序读八个必建节点：定义 → 跑通 → 喂上下文 → 装工具 → 加记忆 → 工程化 → 上治理 → 上观测",
+    "每个节点读完做一件事：对照该节点的「模型边界行」检查自己的 Harness 缺口",
+    "N5（运行时与 Harness）是全程重心——三章全是核心，值得放慢读两遍"
+   ]
+  },
+  {
+   "h3": "路径② 全景路径（想建立地图）"
+  },
+  {
+   "olist": [
+    "本页 → N0 → 跳到 N5 先看工业级 Harness 长什么样",
+    "再回头按 N1→N4 补「怎么跑起来」的细节",
+    "N6/N7 作为「上生产前的检查单」放最后",
+    "需要选型时再进 N8–N10"
+   ]
+  },
+  {
+   "h3": "路径③ 选型与前沿（已跑通后的进阶）"
+  },
+  {
+   "olist": [
+    "N8 编排与多 Agent——何时该拆、拆成什么拓扑、用什么框架",
+    "N9 交互形态——低代码平台 vs 自研、CLI/GUI Agent 的边界",
+    "N10 模型服务化——推理框架选型、量化、Jev 决策模型与 2026 展望"
+   ]
+  },
+  {
+   "h2": "体裁与版权声明"
+  },
+  {
+   "note": "**原创蒸馏，非转载**：教程仓库无 LICENSE，本 playbook 全部为原创重写——叙述一律改写，代码只保留模式骨架（伪代码 / 结构示意），JSON Schema、MCP 报文、状态枚举等结构性接口事实可引用。每节点页「源章节」直链官方原章供对照原文。**保守性呈现**：教程默认 Agent 自主循环的部分，与本站项目契约（D-020 单 Case 单 Agent + 模型外控制面、D-080 分级确认）冲突处如实标注差异，不回避。**边界声明**：本 playbook 是方法论蒸馏，不表示本站或项目已构建/部署任何 Agent 产品；模型边界分析为能力推断而非实测。"
+  },
+  {
+   "h2": "与本站其他轨的关系"
+  },
+  {
+   "p": "四条轨各管一段：**书4 精读**给零件图纸（每个机制为什么这样设计），**Agent 实验场**给坐标（书 × 代码 × 项目契约），**原理文章蒸馏**给可运行参照的机制细节（ToyAgent 26 场景），**本 Playbook** 给施工顺序（按什么顺序把零件装成能跑的 Agent）。四者互链：每个节点页都链回对应书4 精读、agent-lab 映射与 toyagent step。"
+  }
+ ]
+}

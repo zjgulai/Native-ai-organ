@@ -1,0 +1,211 @@
+{
+ "slug": "pb-n3-gongju-nengli",
+ "node": "N3",
+ "phase": "P3",
+ "tier": "必建",
+ "title": "工具与能力层：FC / MCP / Skills / CLI",
+ "status": "published",
+ "minutes": 13,
+ "lead": "P3 回答「模型会调工具之后，工具体系怎么建」：FC 机制骨架已在 N1 铺好，本节点补齐工程化全貌——工具分类与意图路由、JIT/Tool RAG/描述预算的上下文管理、四协议适配、并发与五层权限、弱模型兼容；然后向上走协议标准化（MCP）、能力组合（Skills）、本地执行（CLI）三层。全程对照本站「MCP/tools 连接保留方向」与 D-020/D-022/D-023/D-080/D-051 契约标注可借鉴与不可照搬的边界。",
+ "sections": [
+  {
+   "h2": "定位：这个节点解决什么"
+  },
+  {
+   "p": "N1 的循环骨架假设「工具已经存在且数量可控」；真实系统里工具会从 3 个长到 100+ 个，跨进程、跨协议、跨风险等级。本节点解决的就是工具的规模化问题：怎么分类、怎么让模型找到对的工具、怎么在不爆 token 的前提下注入工具、怎么标准化接入外部能力、怎么把零散工具组合成可复用技能、怎么让 Agent 操作本地命令行。四层递进：FC 是机制、MCP 是协议、Skills 是组织、CLI 是执行面。"
+  },
+  {
+   "p": "对本站的意义要先说清：本站把「工具」收敛进契约体系——D-022 的 Skill 契约管能力定义、D-023 Role Release Bundle 管发布、Policy Gate/Execution Broker（D-080）管执行、PV-28/29 回执管审计。本节点的工程模式（路由、懒加载、权限分层、审计日志）几乎全部可映射，但「模型自主调度工具」的部分要按契约改写，详见工程边界。"
+  },
+  {
+   "h2": "模型边界：DeepSeek 基线下什么不用建"
+  },
+  {
+   "p": "基线 DeepSeek Chat + function calling + OpenAI 兼容 API 已覆盖「生成结构化调用」这一环；工具层的其余部分——注册、检索、压缩、适配、隔离、审计——模型一概不具备，全部是 Harness 工程资产。"
+  },
+  {
+   "table": {
+    "head": ["环节", "模型已具备（不重建）", "Harness 必建", "说明"],
+    "rows": [
+     ["参数生成", "按 Schema 生成 name + arguments", "Schema 注册表、参数校验（类型/必填/枚举）、校验失败回灌修正", "模型填参数，框架验真；校验失败要把错误喂回去"],
+     ["意图→工具路由", "能读工具 description 判断是否适用", "Intent 结构化契约、意图-工具映射表、Tool RAG 检索、置信度兜底", "路由结果必须可审计、可回放"],
+     ["工具描述注入", "能读 description 决定调用", "JIT 加载、向量检索、描述预算与截断降级", "工具多时全量注入=噪声+成本，密度要管"],
+     ["结果处理", "能消化 Observation 文本", "结果压缩、关键字段提取、ref_id 归档检索", "上下文膨胀由 Harness 控制，不靠模型自觉"],
+     ["协议适配", "OpenAI 兼容 tools 参数", "ProtocolStrategy 式四协议适配层（Chat/Messages/Responses/Generate）", "DeepSeek 走 OpenAI 兼容即可；异构模型需适配层"],
+     ["并发/权限/弱模型", "无此概念", "三类并发安全、五层权限递进、repairToolCall 与文本解析兜底", "执行安全全部在模型外，fail-closed"],
+     ["MCP / Skills / CLI", "无概念", "全部：MCP client/server、Skill 三层懒加载、CLI 三层架构+沙箱", "纯工程资产，与模型能力无关"]
+    ]
+   }
+  },
+  {
+   "h2": "源章节·第14章 Function Calling 与工具设计（路由与管理）"
+  },
+  {
+   "p": "FC 机制骨架（Schema→tool_calls→执行→回注）已在 N1 建立，本章后半讲「工具多了之后」的工程化。起点是分类：教程把 Agent 工具分为信息获取（搜索/天气/RAG/DB）、代码执行（Python 沙箱/SQL/JS）、文件操作（读写/解析/转换）、通信交互（邮件/HTTP/Webhook/推送）四大类——分类不是贴标签，而是路由的第一层索引。"
+  },
+  {
+   "p": "意图路由的实现分三层：先把用户输入结构化为 Intent（类型、原文、目标、优先级、依赖关系），再经 INTENT_TOOL_MAP 这类「意图大类→候选工具集」的映射表收敛候选，最后在候选内由模型结合 description 精选。复合意图（「查天气顺便订闹钟」）先拆成带 depends_on 的子意图列表，再分别路由——拆解错了路由必错。隐式意图（「外面冷不冷」）靠语义理解落到信息获取类，关键词匹配兜不住。"
+  },
+  {
+   "p": "智能路由管线（SmartToolRouter）把上述环节串成一条可观测流水线：意图分类器产出结构化意图 → Tool RAG 按意图检索 top-K 工具描述（构建检索文本时拼接 name+description+参数说明）→ 参数校验（Pydantic 式，失败则把错误作为 correction prompt 喂回模型重生成，改写自教程的骨架模式）→ 执行 → 结果压缩器按工具类型提取关键字段，长结果归档为 ref_id 只回摘要+引用。每一环都可单独替换、单独观测。"
+  },
+  {
+   "p": "上下文工程是本章工程含量最高的部分，三件套解决「工具描述吃 token」：JIT 加载——意图识别后只注入相关 3~5 个工具（全量 50 个约 5000 token vs JIT 约 300 token）；Tool RAG——工具描述做 embedding 存向量库，按查询检索 top-K，适合 50+ 工具规模；描述优化——`do_stuff` 这类模糊命名换成「动词+对象」（get_weather_by_city），description 写清「做什么+返回什么+边界在哪」（「仅支持中国城市」），参数带示例值和格式约束。效果对比：全量传入 65% 选择准确率 → JIT/RAG 85%+，有效信号密度从约 6% 提到接近 100%。"
+  },
+  {
+   "p": "结果压缩解决多轮调用的上下文膨胀：三轮工具调用可把 100 token 的原始请求稀释到占比不足 2%。三种策略可组合——摘要替代（2000 token 原始结果→200 token 摘要）、选择性保留（天气 API 20 个字段只留温度/描述/风速）、向量库归档（完整结果存库，Context 只留摘要+ref_id，需要细节按引用检索）。原则是「记要点、存细节」：要点进上下文，细节进归档。"
+  },
+  {
+   "p": "多协议适配层（ProtocolStrategy）解决「一套代码兼容所有模型」：Chat Completions（OpenAI/DeepSeek/Qwen，messages[]+tools[].function）、Messages API（Anthropic，system 分离+tool_use block）、Responses API（OpenAI 2025+，input 字段）、Generate API（Ollama/vLLM，prompt 或兼容模式）四种协议的消息格式、工具调用字段、流式事件名各不相同。做法是定义统一内部接口、每协议一个实现类、运行时按模型配置切换——DeepSeek 基线只需实现 OpenAI 兼容一路，但接口要预留。"
+  },
+  {
+   "p": "信号提取是路由的前置增强：从用户输入中识别五类信号——意图信号（要做什么）、约束信号（「用 Python 3.12」）、偏好信号（「不要用类」）、上下文信号（选中第 10–20 行）、情绪信号（「怎么又报错了」的挫败感）。信号带置信度，路由时按类型加权——约束和上下文信号直接改执行参数，比只看意图标签更精细。"
+  },
+  {
+   "p": "工具描述本身也要做 token 预算：Claude Code 的实践是工具列表预算=上下文窗口 1%（200K 窗口约 8000 字符），单条上限 250 字符；超预算时逐条截断降级而非整体删除——Level 1 完整描述→Level 2 截 whenToUse→Level 3 截 description→Level 4 只留名字+省略号。设计理由：宁可描述变短也要让模型知道工具存在，可主动查询详情。与 Tool RAG 的分工：工具 10–50 个用预算制，100+ 用检索。"
+  },
+  {
+   "p": "执行层的三个工程挑战：并发安全分类——只读工具（read/search/glob）可并发、写工具（write/edit/delete）必须串行、Bash 类按命令语义动态判断（ls 可并发、rm 串行、git push 串行），流式并发让工具调用一到即执行、按完成顺序返回；五层权限递进——AST 拆解复合命令→正则补充危险模式→AI 分类器+LRU 缓存→拒绝冷却（连续 3 次同类拒绝转永久拒绝）→熔断器（closed→open→half-open），核心原则 fail-closed，不理解的命令一律交互确认；弱模型兼容——repairToolCall 修 name/arguments 粘连、parseToolCallsFromText 从纯文本里捞结构化调用，保证 DeepSeek/Qwen/Llama 级模型也能用。重试策略收口：可重试错误集合=429/5xx/超时，退避按 2 的幂增长；400/401/403 类请求本身错误不重试，重试上限到顶后降级而非无限循环——与 N1 的错误二分法一致，这里补的是「哪些状态码算临时故障」的具体清单。"
+  },
+  {
+   "h2": "源章节·第15章 MCP：工具的标准化接口"
+  },
+  {
+   "p": "MCP（Model Context Protocol，Anthropic 2024 年开放）解决的是「N×M 适配爆炸」：N 个 Agent 框架 × M 个工具/数据源，如果两两适配就是 N×M 套胶水代码；MCP 把它收敛为 N+M——每个工具写一个 Server、每个 Agent 写一个 Client。类比是 USB-C：一次标准化，所有设备互通。"
+  },
+  {
+   "p": "MCP 的三大原语：Tools（模型可调用的函数，带 JSON Schema）、Resources（可读取的数据源，如文件/数据库记录）、Prompts（预定义提示词模板）。Tools 是 Agent 干活的手，Resources 是可查的资料，Prompts 是可复用的问法——三者都通过同一套 JSON-RPC 2.0 通道暴露。"
+  },
+  {
+   "p": "传输层三选一：stdio（本地子进程，最简单，桌面/CLI 场景默认）、SSE（已废弃，仅历史兼容）、Streamable HTTP（2025-03-26 规范，当前推荐——单端点同时支持请求-响应、服务端流、客户端流三种模式，无状态与有状态 Session-Id 可选）。不用 WebSocket 的原因：JSON-RPC 天然请求-响应、浏览器限制多、兼容性差。握手必须先 initialize 双向声明 capabilities 取交集，再发 initialized 通知，然后才进入 tools/list、tools/call 等调用。"
+  },
+  {
+   "p": "接入规模化时用 Gateway 模式：统一入口做协议转换与路由，三种路由策略——按 tool 类型路由到对应 Server、按优先级/权重负载均衡、多 Server 聚合为统一工具清单。生态现状（教程数据）：月下载量约 9700 万–1.1 亿次，社区 Server 超 100 个，Claude Desktop/Cursor/Windsurf/Cline 等客户端原生支持——MCP 已是事实标准而非实验品。"
+  },
+  {
+   "p": "安全设计四件套：权限边界按 scope/action/rate-limit/sensitive-data 四类声明；OAuth 2.0 + scope 映射做认证授权；审计日志记录调用者/工具/参数（脱敏后）/结果/耗时，敏感字段必须 sanitize；二次确认对 critical/high/medium 分级——高危工具调用前暂停等用户批准。三条原则：最小权限、默认拒绝、全程可审计。"
+  },
+  {
+   "p": "一个反直觉的坑：MCP 动态注入的指令会破坏 Prompt 缓存命中。解法是把易变内容放进专用的「不缓存系统提示区」（教程函数名直白标为 DANGEROUS_uncachedSystemPromptSection 以警示代价），把 Agent 列表改用附件注入（实测省约 10.2% cache_creation）；配套最佳实践——工具列表排序稳定、描述精简、动态内容放最后。"
+  },
+  {
+   "h2": "源章节·第16章 Skills：工具的组合与复用"
+  },
+  {
+   "p": "工具与技能的关系用教程的类比：工具是锤子，技能是「钉钉子」——后者包含工具组合+使用知识（调用顺序、参数约束、判断策略）。对比维度：粒度（单操作 vs 复合能力）、工具数（1 vs 1~N）、是否含知识（无 vs 有策略）、复用性（每项目重定义 vs 打包跨项目共享）。FC 是底层机制、MCP 是传输层、Skills 是上层组织——三者层级递进不互斥，一个 Skill 可以包含 MCP Server 提供的工具。"
+  },
+  {
+   "p": "Skill 的三层结构（YAML 定义）：元数据层（name/version/description/triggers 触发词/permissions 权限声明）、工具层（引用的工具清单+参数 schema）、知识层（knowledge 字段写使用策略——先做什么、什么条件下做什么、参数约束）。知识层是 Skill 与「工具清单」的本质区别：它把最佳实践固化成可复用资产。"
+  },
+  {
+   "p": "发现与加载：Skill 以文件形式存 skills/ 目录，启动时扫描加载；生产环境要热重载——文件变更（skill.yml 修改）触发重扫，无需重启。懒加载用三层策略控 token：第一层始终列出全部 Skill 的名字+一句话描述；第二层触发词命中时才注入完整 Schema+知识；第三层罕见 Skill 靠模型主动 ToolSearch 检索；已激活的 Skill 在会话内保持激活。"
+  },
+  {
+   "p": "分层体系是金字塔：基础 Skill（1 个工具+防御性编程——路径穿越拦截、扩展名白名单、大小限制，guards 声明式配置）、复合 Skill（2~5 个工具+调用策略，如 report-generator）、领域 Skill（5~20+ 工具+行业知识与合规约束，如 finance-advisor）。原则是自下而上、不要跳层：没有稳固的基础 Skill，复合 Skill 就是空中楼阁。"
+  },
+  {
+   "p": "沉淀与演进：Skill 像代码一样有生命周期——临时脚本→内部最佳实践→可复用包，版本号用 SemVer。教程的 IterativeRefinement 经验值得抄：不要一开始追求完美设计，先让 Agent 跑起来，观察它反复使用哪些工具组合，再把高频组合提炼成 Skill——项目实践是最好的 Skill 设计师。"
+  },
+  {
+   "p": "五层安全架构按风险分级启用，不是越厚越好：Layer 1 声明式权限（YAML permissions 最小权限声明，是起点不是防线）、Layer 2 运行时拦截（permissionGuard 中间件，每次调用前校验）、Layer 3 审批机制（高危操作暂停等用户确认）、Layer 4 审计日志（谁在何时调了什么、参数、结果）、Layer 5 沙箱隔离（支付/生产库级操作）。基础 Skill 只需 1+2 层，复合加 3+4，领域才上全五层——安全成本与风险等级匹配。"
+  },
+  {
+   "p": "企业级 Skill 包的交付链：YAML 定义→实现代码→三层测试（单元测试测工具函数、Prompt 测试测 AI 调用策略、安全测试测权限拦截）→发布流程（版本+变更说明+回滚预案）。OpenClaw 的落地形态提供对照：用 Markdown（SKILL.md）而非 YAML 定义 Skill——因为内容直接注入 Prompt，Markdown 对模型更友好；其 13 个 Skill 可映射回三层金字塔，安全实践对应五层架构。"
+  },
+  {
+   "h2": "源章节·第17章 CLI 能力：Agent 操作本地工具"
+  },
+  {
+   "p": "CLI 能力的定位：MCP/HTTP API 像遥控器（远端按按钮），CLI 像机械手（直接握本地工具）——git、maven、docker、kubectl、mysql、pytest 构成开发者核心操作链路，Agent 会敲命令才算真正的本地搭档。CLI 工具全景覆盖构建、版本控制、容器、运维、数据、测试、文档、网络八类。"
+  },
+  {
+   "p": "三层架构：意图理解层（上下文感知——知道当前目录是什么项目；环境推断——有 pom.xml 推断 Maven、有 package.json 推断 npm；多步规划——一个意图拆成 3~6 步命令链）→ 命令生成层 NL2Shell（自然语言转 Shell）→ 安全执行层（沙箱+风险分级）。NL2Shell 三条路径：直接生成准确率 70–85%、Few-Shot 模板 85–92%、工具 Schema（FC 定义命令参数）92–97%——企业级推荐 Schema 方式，LLM 不「猜」命令而是像调 API 一样选工具填参数。"
+  },
+  {
+   "p": "三级安全策略按可逆性+影响范围+数据丢失风险分级：Level 1 白名单（只读无破坏，如 git status/ls/docker ps）自动执行；Level 2 中风险（有修改但可控，如 git push/mvn deploy）需用户确认；Level 3 高风险（不可逆，如 rm -rf/DROP DATABASE/shutdown）默认拒绝、特殊场景二次审批。每个 CLI 工具注册为 Schema 时带 risk_level、shell_template、requires_confirm/requires_double_confirm 字段——风险等级是 Schema 的一部分而非事后判断。"
+  },
+  {
+   "p": "统一调度器做三件事：路由（意图→正确工具）、编排（多步命令按序执行、前步输出作后步输入）、容错（失败自动重试或换策略）。CLI Schema 可直接映射为 MCP Tool——git_commit 这个 Schema 注册进 MCP Server 后，由 MCP Client 调用、子进程执行 git commit，CLI 能力就接入了标准协议栈；教程给出的闭环是 FC（调用格式）→MCP（通信协议）→Skills（组合流程）→CLI（本地沙箱执行）。"
+  },
+  {
+   "p": "错误自愈是 CLI Agent 区别于一次性命令生成器的关键：命令失败是常态（参数错/环境缺/权限不足/网络超时），做法是把 stderr 作为新上下文反馈给模型重新规划，最多重试 3 次——「执行→观察错误→修正→再执行」正是 ReAct 在 CLI 场景的落地。四类典型场景：命令不存在→建议安装；参数错误→自动修正；权限不足→提示 sudo；依赖缺失→先装后执行。局限教程自己承认：循环重试可能产生副作用、某些错误模型无法判断、sudo 确认不能自动绕过——企业级需重试上限+回滚机制。"
+  },
+  {
+   "p": "SSH Agent 把能力延伸到远程：三层架构（连接管理层——连接池+保活+自动重连+密钥管理；命令执行层——远程执行+流式输出+超时控制；安全沙箱层——命令预检+权限分级+审计日志）。教程提到 WaLiCode 用 Rust russh 库实现纯 Rust SSH 客户端以获得跨平台一致性——语言中立地说，关键是「不依赖系统 ssh 命令、凭据不落明文、远程命令与本地命令走同一套风险分级」。"
+  },
+  {
+   "h2": "技术选型要点"
+  },
+  {
+   "list": [
+    "**工具规模分层选型**：≤10 个全量注入；10–50 个 JIT 加载+描述预算截断；50–100 个加 Tool RAG；100+ 必须检索+路由分层——不要为 5 个工具上向量库。",
+    "**描述即路由质量**：工具命名用「动词+对象」，description 写清功能+返回+边界，参数带示例值与格式约束——这是零成本的准确率提升，先于任何检索方案做。",
+    "**结果即上下文资产**：长工具结果默认走「摘要+ref_id 归档」，要点进上下文、细节进库；原始输出不进消息历史。",
+    "**协议适配留接口**：DeepSeek 基线只实现 OpenAI 兼容一路，但内部抽象统一 Tool 接口（name/schema/call/风险级），为将来接 Anthropic/Ollama 预留 ProtocolStrategy 式切换点。",
+    "**风险等级进 Schema**：每个工具/命令注册时声明 risk_level 与 confirm 策略——风险是数据不是逻辑，Policy Gate 才能按契约分级。",
+    "**Skills 从复用痛点长出来**：先跑项目、观察高频工具组合、再提炼 Skill（IterativeRefinement）；基础→复合→领域自下而上，不跳层。",
+    "**CLI 优先 Schema 化**：NL2Shell 用 FC Schema（92–97%）而非自由生成（70–85%）；命令执行必须过沙箱+三级风险分级，错误自愈限 3 次且带回滚预案。"
+   ]
+  },
+  {
+   "h2": "工程边界与坑"
+  },
+  {
+   "list": [
+    "**MCP 是保留方向不是当前实例**：本站契约明确「MCP/tools/API/hooks 连接保留」，但 D-051 当前不实例化任何连接、工具或外部动作——本节点学到的 MCP client/server 模式是能力储备，落地要等连接契约（D-022 Access 契约）批准后按版本化方式接入，不是「装上就能调」。",
+    "**执行权在模型外**：教程里 IntentClassifier→路由→直接执行的管线，在本站必须改为「模型产出 Action Intent→Policy Gate 判定→Execution Broker 执行」；SmartToolRouter 的检索/校验/压缩可复用，但 dispatch 终点是意图提案而非函数调用。",
+    "**Skill 契约映射**：教程的 Skill YAML（name/version/description/triggers/permissions/tools/knowledge）可映射为 D-022 Skill 契约的候选 schema——permissions 对应 Access 契约、knowledge 对应 Role Playbook 的技能段、版本走 D-023 Release Bundle 七态生命周期；但触发词匹配（triggers）这种「关键词激活」机制与本站「按需加载 Skills」的契约装配方式不同，要改成 Case Control 按场景契约注入。",
+    "**CLI 沙箱对应执行面**：教程的 CommandSandbox 在本站映射到 D-080 的 ES-X（人工/受控面）与 ES-A（自动执行面）——CLI 命令的风险分级与本站 C1/C2/C3 确认分级同构；rm -rf 级命令在本站语境是「对外承诺/账号/资金动作」，走 Emergency Guard 与 Policy Gate 而非 Agent 自主沙箱。",
+    "**审计与回执**：MCP 审计日志、Skill 调用追踪、CLI 执行记录在本站统一为 PV-28/29 Receipt 回执——调用者、工具、参数（脱敏）、结果、耗时、判定结论都要进回执 schema，教程的日志格式仅作参考。",
+    "**生态数据别当承诺**：MCP 下载量、Server 数量、Skills 市场规模是教程引用的生态快照（2025 年口径），且市场形态（SkillsMP/ClawHub 等）超前于本站阶段——选型时看协议成熟度，不看市场热度。",
+    "**教程局限**：Gateway 路由、OAuth 配置、市场平台均为示意性实现非可运行代码；Skill YAML schema 是教程自定义约定非官方标准；SKILL.md 的 Markdown 约定来自 OpenClaw 单一平台；CLI 沙箱的隔离细节（namespace/chroot/资源限制）展开很少；信号提取的五类分类是启发式不是完备分类法。"
+   ]
+  },
+  {
+   "h2": "站内互链"
+  },
+  {
+   "p": "工具层是循环的「手脚」：[最小循环 N1](pb-n1-zuixiao-xunhuan.html) 提供 tool_calls 的调用机制，本节点把它规模化；[上下文工程 N2](pb-n2-shangxiawen.html) 的裁剪策略与本节点的 JIT/Tool RAG/结果压缩是同一枚硬币的两面；[记忆与知识 N4](pb-n4-jiyi-zhishi.html) 的向量检索与 Tool RAG 共用基础设施；[运行时与 Harness N5](pb-n5-yunxing-harness.html) 承载路由管线与执行面；[安全治理 N6](pb-n6-anquan-zhi-li.html) 承接五层权限与沙箱的深防部分；[toyagent-steps](../toyagent-steps.html) 的 step09–11 对应工具进化实践；[书 4·工具章](../book4/b4-04-gongju.html) 从原理视角纵深；[experiments](../experiments.html) 可对照实验。官方原章：[第14章 Function Calling](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-tools.html)、[第15章 MCP](https://ai-agent-guide.xiaofuge.cn/chapters/ch07-mcp.html)、[第16章 Skills](https://ai-agent-guide.xiaofuge.cn/chapters/ch08-skills.html)、[第17章 CLI 能力](https://ai-agent-guide.xiaofuge.cn/chapters/ch09-cli-capability.html)。"
+  },
+  {
+   "map": {
+    "title": "实践映射：对照「AI 组织变革」方案",
+    "blocks": [
+     {
+      "p": "本节点的四层工具体系在本站落到「契约化能力层」——教程管「工具怎么多起来还能用」，本站管「能力怎么版本化、怎么过闸、怎么留痕」。以下映射均为本站原创对照。"
+     },
+     {
+      "h3": "FC 路由管线 → Action Intent 产出管线"
+     },
+     {
+      "p": "IntentClassifier→ToolRAG→校验→执行→压缩 的流水线保留「检索-校验-压缩」骨架，但 dispatch 终点从「执行函数」改为「生成 Action Intent」：意图分类产出的是「本 Case 当前阶段要请求什么动作」，候选工具集收敛为「该岗位契约允许的 Skill 集合」，执行结果以 Receipt 回来。"
+     },
+     {
+      "h3": "MCP 标准化 → 连接层保留方向"
+     },
+     {
+      "p": "MCP 的「N+M 收敛」思想是本站未来接 Shopify/ERP 等外部系统的目标形态，但 D-051 明确当前不实例化连接。近期落地路径：先用契约化的内部 Tool 接口（统一 name/schema/call/风险级）跑通 Action Intent→Policy Gate→Execution Broker 链路，MCP Server 作为「外部能力适配器」在连接契约批准后按 D-022 Access 契约接入，而非现在引入协议栈。"
+     },
+     {
+      "h3": "Skills 三层结构 → D-022 Skill 契约 + Role Playbook"
+     },
+     {
+      "p": "Skill 的元数据/工具/知识三层映射为：元数据→Skill 契约头（name/version/权限声明），工具层→契约声明的可调用能力集，knowledge→Role Playbook 中的技能使用策略。懒加载三层（名字常驻/触发激活/主动检索）对应本站「按需加载 Skills」——由 Case Control 按场景契约注入，而非触发词匹配；SemVer 版本与七态生命周期并入 D-023 Release Bundle。"
+     },
+     {
+      "h3": "CLI 三层架构 → ES-M/A/X 执行面 + Policy Gate"
+     },
+     {
+      "p": "意图理解/NL2Shell/安全执行三层在本站拆到两侧：意图理解与命令生成归模型侧（产出 Action Intent，Schema 化 NL2Shell 思想保留——用契约枚举代替自由 Shell），安全执行归模型外（Policy Gate 按 C1/C2/C3 分级确认，Execution Broker 在 ES-A/ES-X 面执行）。CLI 的「命令即 Schema」思想迁移为「动作即契约」：每个可执行动作都是带风险级与确认策略的版本化定义。"
+     },
+     {
+      "h3": "五层权限/审计 → Policy Gate + Receipt"
+     },
+     {
+      "p": "Skill 五层安全（声明/拦截/审批/审计/沙箱）与工具五层权限（AST→regex→AI 分类→冷却→熔断）在本站合并为一套模型外防线：Policy Gate 做声明校验与分级判定，Execution Broker 做运行时拦截与沙箱隔离，Receipt 做全程审计——fail-closed 原则一致：不理解的一律拒绝或转人工（Pre-Case Exception）。"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -80,6 +80,7 @@ def build(check: bool = False) -> int:
     write_page("experiments.html", P.render_experiments(""))
     write_page("toyagent-steps.html", P.render_toyagent_steps(""))
     write_page("stack.html", P.render_stack(""))
+    write_page("agent-playbook/index.html", P.render_agent_playbook("../"))
     write_page("chapters/index.html", P.render_chapters_index("../"))
     write_page("concepts/index.html", P.render_concepts("../"))
     write_page("tools/index.html", P.render_tools_index("../"))
@@ -95,6 +96,8 @@ def build(check: bool = False) -> int:
         write_page(f"book3/{c['deep']}.html", P.render_b3_chapter_page(c["deep"], "../"))
     for c in D.BOOK4_DEEP:
         write_page(f"book4/{c['deep']}.html", P.render_b4_chapter_page(c["deep"], "../"))
+    for n in D.AGENT_PLAYBOOK_NODES:
+        write_page(f"agent-playbook/{n['slug']}.html", P.render_pb_node_page(n["slug"], "../"))
     for t in D.TOOLS:
         write_page(f"tools/{t['slug']}.html", P.render_tool_page(t, "../"))
 

@@ -8,9 +8,11 @@ from site_data import (BOOK, BOOK2, BOOK3, BOOK4, AGENT_LAB, STACK, BRAND2_CONTE
                        ORGMAP, SITEMAP, SEMANTIC, G1_PACK, TOOLS, TERMS, PILOT, PILOT_ASSETS,
                        PRODUCT, EXPERIMENTS, TOYAGENT_STEPS,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP,
-                       BOOK4_CONTENT, BOOK4_DEEP)
+                       BOOK4_CONTENT, BOOK4_DEEP, AGENT_PLAYBOOK, AGENT_PLAYBOOK_CONTENT,
+                       AGENT_PLAYBOOK_NODES)
 from site_render import (inline, render_blocks, page_shell, reader_page,
-                         sidebar_html_b2, sidebar_html_b3, sidebar_html_b4)
+                         sidebar_html_b2, sidebar_html_b3, sidebar_html_b4,
+                         sidebar_html_pb)
 
 
 def chapter_headings(blocks: list) -> list[tuple[str, str]]:
@@ -393,6 +395,10 @@ def render_b4_index(base: str) -> str:
         '<h3>配套实验：110 个编号实验 + 22 份 Skill</h3>'
         '<p>每章可运行实验与配套代码目录直达 GitHub 仓库——读完想动手验证，从这里进。</p></div>'
         + f'<a class="go" href="{base}experiments.html">打开实验地图 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">PLAYBOOK</span>'
+        '<h3>Agent Playbook：从 0 到 1 的构建路线</h3>'
+        '<p>《AI Agent 通识教程》30 章按构建依赖重排为 P0–P8 节点——书4 讲每个零件的原理，Playbook 讲按什么顺序把它们装成一个能跑的 Agent。</p></div>'
+        + f'<a class="go" href="{base}agent-playbook/index.html">打开 Playbook →</a></div>'
     )
     return page_shell(f'{BOOK4["short_title"]} · 全书地图', base, "book4", inner,
                       BOOK4.get("thesis", "")[:120])
@@ -417,6 +423,10 @@ def render_agent_lab(base: str) -> str:
         '<h3>ToyAgent 原理文章：27 篇方法论蒸馏</h3>'
         '<p>每个 step 配一篇机制讲解——本站逐篇蒸馏为「定位 / 机制 / 边界 / 代码链接」，读机制细节从这里进。</p></div>'
         + f'<a class="go" href="{base}toyagent-steps.html">打开原理文章蒸馏 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">PLAYBOOK</span>'
+        '<h3>Agent Playbook：从 0 到 1 的构建路线</h3>'
+        '<p>AI Agent 通识教程 30 章按构建依赖重排为 P0–P8 节点——先跑通最小循环，再上可靠性与治理，最后按需扩展。</p></div>'
+        + f'<a class="go" href="{base}agent-playbook/index.html">打开 Playbook →</a></div>'
         + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">STACK</span>'
         '<h3>四层架构：0→1 设计总纲</h3>'
         '<p>组织 × 业务 × 语义 × 工程四层如何拼成「AI Native Agent 从 0 到 1」的完整路径。</p></div>'
@@ -439,9 +449,98 @@ def render_stack(base: str) -> str:
         '<span>性质 <b>本站原创整合 · 非原书内容</b></span>'
         f'<span>约 <b>{STACK.get("minutes", "10")}</b> 分钟读完</span>'
         '<span>覆盖 <b>四书 70 章框架 + 实战轨</b></span></div></div>'
-        + body_html)
+        + body_html
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">PLAYBOOK</span>'
+        '<h3>Agent Playbook：0→1 构建路线的施工顺序</h3>'
+        '<p>四层架构回答「造出来的 Agent 由哪几层组成」；Playbook 回答「按什么顺序把它造出来」——P0–P8 构建脊柱 + 模型边界矩阵。</p></div>'
+        + f'<a class="go" href="{base}agent-playbook/index.html">打开 Playbook →</a></div>')
     return reader_page(base, "", inner, heads, STACK["title"],
                        STACK.get("lead", "")[:120], nav_current="stack")
+
+
+def _pb_node_meta(slug: str) -> dict:
+    for n in AGENT_PLAYBOOK.get("nodes", []):
+        if n.get("slug") == slug:
+            return n
+    return {}
+
+
+def render_pb_node_page(slug: str, base: str) -> str:
+    doc = AGENT_PLAYBOOK_CONTENT[slug]
+    n = _pb_node_meta(slug)
+    blocks = doc["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    idx = next(i for i, x in enumerate(AGENT_PLAYBOOK_NODES) if x["slug"] == slug)
+    prev_n = AGENT_PLAYBOOK_NODES[idx - 1] if idx > 0 else None
+    next_n = AGENT_PLAYBOOK_NODES[idx + 1] if idx + 1 < len(AGENT_PLAYBOOK_NODES) else None
+    pager = '<nav class="pager">'
+    pager += (f'<a href="{base}agent-playbook/{prev_n["slug"]}.html"><span class="dir-label">← 上一节点</span>'
+              f'<span class="ttl">{prev_n["no"]} · {escape(prev_n["title"])}</span></a>' if prev_n
+              else f'<a href="{base}agent-playbook/index.html"><span class="dir-label">← 框架总纲</span>'
+                   f'<span class="ttl">0→1 路线图与模型边界矩阵</span></a>')
+    pager += (f'<a class="next" href="{base}agent-playbook/{next_n["slug"]}.html"><span class="dir-label">下一节点 →</span>'
+              f'<span class="ttl">{next_n["no"]} · {escape(next_n["title"])}</span></a>' if next_n
+              else '<span></span>')
+    pager += '</nav>'
+    chars = sum(len(str(v)) for b in blocks for v in b.values())
+    minutes = max(8, round(chars / 900))
+    src_chapters = "、".join(n.get("chapters", []))
+    inner = (
+        f'<div class="crumb"><a href="{base}index.html">首页</a><span>/</span>'
+        f'<a href="{base}agent-playbook/index.html">Agent Playbook</a><span>/</span>'
+        f'<span>{n.get("no", "")}</span></div>'
+        f'<div class="cat">PLAYBOOK · {n.get("no", "")} · {escape(n.get("phase", ""))} · {escape(n.get("tier", ""))}</div>'
+        f'<h1>{escape(n.get("title", doc.get("title", "")))}</h1>'
+        f'<p class="lead">{inline(doc.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>层级 <b>{escape(n.get("phase", ""))} · {escape(n.get("tier", ""))}</b></span>'
+        f'<span>源章节 <b>{escape(src_chapters)}</b></span>'
+        f'<span>约 <b>{minutes}</b> 分钟读完</span>'
+        '<span>性质 <b>原创蒸馏 · 非教程转载</b></span></div></div>'
+        + body_html + pager
+    )
+    title = f'{n.get("no", "")} {n.get("title", "")}'
+    return reader_page(base, slug, inner, heads, title,
+                       doc.get("lead", "")[:120], nav_current="agent-playbook",
+                       sidebar=sidebar_html_pb(base, slug))
+
+
+def render_agent_playbook(base: str) -> str:
+    pb = AGENT_PLAYBOOK
+    blocks = pb["blocks"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    n_pub = len(AGENT_PLAYBOOK_NODES)
+    n_total = len(pb.get("nodes", []))
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>Agent Playbook</span></div>'
+        '<div class="cat">AGENT PLAYBOOK · 0 → 1 BUILD ROUTE</div>'
+        f'<h1>{escape(pb["title"])}</h1>'
+        f'<p class="lead">{inline(pb.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>来源 <b><a href="{pb.get("source_url", "https://ai-agent-guide.xiaofuge.cn/")}" style="color:var(--r-blue)">AI Agent 通识教程 30 章 ↗</a></b></span>'
+        f'<span>节点 <b>{n_pub} / {n_total} 已发布</b></span>'
+        '<span>基线 <b>DeepSeek Chat + Function Calling</b></span>'
+        '<span>性质 <b>原创蒸馏 · 非教程转载</b></span></div></div>'
+        + body_html
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">CONTEXT</span>'
+        '<h3>Agent 实验场：书 × 代码 × 项目契约</h3>'
+        '<p>26 个 ToyAgent 场景 × 书4 章节 × 项目契约 ID 的三方映射——看每个工程概念落到代码与契约的样子。</p></div>'
+        + f'<a class="go" href="{base}agent-lab.html">打开实验场 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">DEPTH</span>'
+        '<h3>Agent书 · 深入理解 AI Agent：10 章全章精读</h3>'
+        '<p>同一主题的原理纵深版——本 playbook 讲「按什么顺序造」，书4 精读讲「每个零件为什么这样设计」。</p></div>'
+        + f'<a class="go" href="{base}book4/index.html">打开 Agent书 →</a></div>'
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">STEPS</span>'
+        '<h3>ToyAgent 原理文章：27 篇机制蒸馏</h3>'
+        '<p>26 个可运行场景各配一篇机制讲解——本 playbook 的每个节点都能在那里找到对应的可运行参照。</p></div>'
+        + f'<a class="go" href="{base}toyagent-steps.html">打开原理文章 →</a></div>')
+    return reader_page(base, "", inner, heads, pb["title"],
+                       pb.get("lead", "")[:120], nav_current="agent-playbook",
+                       sidebar=sidebar_html_pb(base, ""))
 
 
 def render_experiments(base: str) -> str:
@@ -652,6 +751,7 @@ def render_home(base: str) -> str:
 <div class="site-entry"><b>书二 · 弱品牌强品牌</b><span>《{escape(BOOK2["short_title"])}》{escape(BOOK2["author"])} 著 · {len(BOOK2["chapters"])} 章框架 + {len(BRAND2_DEEP)} 篇精读</span><a href="{base}brand2/index.html">品牌书全书地图 →</a></div>
 <div class="site-entry"><b>书三 · 本体驱动的AI数据管理</b><span>《{escape(BOOK3["short_title"])}》{escape(BOOK3["author"])} 著 · {len(BOOK3["chapters"])} 章框架 + {len(BOOK3_DEEP)} 篇精读</span><a href="{base}book3/index.html">本体书全书地图 →</a></div>
 <div class="site-entry"><b>书四 · 深入理解 AI Agent</b><span>《{escape(BOOK4["short_title"])}》{escape(BOOK4["author"])} 著 · Apache-2.0 开源书 · {len(BOOK4["chapters"])} 章框架 + {len(BOOK4_DEEP)} 篇精读</span><a href="{base}book4/index.html">Agent书全书地图 →</a></div>
+<div class="site-entry"><b>Agent Playbook · 0→1</b><span>AI Agent 通识教程 30 章蒸馏：P0–P8 构建脊柱 + 模型边界矩阵（DeepSeek 基线）</span><a href="{base}agent-playbook/index.html">打开 Playbook →</a></div>
 <div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、语义底座方法、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
 </div>
 <a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""
@@ -700,6 +800,7 @@ def render_home(base: str) -> str:
           ("品牌书·弱品牌强品牌", "书2 · 25 章框架 + 8 篇精读", "brand2/index.html"),
           ("本体书·本体驱动AI数据管理", "书3 · 10 章框架 + 6 篇精读", "book3/index.html"),
           ("Agent书·深入理解AI Agent", "书4 · 10 章全章精读（Apache-2.0 开源书）", "book4/index.html"),
+          ("Agent Playbook·0到1", "教程30章→P0-P8构建脊柱+模型边界", "agent-playbook/index.html"),
           ("Agent实验场", "书4 × ToyAgent × 项目契约三方映射", "agent-lab.html"),
           ("四层架构", "组织×业务×语义×工程 0→1 路径", "stack.html"),
           ("三书合璧", "组织 × 品牌 × 语义三层支撑", "triology.html"),

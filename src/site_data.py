@@ -36,6 +36,7 @@ TRILOGY = _load("triology.json")
 PRODUCT = _load("product.json")
 EXPERIMENTS = _load("experiments.json")
 TOYAGENT_STEPS = _load("toyagent-steps.json")
+AGENT_PLAYBOOK = _load("agent-playbook.json")
 FIG_SRC = json.loads((ROOT / "assets/figures/figures.json").read_text(encoding="utf-8"))
 _manifest = ROOT / "assets/figures/manifest.json"
 FIG_OUT = json.loads(_manifest.read_text(encoding="utf-8")) if _manifest.exists() else {}
@@ -68,5 +69,17 @@ if _b4dir.is_dir():
         BOOK4_CONTENT[doc["slug"]] = doc
 
 BOOK4_DEEP = [c for c in BOOK4["chapters"] if c.get("deep") in BOOK4_CONTENT]
+
+AGENT_PLAYBOOK_CONTENT: dict[str, dict] = {}
+_pbdir = DATA / "agent-playbook"
+if _pbdir.is_dir():
+    for f in sorted(_pbdir.glob("*.json")):
+        doc = json.loads(f.read_text(encoding="utf-8"))
+        if doc.get("slug") and doc.get("sections"):
+            AGENT_PLAYBOOK_CONTENT[doc["slug"]] = doc
+
+AGENT_PLAYBOOK_NODES = [n for n in AGENT_PLAYBOOK.get("nodes", [])
+                        if n.get("status") == "published"
+                        and n.get("slug") in AGENT_PLAYBOOK_CONTENT]
 
 SITE_NAME = "Native AI Organ"
