@@ -120,14 +120,13 @@
    "title": "编排与多 Agent：拓扑、状态机与框架选型",
    "phase": "P8",
    "tier": "扩展·选型",
-   "status": "planned",
+   "status": "published",
    "essence": "四种协作模式、A2A、LangGraph 状态机、框架对比",
    "chapters": [
     "第18章 多Agent",
     "第19章 LangGraph",
     "第20章 框架对比"
-   ],
-   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html"
+   ]
   },
   {
    "no": "N9",
@@ -135,14 +134,13 @@
    "title": "交互形态：低代码平台、CLI Agent 与 GUI Agent",
    "phase": "P8",
    "tier": "扩展·选型",
-   "status": "planned",
+   "status": "published",
    "essence": "Dify/Coze 可视化编排、CLI Agent、GUI Agent 技术栈",
    "chapters": [
     "第21章 Dify/Coze",
     "第22章 CLI Agent",
     "第23章 GUI Agent"
-   ],
-   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch13-dify-coze.html"
+   ]
   },
   {
    "no": "N10",
@@ -150,14 +148,13 @@
    "title": "模型服务化与前沿：推理框架、决策模型与展望",
    "phase": "P8",
    "tier": "运维·前沿",
-   "status": "planned",
+   "status": "published",
    "essence": "Ollama/vLLM/SGLang、量化、Jev 决策模型、2026 展望",
    "chapters": [
     "第27章 推理框架",
     "第28章 Jev决策模型",
     "第29章 2026展望"
-   ],
-   "source_url": "https://ai-agent-guide.xiaofuge.cn/chapters/ch23-future-summary.html"
+   ]
   }
  ],
  "blocks": [
@@ -259,7 +256,7 @@
       "扩展形态",
       "多 Agent / 交互形态 / 模型服务化——按需选装",
       "第18–23章 · 第27–29章",
-      "N8–N10（规划中）"
+      "[N8](pb-n8-duoagent.html) · [N9](pb-n9-jiaohu-xingtai.html) · [N10](pb-n10-moxing-fuwu.html)"
      ]
     ]
    }
@@ -389,7 +386,7 @@
    "h2": "节点地图：11 个节点"
   },
   {
-   "p": "必建节点（N0–N7）按 P0–P7 顺序构成最小可生产路径；扩展节点（N8–N10）在核心跑通后按需选装。已发布节点可直接进入，规划中节点暂链官方原章。"
+   "p": "必建节点（N0–N7）按 P0–P7 顺序构成最小可生产路径；扩展节点（N8–N10）在核心跑通后按需选装。全部 11 个节点已发布。"
   },
   {
    "table": {
@@ -461,22 +458,22 @@
       "N8",
       "编排与多 Agent",
       "P8 · 扩展·选型",
-      "规划中",
-      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html)"
+      "已发布",
+      "[进入](pb-n8-duoagent.html)"
      ],
      [
       "N9",
       "交互形态",
       "P8 · 扩展·选型",
-      "规划中",
-      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch13-dify-coze.html)"
+      "已发布",
+      "[进入](pb-n9-jiaohu-xingtai.html)"
      ],
      [
       "N10",
       "模型服务化与前沿",
       "P8 · 运维·前沿",
-      "规划中",
-      "[官方原章](https://ai-agent-guide.xiaofuge.cn/chapters/ch23-future-summary.html)"
+      "已发布",
+      "[进入](pb-n10-moxing-fuwu.html)"
      ]
     ]
    }

@@ -1,0 +1,233 @@
+{
+ "slug": "pb-n8-duoagent",
+ "node": "N8",
+ "phase": "P8",
+ "tier": "扩展·选型",
+ "title": "编排与多 Agent：拓扑、状态机与框架选型",
+ "minutes": 13,
+ "status": "published",
+ "lead": "N1–N7 把单个 Agent 跑通并加固，本节点回答它长大后的第一个问题：任务复杂到单 Agent 扛不住时，要不要拆成多个 Agent、怎么编排、用什么框架。三章递进——第 18 章给多 Agent 的协作拓扑与通信协议（含 A2A），第 19 章把流程建成图（LangGraph 状态机），第 20 章横向对比六大框架做选型。本节点也是全 playbook 契约张力最高的一页：教程默认 LLM 自主编排、Agent 自由互聊，本站契约要求单 Case 单 Agent + 模型外 Case Control——保留工程方向、收紧治理边界。",
+ "sections": [
+  {
+   "h2": "定位：这个节点解决什么"
+  },
+  {
+   "p": "N1–N7 的隐含前提是「一个 Case 一个 Agent」：单 prompt、单 Loop、单职责。真实业务里这个前提会被三件事打破——Prompt 塞不下（工具与规则膨胀）、角色冲突（又要搜集又要分析又要写作）、上下文爆炸（长任务 token 线性增长、无法并行）。教程的回答是把一个 Agent 拆成 Agent 团队：职责分离、Prompt 精简、互相纠错、并行执行。本节点教你识别拆分信号、选择协作拓扑、理解编排与交接机制，并用框架把它落地。"
+  },
+  {
+   "p": "先立本站语境：本站的「多 Agent」首先是 50 个岗位分身的逻辑设计（D-053），运行时形态是「每张 Case 只运行一个 Case Agent + 模型外 Case Control 按需 Lead/Worker 受控组队」——不是 LLM 自由路由的多 Agent 群聊。本节点的用法：教程讲的拓扑、状态机、框架是通用工程知识，值得学；但每一处「让 LLM 自己决定」的默认做法，都要对照本站契约改写成「模型外控制 + 验收交接」。建议读法：先按教程理解机制，再用文末契约对照逐条校准。"
+  },
+  {
+   "h2": "模型边界：DeepSeek 基线下什么不用建"
+  },
+  {
+   "p": "本节点视角特殊——多 Agent 编排本身不是模型能力，而是 Harness 层能力。DeepSeek 单模型基线下，每个 Agent 内部仍是 N1 的最小循环：模型只做单点推理（理解任务、生成 tool_call、产出文本）；「谁来调度、何时交接、交接什么、交接是否合格」在教程里由 LLM 承担（编排者 Agent、handoff 判断、条件边路由），在本站由模型外 Case Control 承担。模型可以提建议，裁决权不在模型。"
+  },
+  {
+   "table": {
+    "head": ["环节", "模型已具备（不重建）", "Harness 必建", "说明"],
+    "rows": [
+     ["编排决策", "分析任务、生成分配 JSON、判断移交目标", "拓扑定义、调度策略、契约绑定、模型外 Case Control", "教程的编排者是 LLM；本站 Case 推进由控制面按契约驱动"],
+     ["Agent 间通信", "生成结构化消息、理解角色语义", "消息/产物 schema、ArtifactEnvelope 验收、状态同步", "自由对话 vs 验收交接；Worker 只交已验收产物"],
+     ["流程控制", "条件判断（if-else 式路由直觉）", "图定义/状态机、checkpoint、阶段门禁", "条件边可代码化；门禁语义由契约而非提示词定义"],
+     ["交接决策（handoff）", "判断任务更适合哪个 Agent", "交接白名单、上下文裁剪、结果验收", "handoffs 列表限定范围防循环移交；本站交接目标由契约声明"],
+     ["HITL 暂停与纠正", "生成提问、解释风险", "interrupt 机制、审批门禁、分级确认", "同 N6 审批栈：C1/C2/C3 分级而非单层弹窗"],
+     ["成本控制", "—", "Token 预算、按需调用、结果压缩、分级模型", "多 Agent 成本倍增，预算上限必须进契约"],
+     ["可观测追踪", "—", "trace_id 关联、结构化日志、执行链路", "task_id 在本站即 correlation_id（D-025）"]
+    ]
+   }
+  },
+  {
+   "h2": "源章节·第18章 多 Agent 系统架构：协作模式、A2A 与生产实践"
+  },
+  {
+   "h3": "单 Agent 五瓶颈与四种协作模式"
+  },
+  {
+   "p": "教程（[官方原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch10-multi-agent.html)）的出发点是单 Agent 五个瓶颈：Prompt 膨胀、角色混乱、错误传播、上下文爆炸、无法并行；多 Agent 的对应优势是职责分离、Prompt 精简、互相纠错、并行执行、可扩展——「一个人干不过一个团队」。四种经典协作模式构成一条中心化光谱："
+  },
+  {
+   "table": {
+    "head": ["模式", "结构与通信", "优势", "代价", "适用场景"],
+    "rows": [
+     ["串行流水线", "搜索→分析→写作逐级传递", "简单可靠、易实现", "无法并行、单点阻塞", "流程固定的任务"],
+     ["编排者-执行者", "中心 Agent 分配、Worker 并行、汇总整合", "最常用、可控可扩展", "编排者成瓶颈与单点", "目标明确可拆解的任务"],
+     ["辩论对抗", "多 Agent 对抗辩论 + 裁判总结", "多角度分析、互相纠错", "成本高、收敛难", "需要对抗检验的开放决策"],
+     ["自主协作", "Agent 自由通信协商", "最灵活、涌现能力强", "最难调试与控制", "探索性开放任务"]
+    ]
+   }
+  },
+  {
+   "p": "选型本质是在任务确定性与所需灵活性之间权衡：流程固定用流水线，目标开放用编排者或自主协作。除拓扑外还有通信维度：消息传递（AutoGen 式队列，灵活但可能死锁）、共享黑板（CrewAI 式共享读写，简单但并发冲突）、图结构（LangGraph 式 DAG，可控但不够灵活）——三种机制分别对应下文三大框架的默认通信方式。"
+  },
+  {
+   "h3": "编排者-执行者、Handoffs 与子代理模式"
+  },
+  {
+   "p": "编排者-执行者是业界最常用模式，编排者像项目经理，四项核心职责：分析任务（判断需要哪些专业 Agent）、分配任务（子任务给合适 Worker）、整合结果、质量控制（不合格重新分配）。另一种去中心化变体是 OpenAI Agents SDK 的 Handoffs——接力赛交接棒：每个 Agent 声明可移交列表，处理到一半判断更适合别人时调用 transfer 工具把任务连同上下文移交；与编排者模式的区别是移交由 Agent 自主判断而非中央分配，可控性略弱，两者可结合。关键设计：handoffs 列表限定移交范围防无限循环移交；移交时完整对话历史传递保证上下文连续。"
+  },
+  {
+   "p": "工业级实现还有更细的子代理模式（Claude Code AgentTool 案例）：Fork 子代理继承主代理完整对话上下文（省 token、共享 prompt cache 前缀，但有上下文污染风险，适合执行型任务）；Fresh 子代理零上下文启动（独立视角，适合验证/审查型——验证代理必须 Fresh，否则继承「自我确认偏误」看不出主代理的错）；Fork+Worktree 用 git worktree 隔离让多个子代理并行改同一仓库互不干扰。Fork prompt 四规则值得抄：不偷看（通知到达前不访问产物）、不编造（进展未到就说在运行）、不推诿理解（写具体指令而非「根据你的发现」）、指令式而非背景介绍式。"
+  },
+  {
+   "h3": "A2A 协议、沙箱与生产实践"
+  },
+  {
+   "p": "A2A（Agent-to-Agent，Google 2025.4 发布）解决跨系统 Agent 互操作——MCP 管 Agent↔工具（「手」），A2A 管 Agent↔Agent（「嘴」），两者互补。四大机制：Agent Card（Agent 的 JSON 简历，声明能力/技能/认证/端点，解决「互不相识」）、Task 生命周期（created→working→completed/failed/rejected，支持长任务轮询或推送）、结构化 Message 多轮协作、OAuth2.0/OIDC 认证。配套工程实践：通信消息标准化（task_id/from_agent/to_agent/content/status/timestamp 字段约定）、错误处理四件套（降级、指数退避重试、级联阻断、任务完成标准）、可观测三支柱（结构化日志+Metrics+Tracing，task_id 即 trace_id）、成本控制五策略（按需分配、精简 Prompt、结果压缩、分级模型、预算上限——多 Agent 成本是倍增的，不加控制一个小任务可能烧几美元）。多 Agent 的沙箱需求与单 Agent 相同（默认拒绝、逐条放开白名单），选型细节见 N5 沙箱分层与 N6 安全治理，不重复展开。"
+  },
+  {
+   "h2": "源章节·第19章 LangGraph 与状态机：图编排、Checkpoint 与 HITL"
+  },
+  {
+   "h3": "图结构五概念"
+  },
+  {
+   "p": "LangGraph（LangChain 团队推出，2024 年最火 Agent 框架之一；[官方原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch11-langgraph.html)）的核心思想：把 Agent 工作流建模为有向图——每一步是节点（Node），跳转是边（Edge），整个 Agent 是一张可视化、可调试、可控的图。五个核心概念：**State**（全局共享状态，TypedDict 定义，所有节点可读写；`Annotated[list, operator.add]` 声明追加语义——新消息追加而非覆盖，保证每个节点看到完整历史）；**Node**（执行单元，一个 state→state 函数）；**Edge**（固定跳转）；**Conditional Edge**（条件边，根据 State 动态路由，类似 if-else）；**Checkpoint**（每节点执行后自动保存 State 快照，支持时间旅行回任意检查点、人工干预暂停等审、失败点重试恢复）。"
+  },
+  {
+   "h3": "ReAct 循环的图表达"
+  },
+  {
+   "p": "教程用 LangGraph 重写 ReAct：agent 节点调 LLM 决策 → 条件边检查最后一条消息有无 tool_calls → 有则进 tools 节点执行并回填 → 回到 agent，循环直至 END。这就是 N1 最小循环的图化表达——区别在于每一步状态显式落在 State、每条跳转显式定义为边，而不是 while 循环里隐式推进；编译时挂 checkpointer（如 MemorySaver），`thread_id` 关联同一次执行的状态快照。完整实战示例是智能客服：agent→search_db→answer→review 质量守门，不达标打回 agent 重试，step_count 上限防无限循环。"
+  },
+  {
+   "h3": "Checkpoint 人工干预与三种 HITL 模式"
+  },
+  {
+   "p": "Checkpoint 让人工干预开箱即用：编译时 `interrupt_before=[\"tools\"]` 让图在指定节点前暂停，人工可直接继续（批准）、用 `update_state` 修改 State 后继续（纠正）、或终止（拒绝）。教程总结三种人机协同模式——审批模式（高风险操作执行前等人批准）、纠正模式（暂停后人工改 State 再续）、对话模式（Agent 主动提问补信息），生产可组合。进阶特性：子图 Subgraph 把相关节点封装成独立子图嵌入主图（逻辑分层/复用/独立测试，子图 State 与主图独立、靠桥接函数转换）；Streaming 三档——`stream` 逐节点输出（进度条）、`stream_values` 每步输出完整 State（调试监控）、`astream_events` token 级事件流（打字机效果）。"
+  },
+  {
+   "h3": "LangGraph vs LangChain Agent 与同侪对比"
+  },
+  {
+   "p": "与 LangChain Agent 的对比是黑盒 vs 白盒：LangChain Agent 流程由 LLM 自主决定（难调试、不支持 HITL/并行），LangGraph 图结构显式定义（每步可查 State、原生 HITL、支持多节点并行）——简单场景用前者、复杂生产用后者。19.7 的五维同侪对比结论：LangGraph 图结构表达力与状态可控性最强（循环+并行+Checkpoint 三合一）；AutoGen 适合多 Agent 自由对话的研究场景；CrewAI 适合按预设角色分工的任务流水线。"
+  },
+  {
+   "h2": "源章节·第20章 主流 Agent 框架对比：六框架选型"
+  },
+  {
+   "h3": "六大框架定位速览"
+  },
+  {
+   "p": "教程（[官方原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch12-framework-comparison.html)）从 8 个维度（语言/多 Agent/状态管理/工具集成/安全机制/跨框架通信/学习曲线/适用场景）横向对比六大框架加两个低代码平台。定位速览：LangGraph——图结构，复杂工作流与状态机首选；AutoGen——对话式，多 Agent 对话协作与代码生成；CrewAI——角色驱动，标准化生产与快速原型；Google ADK——渐进式披露，Google 生态与层级委派；Spring AI——Java 生态，企业级 Java 项目；OpenAI Agents SDK——安全优先，Handoff 交接与 Guardrails；Dify/Coze——低代码可视化，非技术人员快速验证。"
+  },
+  {
+   "h3": "AutoGen 与 CrewAI：对话 vs 角色两种范式"
+  },
+  {
+   "p": "AutoGen（微软研究院）把协作建模为对话：四种 Agent 角色——AssistantAgent（LLM 专家）、UserProxyAgent（人类代理，可执行代码或转发真人）、GroupChatManager（群聊主持人，管发言顺序/轮次/终止）、ConversableAgent（可对话基类）。GroupChat 让多 Agent 轮换发言（max_round 上限防失控）；human_input_mode 三档（ALWAYS 每轮等人/TERMINATE 终止前确认/NEVER 全自动）是框架内建 HITL；工程细节有 cache_seed 响应缓存（相同 prompt 省调用）与 Docker 沙箱执行代码。定位：群聊对话自由但不太可控 ≈ 头脑风暴会议，适合探索性任务。CrewAI 则把协作建模为项目团队：Agent(role/goal/backstory) + Task(description/expected_output/context 前置依赖) + Crew(process=sequential 线性流水线 / hierarchical 引入 manager Agent 动态调度)，自定义工具继承 BaseTool，另有三层记忆与回调机制。两者本质差异一句话：AutoGen 是「Agent 之间自由对话」、CrewAI 是「按流程分配任务」——前者灵活后者可控，标准化任务用后者、探索性任务用前者。"
+  },
+  {
+   "h3": "Google ADK、Spring AI 与 OpenAI Agents SDK"
+  },
+  {
+   "p": "ADK（Google）的核心理念是渐进式披露——「简单的事应该简单，复杂的事应该可能」；五大组件：Agent（可嵌套 sub_agents 层级委派，子 Agent 结果回传父 Agent=集中编排）、Skill（工具+Prompt+流程的能力包）、Session&State（对话层+持久层）、Runner（执行生命周期，run/run_async/run_stream_async 三模式）、Artifact（结构化产物跨 Agent 传递）。ADK 原生支持 A2A 协议与结构化输出（output_schema）。"
+  },
+  {
+   "quote": "简单的事应该简单，复杂的事应该可能。",
+   "cite": "原教程第20章 · 20.4 ADK 渐进式披露"
+  },
+  {
+   "p": "Spring AI 填补 Java 生态空白，把 Spring 工程实践带入 AI：三层架构——Augmented LLM（ChatClient+@Tool 注解自动生成 schema+Memory）→ Graph Runtime（StateGraph/Node/Edge/Checkpoint，与 LangGraph 一一对应）→ Agent Framework（ReactAgent/MultiAgent/A2A，Alibaba 扩展）。企业级卖点：Spring 生态无缝集成（Security/Data/Cloud）、@Bean 声明式装配、Micrometer/Actuator 可观测、application.yml 统一配置。"
+  },
+  {
+   "p": "OpenAI Agents SDK（2025）核心理念安全优先：Agent(name/instructions/tools/handoffs/guardrails) 三件套——Handoff 交接是一等公民（handoff_filters 过滤交接消息、on_handoff 回调）、Guardrails 输入/输出护栏一等公民（注入检测、敏感信息过滤，可拒绝/修改/记录）、Trace 自动追踪（LLM 调用/工具/handoff/guardrail 全步骤+token 统计）。与 ADK 对比：SDK 重安全护栏、ADK 重渐进演进；SDK 的 handoff 是显式转交、ADK 的 sub_agents 是隐式委派。"
+  },
+  {
+   "h3": "选型决策与迁移路径"
+  },
+  {
+   "p": "教程的选型速查：企业 Java 项目→Spring AI；Google 生态/层级委派→ADK；安全合规优先→OpenAI SDK；复杂多步工作流→LangGraph；角色分工明确→CrewAI；探索性对话→AutoGen；非技术快速验证→Dify/Coze。迁移信号五条：对话跑偏需流程控制、要状态持久化、要可视化调试、要人工审核节点、分支逻辑变复杂——出现即考虑迁到图结构框架。迁移映射（AutoGen→LangGraph）：Agent→Node 函数、GroupChat 调度→Edge/条件边、max_round→步数上限、messages→State+Checkpoint；CrewAI→LangGraph：role/goal/backstory→Node 的 system_prompt、Task.context→State 字段显式传递、Process.sequential→线性边、hierarchical→条件边+自定义路由、tools→ToolNode。两个迁移陷阱：角色信息丢失（必须转成 Node 的 system_prompt）、任务依赖断裂（context 自动传递在 LangGraph 要显式设计 State 字段）；建议渐进迁移+保留 10–20 个典型案例做回归集。"
+  },
+  {
+   "h2": "技术选型要点"
+  },
+  {
+   "table": {
+    "head": ["选型维度", "看什么", "对应框架特征"],
+    "rows": [
+     ["协作拓扑需求", "单 Agent 够不够；流程是否固定", "固定流程→图/流水线（LangGraph、Spring AI Graph Runtime）；开放目标→编排者（ADK sub_agents）；对话探索→AutoGen；角色团队→CrewAI；安全转接→OpenAI SDK Handoff"],
+     ["状态与持久化", "要不要 checkpoint/断点恢复", "LangGraph、Spring AI Graph Runtime、ADK Session&State 有持久化；AutoGen/CrewAI 主要靠对话历史"],
+     ["HITL 需求", "要不要执行中人工干预", "LangGraph interrupt+update_state、ADK、AutoGen human_input_mode 内建；OpenAI SDK 走 Guardrails；其余需自建（接 N6 审批栈）"],
+     ["语言与生态", "团队栈与现有系统", "Java 企业→Spring AI；Python AI 原生→其余框架；非技术/快速验证→Dify/Coze"],
+     ["安全机制", "护栏是否内建一等公民", "OpenAI SDK Guardrails、Spring Security 内建；其余需自建（注入防御/权限/审批见 N6）"],
+     ["跨系统协作", "Agent 是否要跨框架/跨进程互调", "A2A 原生支持：Google ADK、Spring AI（Alibaba 扩展）；其余框架内是孤岛"]
+    ]
+   }
+  },
+  {
+   "olist": [
+    "**先证伪单 Agent**：拆分前先确认是 N1–N7 的工程问题（prompt 过长、上下文爆炸、缺并行）而非真需要多 Agent——N5 的 Harness 组件（压缩、Skills 按需加载）可能已解决，别为拆而拆。",
+    "**框架选型=Harness 选型**：不换职责只换实现——N5 的六组件职责不变；本站 Java/DSH 栈下 Python 框架仅作模式参考，不作运行时依赖。",
+    "**迁移比重写便宜**：AutoGen/CrewAI→图结构框架的映射是成熟路径；但注意角色信息转成 system_prompt、任务依赖显式落 State、保留回归集——渐进迁移，新旧并行一段时间。",
+    "**默认收紧边界**：教程框架的 LLM 编排/自由互聊/handoff 自主判断，在本站一律改写为模型外 Case Control + ArtifactEnvelope 验收交接（见下方契约对照）。"
+   ]
+  },
+  {
+   "h2": "工程边界与坑"
+  },
+  {
+   "list": [
+    "**教程局限要认账**：第 20 章「20.6 选型决策树」正文在源解析中未产出内容（疑为图示），选型结论以文末「核心要点」与各章对比为准；各框架的 JS/Go/Java 代码是翻译示意而非真实 SDK 用法，只有 Python 版是官方示例；8 维对比表是定性评级（✅⚠️❌）非 benchmark；Token 节省百分比（30–80%）是经验值；「面试八股」压缩版可能丢失限定条件——上生产前必须自己验证。",
+    "**契约张力一·编排者是谁**：教程的编排者-执行者与 Handoffs 默认由 LLM 判断分配与移交；本站 D-020/D-053 要求模型只提 Action Intent、Case 推进由模型外 Case Control 驱动——LLM 的分配建议可以作为 Control 的输入信号，不作裁决。",
+    "**契约张力二·通信形态**：消息传递/共享黑板/自由对话 = Agent 间自由互聊；本站 Worker 只通过已验收 ArtifactEnvelope 交接（D-053），无岗位 Agent 自由互聊；A2A 的 Task/Message 机制保留方向但载体换成契约化产物。",
+    "**契约张力三·状态机语义**：LangGraph 图是框架内状态机；本站八阶段产物门禁（D-024）是业务验收状态机——Stage Artifact 记「验收过什么」，checkpoint 记「运行到哪」，两者互补；跨价值流信号按 D-025 拆共享 correlation_id 的独立 Case，而不是在图里加一条边。",
+    "**契约张力四·交接与发现**：Handoff 由 LLM 自主判断移交目标→本站交接目标由契约声明（岗位职责边界），移交=阶段产物验收+新绑定；Agent Card 自动发现→本站 D-022 五份契约+D-023 Release Bundle 七态发布评审，「发现」是发布行为不是运行时行为。",
+    "**契约张力五·子代理上下文**：Fork 继承完整上下文→本站 Worker 按独立 Soul Contract/Playbook/Preset 装载（D-053），Lead 只把已验收产物显式注入而非继承全部对话；Fresh 验证代理的独立视角直接对应独立复核要求。",
+    "**工程坑清单**：消息传递可死锁、共享黑板并发冲突、handoff 无限循环移交、Agent 列表动态变化导致 prompt cache 反复 bust（改附件注入）、迁移丢角色信息/断任务依赖、Token 成本倍增失控——每条都有对应机制（上限、白名单、验收、预算），但都要自己实现。"
+   ]
+  },
+  {
+   "map": {
+    "title": "实践映射：对照「AI 组织变革」方案 · 受控组队而非自由互聊",
+    "blocks": [
+     {
+      "p": "本站的多 Agent 答案不是「Agent 团队自由协作」，而是「50 个岗位分身 + 模型外 Case Control 的 Lead/Worker 受控组队」。教程的拓扑、协议、框架是零件图，本节点把每个零件装到契约上。"
+     },
+     {
+      "h3": "四协作模式 → Lead/Worker 受控组队与八阶段"
+     },
+     {
+      "p": "串行流水线 ≈ D-024 八阶段产物驱动顺序推进（每阶段产物验收才进下一阶段）；编排者-执行者 ≈ D-053 Lead 持 Case 结果责任、Worker 交付已验收 ArtifactEnvelope——但「编排者」在本站是模型外 Case Control 而非 LLM。辩论对抗与自主协作不作为 Case 内默认形态，可在独立复核环节以 Fresh 验证代理形式存在：对抗性验证保留为质量手段而非协作拓扑。"
+     },
+     {
+      "h3": "通信三方案与 A2A → ArtifactEnvelope + 契约"
+     },
+     {
+      "p": "消息传递/共享黑板/图状态传递三种通信在本站统一为 D-053 的 ArtifactEnvelope：Worker 产出必须过验收才成为 Lead 的输入——比「消息队列」多一层业务验收语义，比「共享黑板」少并发冲突面（Case 内单写者）。A2A 的 Agent Card/Skill/Task 机制方向保留：Agent Card ≈ D-022 Business/Skill 契约声明的能力边界，Task 生命周期 ≈ Case 状态机，Message/Artifact ≈ Stage Artifact——但「发现与认证」走 Release Bundle 发布评审（D-023）与 Access 契约，不做运行时自动发现。"
+     },
+     {
+      "h3": "LangGraph 状态机 → 八阶段门禁 + correlation_id"
+     },
+     {
+      "p": "State/Node/Edge/Conditional Edge/Checkpoint 五概念与本站同构映射：State≈Case 上下文（由已验收产物重建）、Node≈阶段内推理步、Edge≈门禁推进条件、Checkpoint≈N5 事件溯源回放。关键差异：LangGraph 的条件边由代码/State 决定，本站的推进由 D-024 门禁决定——「能不能进下一阶段」是契约问题不是模型判断；跨价值流信号按 D-025 拆共享 correlation_id 的独立 Case，而不是在图里加一条边。"
+     },
+     {
+      "h3": "Handoff/Fork 子代理 → 契约化交接与 Worker 装载"
+     },
+     {
+      "p": "Handoffs 的「接力棒」在本站是「阶段产物验收 + 新 Case/新 Worker 绑定」：移交不传完整对话历史（那是 Fork 的做法），只传已验收 ArtifactEnvelope——上下文最小化且每条都有验收记录。Fork vs Fresh 的权衡在本站有更干净的答案：Worker 一律按 Fresh 装载（独立 Soul Contract+Playbook+Preset，D-053），需要上下文时由 Lead 显式注入已验收产物——既避免污染也避免「继承全部历史」的成本与风险；验证代理 Fresh 视角直接对应独立复核要求。"
+     },
+     {
+      "h3": "框架选型 → DSH Preset 与 Harness 选型"
+     },
+     {
+      "p": "六大框架是 Python 生态实现，本站栈是 Java/DSH——框架选型落到两层：编排语义层选「受控组队协议」（Lead/Worker+ArtifactEnvelope，即本节点蒸馏的模式），实现层选 DSH Preset Blueprint 与 Harness 组件（N5 六组件）。Spring AI 的 Graph Runtime 与 LangGraph 一一对应、ADK 的 sub_agents 是集中编排、OpenAI SDK 的 Guardrails 是护栏范式——它们验证了「图+门禁+护栏」三件套的通用性，但运行时依赖不引入：MCP/tools/hooks 连接仍是规划方向，第三方框架接入须过 D-022 契约评审。"
+     },
+     {
+      "h3": "成本与可观测 → Case 粒度 + correlation_id"
+     },
+     {
+      "p": "教程的成本五策略在本站被结构性缓解：单 Case 单 Agent + 按需加载 Skills（D-020/D-053）天然限制 Token 倍增；Lead/Worker 组队仍需预算上限（进契约/Assurance）。可观测三支柱中 task_id 在本站即 correlation_id（D-025）——跨 Case 信号共享同一 correlation_id 实现分布式追踪，PV-28/29 Receipt 提供每步验收回执。"
+     }
+    ]
+   }
+  },
+  {
+   "h2": "站内互链"
+  },
+  {
+   "p": "上游：多 Agent 组队的运行时底座（Loop/Harness/HITL 审批）见 N5——[pb-n5-yunxing-harness.html](pb-n5-yunxing-harness.html)；沙箱隔离与注入防御细节见 N6——[pb-n6-anquan-zhi-li.html](pb-n6-anquan-zhi-li.html)；交接产物的验收与回执见 N7——[pb-n7-guancheng-bushu.html](pb-n7-guancheng-bushu.html)。下游：Agent 间交互的用户侧形态（转接、群聊、多模态）见 N9——[pb-n9-jiaohu-xingtai.html](pb-n9-jiaohu-xingtai.html)；多 Agent 之外的模型服务化与前沿见 N10——[pb-n10-moxing-fuwu.html](pb-n10-moxing-fuwu.html)。契约张力的系统级对照读 [书4 · 多 Agent 协作](../book4/b4-10-duoagent-xiezuo.html)（何时值得拆、怎么失败、拓扑分类框架）；可运行参照看 [ToyAgent 原理文章 step12–14](../toyagent-steps.html)（协作与派遣：固定流水线/子代理/A2A）；三方映射在 [Agent 实验场](../agent-lab.html)，配套实验见 [实验地图](../experiments.html)，组织×业务×语义×工程全貌回 [四层架构](../stack.html) 与 [语义底座](../semantic.html)，路线总览回 [Playbook 框架页](index.html)。"
+  }
+ ]
+}
