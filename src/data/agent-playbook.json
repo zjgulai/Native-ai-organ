@@ -1,7 +1,7 @@
 {
  "title": "Agent Playbook：从 0 到 1 搭建完整 Agent",
  "short_title": "Agent Playbook",
- "lead": "把《AI Agent 通识教程》30 章按构建依赖重排为一条可执行的工程路线：P0–P8 构建脊柱 + 11 个节点页 + 模型边界矩阵。以 DeepSeek Chat + Function Calling 为基线，逐节点标注「模型已具备什么、不用重建什么」与「Harness 必须人来建什么」。",
+ "lead": "把《AI Agent 通识教程》30 章按构建依赖重排为一条可执行的工程路线：P0–P8 构建脊柱 + 13 个节点页 + 模型边界矩阵。以 DeepSeek Chat + Function Calling 为基线，逐节点标注「模型已具备什么、不用重建什么」与「Harness 必须人来建什么」。",
  "thesis": "模型给你会思考的大脑，Harness 给你身体、神经、免疫、记忆与档案——本 playbook 只讲后者怎么按顺序造出来。",
  "source_url": "https://ai-agent-guide.xiaofuge.cn/",
  "source_note": "素材为小傅哥《AI Agent 通识教程》（ai-agent-guide.xiaofuge.cn，GitHub fuzhengwei/ai-agent-guide，30 章）。教程仓库无 LICENSE，本 playbook 全部为原创蒸馏重写：叙述性内容一律改写，代码只保留模式骨架，结构性接口事实（JSON Schema、MCP 报文、状态枚举）可引用。每个节点页链回官方原章。",
@@ -78,14 +78,36 @@
   {
    "no": "N5",
    "slug": "pb-n5-yunxing-harness",
-   "title": "运行时与 Harness：Loop 引擎、工程化外壳与工业级解剖",
+   "title": "运行时：Loop 引擎、三层架构与沙箱",
    "phase": "P5",
    "tier": "必建·核心",
    "status": "published",
-   "essence": "Loop 六步流程、三层嵌套架构、Harness 六组件、dsh-java 事件溯源解剖",
+   "essence": "Loop 六步流程、三层嵌套架构、Runtime 五层、Sandbox 纵深防御",
    "chapters": [
-    "第9章 运行时",
-    "第10章 Harness工程",
+    "第9章 运行时"
+   ]
+  },
+  {
+   "no": "N5b",
+   "slug": "pb-n5b-harness-gongcheng",
+   "title": "Harness 工程：大脑的工程化外壳",
+   "phase": "P5",
+   "tier": "必建·核心",
+   "status": "published",
+   "essence": "Prompt→Context→Harness 三范式、绑定约束论、Harness 六组件、最简实战",
+   "chapters": [
+    "第10章 Harness工程"
+   ]
+  },
+  {
+   "no": "N5c",
+   "slug": "pb-n5c-dsh-jiepo",
+   "title": "工业级 Harness 解剖：deepseek-harness-java",
+   "phase": "P5",
+   "tier": "必建·核心",
+   "status": "published",
+   "essence": "DDD六边形+组合根、事件溯源会话、Inbox双层循环、审批门禁四态",
+   "chapters": [
     "第11章 dsh-java解剖"
    ]
   },
@@ -235,7 +257,7 @@
       "运行时与 Harness",
       "循环怎么工程化、外壳怎么搭、工业级什么样",
       "第9章 · 第10章 · 第11章",
-      "[N5](pb-n5-yunxing-harness.html)"
+      "[N5](pb-n5-yunxing-harness.html) · [N5b](pb-n5b-harness-gongcheng.html) · [N5c](pb-n5c-dsh-jiepo.html)"
      ],
      [
       "P6",
@@ -346,7 +368,7 @@
     "rows": [
      [
       "OS Kernel（运行时）",
-      "N5",
+      "N5 / N5b / N5c",
       "Loop 引擎 / Harness / 事件溯源 ≈ Agent 的内核态"
      ],
      [
@@ -435,10 +457,24 @@
      ],
      [
       "N5",
-      "运行时与 Harness",
+      "运行时：Loop 引擎、三层架构与沙箱",
       "P5 · 必建·核心",
       "已发布",
       "[进入](pb-n5-yunxing-harness.html)"
+     ],
+     [
+      "N5b",
+      "Harness 工程：大脑的工程化外壳",
+      "P5 · 必建·核心",
+      "已发布",
+      "[进入](pb-n5b-harness-gongcheng.html)"
+     ],
+     [
+      "N5c",
+      "工业级 Harness 解剖：deepseek-harness-java",
+      "P5 · 必建·核心",
+      "已发布",
+      "[进入](pb-n5c-dsh-jiepo.html)"
      ],
      [
       "N6",
@@ -567,14 +603,14 @@
      [
       "第10章",
       "Harness 工程：大脑的工程化外壳",
-      "N5",
+      "N5b",
       "必建·核心",
       "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch22-harness.html)"
      ],
      [
       "第11章",
       "工业级 Harness 解剖：deepseek-harness-java",
-      "N5",
+      "N5c",
       "必建·核心",
       "[原文](https://ai-agent-guide.xiaofuge.cn/chapters/ch27-dsh-java-anatomy.html)"
      ],
@@ -718,7 +754,7 @@
     "先读本页模型边界矩阵——建立「模型白送什么、Harness 自己建什么」的总判断",
     "按 N0 → N7 顺序读八个必建节点：定义 → 跑通 → 喂上下文 → 装工具 → 加记忆 → 工程化 → 上治理 → 上观测",
     "每个节点读完做一件事：对照该节点的「模型边界行」检查自己的 Harness 缺口",
-    "N5（运行时与 Harness）是全程重心——三章全是核心，值得放慢读两遍"
+    "N5–N5c（运行时三部曲）是全程重心——三篇全是核心，值得放慢读"
    ]
   },
   {
@@ -726,7 +762,7 @@
   },
   {
    "olist": [
-    "本页 → N0 → 跳到 N5 先看工业级 Harness 长什么样",
+    "本页 → N0 → 跳到 N5c 先看工业级 Harness 长什么样",
     "再回头按 N1→N4 补「怎么跑起来」的细节",
     "N6/N7 作为「上生产前的检查单」放最后",
     "需要选型时再进 N8–N10"

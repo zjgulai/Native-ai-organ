@@ -314,7 +314,7 @@ def sidebar_html_pb(base: str, current_slug: str = "") -> str:
     out.append('</div>')
     out.append('<div class="dir-group"><h4>构建路径 · 必建节点</h4>')
     for n in AGENT_PLAYBOOK.get("nodes", []):
-        if n.get("tier") != "必建":
+        if not str(n.get("tier", "")).startswith("必建"):
             continue
         hay = f'{n["no"]} {n["title"]}'
         if n.get("status") == "published":
@@ -331,13 +331,20 @@ def sidebar_html_pb(base: str, current_slug: str = "") -> str:
     out.append('</div>')
     out.append('<div class="dir-group"><h4>扩展形态 · 按需选装</h4>')
     for n in AGENT_PLAYBOOK.get("nodes", []):
-        if n.get("tier") == "必建":
+        if str(n.get("tier", "")).startswith("必建"):
             continue
         hay = f'{n["no"]} {n["title"]}'
-        href = n.get("source_url") or f'{base}agent-playbook/index.html'
-        out.append(f'<a href="{href}" data-search="{escape(hay, quote=True)}" target="_blank" rel="noopener">'
-                   f'<span class="no">{n["no"]}</span>{escape(n["title"])}'
-                   f'<span class="soon">{escape(n.get("tier", ""))}</span></a>')
+        if n.get("status") == "published":
+            href = f'{base}agent-playbook/{n["slug"]}.html'
+            cur = ' aria-current="page"' if n["slug"] == current_slug else ""
+            out.append(f'<a href="{href}"{cur} data-search="{escape(hay, quote=True)}">'
+                       f'<span class="no">{n["no"]}</span>{escape(n["title"])}'
+                       f'<span class="soon" style="border-color:var(--r-blue);color:var(--r-blue)">{escape(n.get("tier", ""))}</span></a>')
+        else:
+            href = n.get("source_url") or f'{base}agent-playbook/index.html'
+            out.append(f'<a href="{href}" data-search="{escape(hay, quote=True)}" target="_blank" rel="noopener">'
+                       f'<span class="no">{n["no"]}</span>{escape(n["title"])}'
+                       f'<span class="soon">{escape(n.get("tier", ""))}</span></a>')
     out.append('</div>')
     out.append('<div class="dir-group"><h4>关联</h4>')
     out.append(f'<a href="{base}book4/index.html" data-search="书4 agent 深入理解 精读">Agent书 · 深入理解 AI Agent</a>')

@@ -45,6 +45,7 @@ def fetch(name: str) -> bytes:
 
 
 def main() -> int:
+    check_only = "--check" in sys.argv
     CACHE.mkdir(parents=True, exist_ok=True)
     old = {}
     if FINGERPRINT.exists():
@@ -59,6 +60,16 @@ def main() -> int:
         if status != "same":
             changed.append(f"{name}:{status}")
         entries.append({"file": name, "sha256": sha, "bytes": len(body), "status": status})
+    if check_only:
+        # Routine drift check: report only, never rewrite the fingerprint baseline.
+        print(f"Check: {len(entries)} chapters vs {FINGERPRINT.relative_to(ROOT)}")
+        if changed:
+            print("DRIFT:", ", ".join(changed))
+            print("Run without --check to refresh cache + fingerprint, then re-parse:")
+            print("  python3 scripts/fetch-aag.py && python3 scripts/parse-aag.py")
+            return 1
+        print("No content changes since last fingerprint.")
+        return 0
     fp = {
         "source": "https://ai-agent-guide.xiaofuge.cn/",
         "repo": "https://github.com/fuzhengwei/ai-agent-guide",

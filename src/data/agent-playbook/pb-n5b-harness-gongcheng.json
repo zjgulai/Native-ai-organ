@@ -1,0 +1,168 @@
+{
+ "slug": "pb-n5b-harness-gongcheng",
+ "node": "N5b",
+ "phase": "P5",
+ "tier": "必建·核心",
+ "title": "Harness 工程：大脑的工程化外壳",
+ "minutes": 8,
+ "status": "published",
+ "lead": "P5 运行时三部曲的第二篇：前篇把 Loop 工程化为三层运行时，本篇回答「模型给了大脑，为什么还不够用」——DeepSeek 基线只有单次推理和 tool_call，没有工作台、没有项目记忆、没有实时数据、不会自我检查。Harness 是补齐这些硬伤的工程化外壳：文件系统、沙箱、AGENTS.md、搜索+MCP、上下文工程、编排+Hooks 六大组件。本页交付绑定约束论、六组件图纸、Step0→3 实战路径与七个代表项目对比；工业级实现解剖见 N5c。",
+ "sections": [
+  {
+   "h2": "定位：这个节点解决什么"
+  },
+  {
+   "p": "模型给了大脑，不等于给了身体。DeepSeek Chat + function calling 能做的是「单次推理 + 结构化工具调用」——它不知道项目有什么规矩、知识停在训练截止日期、没有工作目录落盘成果、长对话会遗忘、也不会在执行前自我检查。Harness（马具/外壳）就是把大脑装进可生产环境的那层工程：给它工作空间、隔离执行环境、项目规则注入、实时数据通道、记忆压缩和质量钩子。本页是 P5 运行时三部曲第二篇——前接 N5 的运行时三层架构，后接 N5c 的工业级解剖。"
+  },
+  {
+   "p": "本页交付物是四张图纸：**绑定约束论**（三组实验证明 Benchmark 方差由 Harness 而非模型主导）、**Harness 六组件表**（每块补一块硬伤）、**Step0→3 实战路径**（模型一个字节不改，完成率 35%→82%）、**代表项目横向对比**（Claude Code / Codex / Cursor / Devin / Manus / WaLiCode / Cline）。外加三大设计陷阱：过度约束、约束不足、组件缺失。"
+  },
+  {
+   "h2": "模型边界：DeepSeek 基线下什么不用建"
+  },
+  {
+   "p": "本页边界一句话：模型白送「怎么想」，Harness 全包「在哪做、知道什么、记得什么、谁来检查」。DeepSeek Chat + function calling + OpenAI 兼容 API 的基线下，环境、知识时效、记忆、质检与安全引导全部要人建——且 AGENTS.md 里的安全条款只是引导不是控制（完整安全栈见 N6）。"
+  },
+  {
+   "table": {
+    "head": ["环节", "模型已具备（不重建）", "Harness 必建", "说明"],
+    "rows": [
+     ["工作环境", "无（模型只输出文本）", "文件系统：工作空间 + git 版本控制 + 跨会话持久存储", "成果要落盘、可回滚、可被多 Agent 协作"],
+     ["知识时效", "训练截止日期的静态知识", "Web Search + MCP 实时数据 + AGENTS.md 项目规则注入", "先搜文档再调 API 验证，别凭旧知识瞎编"],
+     ["记忆与上下文", "窗口内理解、无跨会话记忆", "上下文工程：滑动窗口 + 摘要压缩 + 关键信息永不丢弃", "信息腐烂由 Harness 治理，不靠模型自觉"],
+     ["执行与质检", "生成 tool_call 意图", "沙箱执行环境 + Hooks 四类钩子（pre/post/error/approval）", "决策对了也可能执行错，Hooks 在执行前后兜底"],
+     ["多 Agent 协作", "单 Agent 单轮推理", "编排调度 + 子任务分解 + approval 高危审批", "长程任务与团队协作需要编排层和质检点"],
+     ["安全引导", "提示词可引导但不可靠", "AGENTS.md 安全条款源头降险 + approval-hook 暂停等人", "引导可以写，但「放行」必须在模型外裁决（详见 N6）"]
+    ]
+   }
+  },
+  {
+   "h2": "源章节·第10章 Harness 工程：大脑的工程化外壳"
+  },
+  {
+   "h3": "Prompt → Context → Harness：三次范式迁移"
+  },
+  {
+   "p": "三组实验给出反直觉结论：Bölük 只调 edit-tool 格式与工具脚手架、模型一个参数不动，15 个模型上最高 10 倍提升；Trivedy 固定同一模型重构系统提示 + 中间件 + 自验证钩子，Terminal-Bench 从 52.8% 拉到 66.5%（+13.7pp，远超模型代际升级的 +2~4pp）；Meta-Harness 自动优化 Harness 配置达 76.4% 且模型权重一个字节没改。命名为**绑定约束论**：长程任务跨可比前沿模型，Benchmark 方差由 Harness 主导而非模型——赛车再快，赛道质量决定成绩。三次范式是嵌套关系而非替代：Prompt 工程管「怎么写指令」（边际产出低：调 3 个月 +20%）→ Context 工程管「怎么管理对话上下文」（+30~50%）→ Harness 工程管「怎么搭整套基础设施」（2 周 +47pp）。Harness 工程师必须懂 Context 工程，Context 工程师必须懂 Prompt 工程，但工程效益的边际产出已经转移到 Harness。本章官方原文：[第10章 Harness 工程：大脑的工程化外壳](https://ai-agent-guide.xiaofuge.cn/chapters/ch22-harness.html)。"
+  },
+  {
+   "h3": "Harness 六大组件：每块补一块硬伤"
+  },
+  {
+   "table": {
+    "head": ["组件", "解决的硬伤", "核心机制", "代表实现"],
+    "rows": [
+     ["文件系统", "无工作环境", "工作空间 + git 版本控制 + 跨会话持久存储 + 多 Agent 协作基础", "项目目录、依赖管理"],
+     ["沙箱执行", "不能执行代码", "三层隔离：进程隔离 + CPU/内存/网络/时间限额 + 文件/网络白名单", "E2B 云沙箱、Docker 容器、Jupyter kernel"],
+     ["AGENTS.md / System Prompt", "知识过时", "项目规则写成 Markdown 每次启动注入；比微调即写即生效、可更新、无需训练数据、多项目各一份", "CLAUDE.md / AGENTS.md"],
+     ["Web Search + MCP", "知识截止日期", "搜索拿最新信息 + 标准化工具协议调实时 API；先搜文档再调 API 验证", "搜索工具 + MCP Server"],
+     ["上下文工程", "无记忆与信息腐烂", "滑动窗口 + 摘要压缩 + 关键信息永不丢弃，三策略组合", "ConversationSummaryMemory 等"],
+     ["编排 + Hooks", "无法协作", "多 Agent 调度 + 四类钩子：pre（前置检查）/post（结果校验）/error（异常降级）/approval（高危审批）", "Claude Code hooks"]
+    ]
+   }
+  },
+  {
+   "p": "Hooks 是 Harness 的安全网：pre-hook 做参数校验/权限检查/成本预估，post-hook 做结果校验/格式检查/日志，error-hook 做重试/降级/告警，approval-hook 对高危操作暂停等人工确认——即使 Agent 决策出错，Hooks 也能在执行前拦截。AGENTS.md 还承担安全引导职责：如「默认应在沙箱内运行命令」写进系统提示，让 LLM 生成的命令默认走沙箱路径，从源头降险而非事后拦截。"
+  },
+  {
+   "h3": "最简 Harness 实战：Step 0 → Step 3"
+  },
+  {
+   "olist": [
+    "**Step 0 裸模型**：只有 Prompt 直调。问实时天气只能按过时知识瞎编——任务完成率约 35%。",
+    "**Step 1 + System Prompt**：注入 AGENTS.md 风格项目规则（角色、必须附温度、无法获取就明说）。不再瞎编但仍拿不到实时数据——约 45%。",
+    "**Step 2 + 工具调用**：声明 get_weather 的 function schema，模型发 tool_call 后执行真实 API、以 tool 消息回填再调一次——约 65%。",
+    "**Step 3 + Hooks + 沙箱验证**：pre-hook 拦截违规参数（如「私人地址」）、post-hook 校验返回格式、sandbox_verify 做合理性检查（温度 -50~60℃）——完整 Harness 约 82%。"
+   ]
+  },
+  {
+   "p": "模型一个字节没改，只是把 Harness 从无到有逐步搭起来，完成率翻近 2.5 倍。骨架模式（改写自教程）：system prompt 注入规则 → 每轮 tool_call 先过 pre-hook（可 block 并把拦截原因作为 tool 消息回填）→ 执行 → post-hook 校验格式 → sandbox_verify 校验合理性 → 结果回填观察 → 循环至多 max_turns。注意被拦的 tool_call 也要回填——模型需要看到「为什么被拒」才能换路。"
+  },
+  {
+   "h3": "代表项目横向对比"
+  },
+  {
+   "table": {
+    "head": ["项目", "核心 Harness 组件", "交互模式", "适用场景"],
+    "rows": [
+     ["Claude Code", "参数约束（allowedTools/max-turns）+ CLAUDE.md + 三层纵深防御", "终端 CLI / headless", "代码编写、调试、重构；headless + 参数约束即最小可行安全架构"],
+     ["OpenAI Codex", "云沙箱 + 异步任务 + 自验证", "异步提交 + 查看", "独立编码任务、CI/CD"],
+     ["Cursor", "上下文工程（@file/@folder/@web/@codebase 四层）", "IDE 内交互", "日常开发辅助"],
+     ["Devin", "全沙箱（浏览器+终端+编辑器）+ 自主规划 + 自纠错", "任务提交 + 监控", "复杂长程任务，成本 $10-50/任务"],
+     ["Manus", "虚拟机沙箱 + 异步执行 + 多模态输出", "任务提交 + 通知", "通用白领任务（报表/调研/文档）"],
+     ["WaLiCode", "SSH DevOps + 多协议适配 + 五层权限递进 + 子代理", "IDE + SSH 远程", "运维 Agent、远程开发、私有化部署"],
+     ["Cline", "VSCode 插件 + 终端集成 + MCP", "VSCode 内交互", "零成本 Agent 入门"]
+    ]
+   }
+  },
+  {
+   "list": [
+    "**陷阱一·过度约束**：层层束缚让 Agent 什么也干不了——总说「没权限」、max-turns 太低、工具白名单太窄。解法：按任务复杂度分级授权，简单任务严约束、复杂任务宽约束（渐进授权）。",
+    "**陷阱二·约束不足**：删除重要文件、泄露 API Key、无限循环烧 Token、执行 `rm -rf`。解法：至少三层防护——工具白名单（声明式权限）+ 运行时拦截（动态检查参数）+ 审计日志（事后追溯）。",
+    "**陷阱三·组件缺失**：六组件缺一即系统性失败——缺文件系统则成果不持久、缺沙箱则不能验证、缺 AGENTS.md 则按旧知识行事、缺搜索则回答过时、缺上下文工程则长对话丢信息、缺 Hooks 则协作无质检。",
+    "**设计目标**：不是「绝对安全」（那是过度约束），而是**安全边界内的最大自主性**——像高速公路有护栏但车可自由开到 120km/h。"
+   ]
+  },
+  {
+   "h2": "技术选型要点"
+  },
+  {
+   "list": [
+    "**Harness 组装顺序**：照 Step0→3 渐进——先 System Prompt 注入规则，再工具调用，再 Hooks + 沙箱验证；每步测完成率变化，组件缺失比组件多余更致命。",
+    "**规则即文件**：项目级 AGENTS.md 每次启动注入、即写即生效免训练；Hooks 按 pre/post/error/approval 四点插桩——pre 做校验、post 做结果检查、error 做降级、approval 对高危暂停等人；被拦的 tool_call 也要回填拦截原因。",
+    "**框架选型**：教程推荐多 Agent/企业级选 Google ADK（原生编排+Google 工具生态）；轻量选 OpenAI Agents SDK；多 Agent 协作备选 AutoGen/CrewAI；生态广度选 LangChain。框架是 Harness 的实现手段，六组件职责不变。"
+   ]
+  },
+  {
+   "h2": "工程边界与坑"
+  },
+  {
+   "list": [
+    "**教程的生产化差距要认清**：Step0→3 的完成率（35%→82%）是教学示意数字而非 benchmark；代表项目对比基于公开资料归纳而非逐一源码验证；「安全边界内的最大自主性」是设计目标不是可测指标——落地要靠 N6 的红队与回归验证说话。",
+    "**代码只到模式骨架**：教程的四语言重复骨架只保留模式与伪代码——真实实现要补错误分类、重试退避、并发安全、序列化细节。",
+    "**与项目契约的张力：六组件要契约化而非自由发挥**。文件系统→Stage Artifact 产物归属（D-024）；沙箱→执行面隔离（D-080 ES-M/A/X）；AGENTS.md→Soul Contract/Role Playbook（D-053）；Web Search+MCP→Access 契约评审的保留方向（D-051）；上下文工程→N4 记忆治理；Hooks→Policy Gate 前置检查（D-020/D-029）。Harness 组件在本站不是「装上就能用」，每个都要落到契约声明的职责上。",
+    "**过度约束与约束不足是同一枚硬币**：三大陷阱（本章上节）说明 Harness 设计的核心权衡是「安全边界内的最大自主性」——本站的对应物是授权位默认全 false 起步、按动作类型分级放行，而不是一刀切全禁或全放。"
+   ]
+  },
+  {
+   "h2": "站内互链"
+  },
+  {
+   "p": "上游：Loop 引擎与沙箱底座见 [N5 运行时](pb-n5-yunxing-harness.html)；工具 schema 与调用细节见 N3——[pb-n3-gongju-nengli.html](pb-n3-gongju-nengli.html)；记忆压缩见 N4——[pb-n4-jiyi-zhishi.html](pb-n4-jiyi-zhishi.html)。下游：工业级 Harness 解剖见 [N5c dsh-java 解剖](pb-n5c-dsh-jiepo.html)；Hooks 审批、注入防御与红队的完整安全栈在 N6——[pb-n6-anquan-zhi-li.html](pb-n6-anquan-zhi-li.html)。纵深阅读：[书4 · Agent = Model + Harness](../book4/b4-01-agent-rumen.html) 的五项功能分工；可运行参照见 [ToyAgent 原理文章](../toyagent-steps.html) 的审批门禁与沙箱纵深场景，回看 [Playbook 框架页](index.html) 的模型边界矩阵。"
+  },
+  {
+   "map": {
+    "title": "实践映射：对照「AI 组织变革」方案 · Harness 契约化",
+    "blocks": [
+     {
+      "p": "本节为本站原创解读。教程把 Harness 当「搭出来的工程」，本站把它落成「发布出去的契约」——六组件不是自由发挥，每个都对应 D-022 五份契约中的一份或一组模型外门禁。"
+     },
+     {
+      "h3": "Prompt→Context→Harness 三次迁移 → 契约承载 Harness 职责"
+     },
+     {
+      "p": "三组实验的结论是工程效益的边际产出已从 Prompt 迁到 Harness；本站再进一步——把 Harness 职责从「搭建者的经验」固化为 D-022 五份版本化契约（Business/Skill/Runtime/Access/Assurance）+ D-023 Role Release Bundle 七态生命周期：规则不靠提示词自觉，靠契约发布与门禁强制。绑定约束论在本站的对应物是「模型给大脑、契约给边界」——Benchmark 方差由 Harness 主导，本站就让 Harness 的每一块都成为可审计的契约产物。"
+     },
+     {
+      "h3": "Harness 六组件 → 五份契约 + 执行面"
+     },
+     {
+      "p": "文件系统/git 版本控制 ≈ Stage Artifact 产物归属与可回滚（D-024 八阶段门禁）；沙箱执行 ≈ ES-M/A/X 执行面隔离（D-080）；AGENTS.md/System Prompt ≈ Soul Contract + Role Playbook（D-053，每岗位独立人格与行为原则）；Web Search + MCP ≈ Access 契约评审的保留方向（D-051，连接须过契约不裸接）；上下文工程 ≈ N4 记忆与知识治理；编排 + Hooks ≈ 模型外 Case Control（D-020）与 Policy Gate（D-029）。"
+     },
+     {
+      "h3": "Hooks 四类钩子 → Policy Gate 与分级确认"
+     },
+     {
+      "p": "pre-hook 的参数校验/权限检查/成本预估 ≈ 建单前校验与 Pre-Case Exception（D-026）；approval-hook 的高危暂停 ≈ C1/C2/C3 分级确认（D-080）——粒度按动作可逆性与风险分级而非简单是/否；post-hook 的结果校验 ≈ Stage Artifact 验收（D-024）；error-hook 的重试/降级/告警 ≈ 异常处置与自治异常上报。被拦 tool_call 回填拦截原因的设计，本站对应 Action Intent 被拒后把 Policy Gate 裁决理由回到 Case 上下文，让模型换安全路径。"
+     },
+     {
+      "h3": "Step0→3 渐进实战 → v0.1 最小闭环路径"
+     },
+     {
+      "p": "教程证明「组件缺失比组件多余更致命」——裸模型 35%、加规则 45%、加工具 65%、加 Hooks+沙箱 82%。本站 v0.1 走同一条渐进路：ES-M 手动交接面先跑通最小 Case 闭环（D-051/D-080），再按契约逐组件补 Hooks、执行面与观测；差别在每一步都有发布门禁（D-023 七态）而非「能跑就行」。"
+     }
+    ]
+   }
+  }
+ ]
+}
