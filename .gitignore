@@ -5,3 +5,7 @@ __pycache__/
 tmp/
 .venv/
 scripts/.cache/
+
+# private keys (server deploy)
+*.pem
+key_*.pem

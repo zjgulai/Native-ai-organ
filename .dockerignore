@@ -1,0 +1,11 @@
+.git
+.github
+dist
+__pycache__
+*.pyc
+.venv
+tmp
+scripts/.cache
+*.pem
+key_*.pem
+.DS_Store

@@ -1,0 +1,24 @@
+services:
+  native-ai-organ:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: native-ai-organ:latest
+    container_name: native-ai-organ
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${NAO_PORT:-8091}:8080"
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101,mode=0755
+      - /var/run:uid=101,gid=101,mode=0755
+      - /tmp:uid=101,gid=101,mode=0755
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - native-ai-organ-net
+
+networks:
+  native-ai-organ-net:
+    name: native-ai-organ-net
+    driver: bridge
