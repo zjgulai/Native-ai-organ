@@ -620,7 +620,7 @@ def render_experiments(base: str) -> str:
               '<h3>回到 Agent书全书地图</h3>'
               '<p>10 章全章精读、三条阅读路径与官方在线版入口。</p></div>'
               + f'<a class="go" href="{base}book4/index.html">Agent书全书地图 →</a></div>')
-    return page_shell("配套实验与主题 Skill · Agent书", base, "book4", inner,
+    return page_shell("配套实验与主题 Skill · Agent书", base, "experiments", inner,
                       "《深入理解 AI Agent》配套实验地图：110 个编号实验、111 个代码目录与 22 份主题 SKILL.md，按章索引并直达 GitHub 仓库。")
 
 

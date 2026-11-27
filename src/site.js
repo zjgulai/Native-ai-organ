@@ -12,6 +12,31 @@
       navToggle.setAttribute('aria-expanded', String(open));
     });
   }
+  /* two-level nav: click toggles dropdown (pin), hover/focus still works via CSS */
+  const navBtns = document.querySelectorAll('.nav-group-btn');
+  const closeGroups = (except) => {
+    document.querySelectorAll('.nav-group.open').forEach(g => {
+      if (g === except) return;
+      g.classList.remove('open');
+      const b = g.querySelector('.nav-group-btn');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  };
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.closest('.nav-group');
+      const open = g.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) closeGroups(g);
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeGroups(null);
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-group')) closeGroups(null);
+  });
+
   const dirBtn = document.querySelector('.mobile-dir-btn');
   const dir = document.querySelector('.dir');
   if (dirBtn && dir) {

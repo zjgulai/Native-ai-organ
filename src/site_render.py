@@ -128,34 +128,87 @@ def render_b4_figure(f: dict, base: str) -> str:
 
 
 def nav_html(base: str, current: str) -> str:
-    links = [
-        ("index.html", "全书地图", "index"),
-        ("sitemap.html", "导览", "sitemap"),
-        ("chapters/index.html", "章节解读", "chapters"),
-        ("concepts/index.html", "概念索引", "concepts"),
-        ("brand2/index.html", "品牌书·弱品牌强品牌", "brand2"),
-        ("book3/index.html", "本体书·本体驱动AI数据管理", "book3"),
-        ("book4/index.html", "Agent书·深入理解AI Agent", "book4"),
-        ("agent-lab.html", "Agent实验场", "agent-lab"),
-        ("experiments.html", "配套实验", "experiments"),
-        ("toyagent-steps.html", "原理文章", "toyagent-steps"),
-        ("agent-playbook/index.html", "Agent Playbook", "agent-playbook"),
-        ("triology.html", "三书合璧", "triology"),
-        ("synthesis.html", "两书合璧", "synthesis"),
-        ("stack.html", "四层架构", "stack"),
-        ("pilot.html", "从书到试点", "pilot"),
-        ("pilot-assets.html", "试点资产", "pilot-assets"),
-        ("brand-plan.html", "实战路线", "brand-plan"),
-        ("orgmap.html", "组织图", "orgmap"),
-        ("product.html", "Sage 产品", "product"),
-        ("tools/index.html", "工具箱", "tools"),
-        ("terms.html", "术语表", "terms"),
-        ("about.html", "关于", "about"),
+    """Two-level nav: direct links + grouped dropdowns.
+
+    current = the page's section key; a dropdown parent gets .has-current
+    when the current page belongs to its group.
+    """
+    esc = escape
+
+    def link(href: str, label: str, key: str, is_index_dup: bool = False) -> str:
+        # index.html appears twice (top-level 首页 + 书1 dropdown); only the
+        # top-level carries aria-current to avoid duplicate page markers.
+        cur = ' aria-current="page"' if key == current and not is_index_dup else ""
+        return f'<a href="{base}{href}"{cur}>{esc(label)}</a>'
+
+    groups = [
+        ("books", "读书笔记", [
+            ("组织书 · 书1", [
+                ("index.html", "全书地图", "index", True),
+                ("chapters/index.html", "章节解读", "chapters", False),
+                ("concepts/index.html", "概念索引", "concepts", False),
+                ("tools/index.html", "随书工具", "tools", False),
+            ]),
+            ("品牌书 · 书2", [
+                ("brand2/index.html", "弱品牌强品牌", "brand2", False),
+            ]),
+            ("本体书 · 书3", [
+                ("book3/index.html", "本体驱动AI数据管理", "book3", False),
+                ("semantic.html", "语义底座", "semantic", False),
+            ]),
+            ("Agent书 · 书4", [
+                ("book4/index.html", "Agent书", "book4", False),
+                ("agent-lab.html", "Agent实验场", "agent-lab", False),
+                ("experiments.html", "配套实验", "experiments", False),
+                ("toyagent-steps.html", "原理文章", "toyagent-steps", False),
+                ("agent-playbook/index.html", "Agent Playbook", "agent-playbook", False),
+            ]),
+            ("合璧", [
+                ("triology.html", "三书合璧", "triology", False),
+                ("synthesis.html", "两书合璧", "synthesis", False),
+                ("stack.html", "四层架构", "stack", False),
+            ]),
+        ]),
+        ("practice", "实战方案", [
+            (None, [
+                ("pilot.html", "从书到试点", "pilot", False),
+                ("pilot-assets.html", "试点资产", "pilot-assets", False),
+                ("g1-pack.html", "G1 交付包", "g1-pack", False),
+                ("brand-plan.html", "实战路线", "brand-plan", False),
+                ("orgmap.html", "组织图", "orgmap", False),
+            ]),
+        ]),
+        ("site", "站点", [
+            (None, [
+                ("sitemap.html", "导览", "sitemap", False),
+                ("terms.html", "术语表", "terms", False),
+                ("about.html", "关于", "about", False),
+            ]),
+        ]),
     ]
-    items = "".join(
-        f'<a href="{base}{href}"{" aria-current=\"page\"" if key == current else ""}>{label}</a>'
-        for href, label, key in links
-    )
+
+    def group_html(gid: str, glabel: str, sections: list) -> str:
+        keys = {k for _, links in sections for _, _, k, _ in links}
+        has_cur = current in keys
+        parts = []
+        for slabel, links in sections:
+            if slabel:
+                parts.append(f'<p class="nav-drop-label">{esc(slabel)}</p>')
+            parts.extend(link(h, l, k, d) for h, l, k, d in links)
+        return (
+            f'<div class="nav-group nav-group-{gid}{" has-current" if has_cur else ""}">'
+            f'<button type="button" class="nav-group-btn" aria-haspopup="true" '
+            f'aria-expanded="false">{esc(glabel)}</button>'
+            f'<div class="nav-dropdown">{"".join(parts)}</div></div>'
+        )
+
+    # top-level order: 首页 | 读书笔记▾ | 实战方案▾ | 产品规划 | 站点▾
+    items = [link("index.html", "首页", "index")]
+    items.append(group_html(*groups[0]))
+    items.append(group_html(*groups[1]))
+    items.append(link("product.html", "产品规划", "product"))
+    items.append(group_html(*groups[2]))
+    items = "".join(items)
     return (
         '<header class="nav"><a class="brand" href="' + base + 'index.html">'
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
