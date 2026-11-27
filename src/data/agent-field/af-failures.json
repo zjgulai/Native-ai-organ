@@ -96,7 +96,7 @@
     ]},
     {"p": "**外部验证（作者自报数据）**：ANB 称其 28 条误判中有 21 条能在 [Session_Agent](https://github.com/zjgulai/Session_Agent) 手册的 17 张经验卡里找到对应（75%）。该手册从 2,794 个工程实现会话中蒸馏，用统计而非事故验证同一批判断；两体系在「验收 / 交付 / 运营」高度重合，在「需求」分离——那是 ANB 的独有领地。手册另有 4 条 ANB 未覆盖：状态继承、边界指令、上下文成本、断点恢复。75% 这个数字来自方法作者本人，引用时应视为待独立复核的自报结果。"},
     {"h2": "怎么用这一页"},
-    {"p": "本页是 F3 核心论点页，与相邻单元互补：[F1 决策杠杆序](../agent-field/af-order.html) 讲项目按什么顺序做决策，[F2 评估纪律](../agent-field/af-eval.html) 讲 eval 门禁与失败归因层，[F4 编排实证](../agent-field/af-capgraph.html) 解剖一个生产级多能力 agent。三条使用路径："},
+    {"p": "本页是 F3 核心论点页，与相邻单元互补：[F1 决策杠杆序](../agent-field/af-order.html) 讲项目按什么顺序做决策，[F2 评估纪律](../agent-field/af-eval.html) 讲 eval 门禁与失败归因层，[F4 编排实证](../agent-field/af-capgraph.html) 解剖一个生产级多能力 agent。**Playbook 侧对照**：同一批失败模式在教程轨的对应位置——预算与 loop 纪律见 [N5 运行时与 Harness](../agent-playbook/pb-n5-yunxing-harness.html)，工具契约见 [N3 工具能力层](../agent-playbook/pb-n3-gongju-nengli.html)，eval 门禁见 [N7 观测与部署](../agent-playbook/pb-n7-guancheng-bushu.html)，交互面坑见 [N9 交互形态](../agent-playbook/pb-n9-jiaohu-xingtai.html)。三条使用路径："},
     {"list": [
       "**全绿但心里没底**：按七个机制问句过一遍——任何一条答不上来，往对应的误判家族去找。",
       "**agent 说「全部通过」之后**：花两分钟做七个检查里对应的动作；保护机制一律问「上次拦住是什么时候」。",

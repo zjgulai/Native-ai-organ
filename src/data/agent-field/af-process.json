@@ -1,0 +1,104 @@
+{
+  "slug": "af-process",
+  "no": "F5",
+  "title": "过程序：六阶段门禁流与 ANB 对照",
+  "status": "published",
+  "minutes": 12,
+  "lead": "Agent 产品的工程纪律是六道门禁而非流水线：clarify→spec→tickets→build→harden→ship，每站有产出物与退出测试；eval set 是第一道硬门、tracer bullet 先打通全链路、发布要真实用户加具名故障 owner——同一仓库另有 ANB 七阶段流程服务不会写代码的人。",
+  "sources": [".claude/skills/native-agent-dev/SKILL.md", ".claude/skills/native-agent-dev-clarify/SKILL.md", ".claude/skills/native-agent-dev-spec/SKILL.md", ".claude/skills/native-agent-dev-tickets/SKILL.md", ".claude/skills/native-agent-dev-build/SKILL.md", ".claude/skills/native-agent-dev-eval/SKILL.md", ".claude/skills/native-agent-dev-release/SKILL.md", ".claude/skills/anb/SKILL.md", "ANB-README.md", "CLAUDE.md", "docs/agents/issue-tracker.md", "docs/agents/domain.md"],
+  "sections": [
+    {"h2": "定位：agent 产品的工程过程不是 checklist，是门禁"},
+    {"p": "`mas_router_method` 把 agent 产品的开发流程做成一个路由器：`.claude/skills/native-agent-dev` 不执行工作，只回答「这件活儿现在卡在哪一站」，然后把人交给六个阶段 skill 之一。核心定义一句话——**stage 是门禁不是清单项**：产出物存在且退出测试通过才算离开；跳门被允许，但必须是一个具名决定、写进 run 或 ticket，因为「我们跳过了 eval」是 agent 产品带着未完成感上线的最常见原因（`mas_router_method@962e064:.claude/skills/native-agent-dev/SKILL.md`）。"},
+    {"quote": "A stage is a gate, not a checklist item. You leave a stage when its artifact exists and its exit test passes.", "cite": "mas_router_method@962e064:.claude/skills/native-agent-dev/SKILL.md"},
+    {"p": "路由只问一个问题：**用户认为卡住的是什么**——「不知道做什么 / 需求模糊」→ clarify，「知道做什么但不知道什么叫好」→ spec，「spec 定了从哪开始写码」→ tickets，「写了一半要下一片」→ build，「demo 行 production 不行」→ eval，「可以了推给真人」→ release。答「全都要」时永远从第 1 站开始。入口有筛子：只有 **agent-shaped** 的工作才进这条流——至少具备其一：有非确定性步骤、工具调用的**契约**（而非实现）塑造模型行为、成本/时延包络需要强制执行、需要人可审计的运行。四条都不沾的是普通软件，走 vendored 的 `/implement`、`/diagnosing-bugs` 更合适。"},
+
+    {"h2": "六阶段门禁流全景"},
+    {"p": "六个阶段在路由表里叫 Clarify / Spec / Ticket / Build / Harden / Ship，对应六个 stage skill（文件名分别为 `native-agent-dev-clarify` 等）。下表把每阶段的做什么、产出物、进入条件与退出判据压成一屏："},
+    {"table": {"head": ["阶段", "做什么 · 产出物", "进入条件", "退出判据（门禁）"], "rows": [
+      ["**1 Clarify 澄清**", "访谈拿到 job、列失败模式、定 deliverable 形状 → `docs/product/<feature>-brief.md`", "想法模糊、需求不清、「我们该做个 agent」", "job 用用户原话写成且一页内；每个适用失败模式有「怎么发现」的故事；四条 agent 形判据被论证而非假设；人类同意 agent 是对的形状"],
+      ["**2 Spec 规格**", "prose spec + 三件 agent 特有产物：eval set（`docs/evals/` 文档 + `packages/evals` cases 代码）、scoring rule、tool contracts", "brief 存在", "eval set 存在且人类确认它定义「好」；每条护栏有 `should_fail` case；通过线是写下来的数字"],
+      ["**3 Tickets 拆票**", "`/to-tickets` 切片 + 两个 prefactor（shared schema、tool ports+fakes）→ `.scratch/<feature>/issues/`", "spec 与 eval set 已定", "第一个 ticket 验收含全部六环，端到端跑通并产出真 artifact——哪怕做得很差"],
+      ["**4 Build 实现**", "`/implement` 机制 + 四层归因纪律 → 通过 eval case 的 diff；「模型做不到」的结论进 ADR", "frontier 上有 ready 票", "ticket 的行为过它的 eval cases，不只是单测；diff 可评审；改动后全量 eval set 重跑"],
+      ["**5 Harden 加固**", "全量跑 eval、诚实读分、接 CI 回归门 → `packages/evals/runs/*.json` + 门禁配置", "slice 建好、「demo 行 production 不行」、或行为面变更后", "分数已记录入库、回归门已接线、数字诚实：无 `should_fail` 回归、分数 delta 有解释、judge 与人抽查一致"],
+      ["**6 Ship 发布**", "pilot 而非 launch：成本上限、run 可重建、失败可见、护栏在 tool 层、具名 owner → 反馈回路", "eval 门绿、准备发给真实用户/试点", "真实用户在真实工作上用过；有人 owns 下一次失败"]
+    ]}},
+
+    {"h2": "关键机制"},
+    {"h3": "eval set 是 spec：第一道硬门"},
+    {"p": "对普通软件，spec 说「必须做什么」，测试断言「它做了」；agent 没有唯一正确输出，「写一个好 hook」没法像「返回 200」那样断言。**模型行为不可单测，所以 eval 前置**——质量约束必须在写码之前变成可执行产物，否则此后每个关于质量的争论都是意见。spec 阶段因此不止产出散文，它必须同时产出三件 agent 特有的东西：**eval set**（`docs/evals/<feature>.md` 文档 + `packages/evals/src/cases/` 代码，两者必须一致）、**scoring rule**（每条期望归类为确定性 / LLM judge / 人工，且通过线写成数字）、**tool contracts**（每个工具的参数、返回、「模型被告知何时用它」——description 不是文档，是模型唯一能看到的东西，contract 问题在此修而不是事后在 prompt 里补）。"},
+    {"p": "eval set 的写法纪律（case 结构、14 个实证 case、归因层细节见 [F2 评估纪律](af-eval.html)）：case 字段固定为 id（稳定不重编号，分数跨 run 可比）/ input（真实用户措辞，不是美化版）/ fixtures / expectations（机器可判的谓词，不是短语快照）/ `should_fail` / why（这条 case 防的真实失败）。数量是**十个而不是一百个**——覆盖常见路径、两个最难真实变体、每条护栏，真实失败发生时才加；每条护栏必须有 `should_fail` case，否则你测的是「agent 通常表现好」，不是「护栏有效」。"},
+    {"p": "scoring rule 的偏向很明确：**向确定性硬偏**——一个 80% 分数来自 LLM judge 的产品，等于用一个模糊的测试替换了一个模糊的产品；judge 只留给真正需要品味的部分，且 judge prompt 必须沿用品牌 `successCriteria` 的原文，否则两边漂移。「70% case 通过」不是门槛，「每条 `should_fail` 通过 + 8/10 正例 rubric ≥ 0.7」才是。"},
+    {"p": "这道门的严格程度是全流程唯一被点名的：**spec 阶段若只产出散文没有 eval set，就没完成**——下游一切都拿它当尺子，没 eval 的 spec 让之后所有质量争论退化为意见。两个对称的失败模式都要防：eval-free spec（质量永远在 review 里吵）与 over-pinned spec（把一个 golden output 编成断言，mediocre 撞线、excellent 落榜）。修法相同：定义 criteria，不定义 outputs。"},
+
+    {"h3": "tracer bullet：第一个 ticket 必须是全环路"},
+    {"p": "普通软件的 tracer bullet 穿过每一层；agent 产品的「每一层」多出普通软件没有的东西，漏掉任何一个就会得到「漂亮 runtime、没有产品」。第一个 ticket 的验收标准必须同时包含六环："},
+    {"olist": [
+      "真实请求进来——不是测试文件里的 fixture；",
+      "模型至少跑一次，带真实 system prompt；",
+      "调用至少一个**真实工具**并拿到真实结果；",
+      "结果按 **shared schema** 校验并持久化；",
+      "人能**看到发生了什么**——run 的步骤可读；",
+      "eval harness 能跑这一个 case 并打印 pass/fail。"
+    ]},
+    {"p": "六环缺任何一个，第一个 ticket 就不是 tracer bullet，是「穿着 tracer bullet 衣服的横向切片」——经典反例是 ticket1=runtime、ticket2=tools、ticket3=UI、ticket4=persistence，四周工作零 demo。其后每张票切「用户能认出的行为」而非「一层」，并按风险排序：最吓人的假设（模型到底行不行、工具面够不够、用户认不认 deliverable）排在 tracer 之后第二张。"},
+    {"p": "feature 票之前有两个 prefactor，各自独立成票：**shared schema**（领域对象进 `packages/shared`，每个字段必须被某个工具/UI/eval 读到——没人读的字段是投机字段，事后补共享类型是全仓库级重构）与 **tool contract surface**（工具按 ports/接口实现、配内存 fakes；每个工具失败返回 `{isError: true}` 值而非 throw——throw 杀死整个 run，40 轮白跑）。fakes 顺手成为 eval fixtures，只写一遍。两条 agent 特有的 blocking edge：**eval case 阻塞其行为**——加行为不加 case 的票不完整；**护栏阻塞暴露它的表面**——护栏必须在 tool 层先强制再允许 chat surface 触达，产品上线后才补的护栏等于已经在生产里失败过一次。"},
+
+    {"h3": "归因到层，发布要有故障 owner"},
+    {"p": "build 阶段的纪律是「model 是故障组件时先定位层再动手」。四层各有症状、修法与代价，诊断顺序固定 **eval → data → tool → prompt**——越靠上越可能是期望写错了；prompt 是最后手段也是最贵手段（改起来一行字，但它是全系统最难测的部分，且是唯一能悄悄弄坏你没盯的 case 的改动）："},
+    {"table": {"head": ["层", "症状", "修法", "坏修法"], "rows": [
+      ["**eval**（规则/case）", "期望只写在规则参数里、模型不可见", "在案例请求里显式声明要求", "改模型去迁就看不见的期望"],
+      ["**data**（fixture/输入）", "正确行为跑在错误输入上", "修输入、加校验", "放宽 schema 让垃圾通过"],
+      ["**tool contract**", "对的工具配错参数，或不知道何时该调", "改 schema/description", "在 prompt 里叮嘱「用 X 做 Y」"],
+      ["**prompt**", "理解任务但权重错了", "改指令、例子，一次只改一处", "每坏一次加一条规则"]
+    ]}},
+    {"olist": [
+      "先把失败**复现成一个 eval case**——复现不了就不算理解了失败，不许修看不见的 bug；",
+      "读 run 的步骤记录，弄清模型当时到底看到了什么——多数「模型笨」其实是「工具返回了让人困惑的东西」或「schema 放进了坏值」；",
+      "先查 tool 边界：每个工具是否返回了模型能行动的形式（模型无法行动的错误信息白烧一轮，还诱发更差的重试）；",
+      "最后才动 prompt，且改一处、重跑**整个** eval set 而非只跑失败 case——prompt 改动是唯一能悄悄弄坏别的 case 的变更。"
+    ]},
+    {"list": [
+      "**模型行为不可单测 → eval 前置**：spec 阶段不过不往下走，ticket 完成 = eval case 过，不是单测过；",
+      "**行为面变更触发 eval 重跑**：prompt、tool schema、模型升级、数据结构——eval 调真模型、花钱，所以不进快速 CI，只在行为变更时跑（细节见 [F2](af-eval.html)）；",
+      "**发布标准含运维面**：成本上限在代码里强制、每次 run 可重建、具名故障 owner——普通软件的 release checklist 没有这些。"
+    ]},
+    {"p": "harden 阶段把「seems to work」变成有记录的数字：每次全量跑存 `packages/evals/runs/<date>-<label>.json` 并提交——没有历史的分数回答不了唯一重要的问题「这次变差了吗」。读分四问按序：`should_fail` 有没有不该过的过了（护栏失效是 ship-blocker，先查）→ 哪些 case 降了、diff 能否解释 → 总分是不是在往对的方向动（看分布不看均值）→ judge 与人是否一致（抽两条高分一条低分亲自读）。四个陷阱：阈值落在噪声内（同一 commit 0.68/0.74 说明 bar 在方差里，要么扩 case 要么留 margin，**永远不许降 bar 凑通过**）、judge 被「调公平」地调松（等于静默重标定所有历史分，按数据迁移处理：先重评旧输出报 delta）、case 被顺手改松（读 eval case 的 diff 要像读代码 diff 一样仔细）、套件没人跑（必须进 CI，碰 quality 面的路径必跑；太贵就 PR 跑子集、全量跑 nightly，并把选择写下来）。门禁最低配：`should_fail` 回归必挂、确定性通过率低于基线必挂、rubric 波动只警告不硬挂——噪声信号上的硬门一个月内会被静音，而被静音的门比软门更糟。"},
+    {"p": "发布（Ship）的退出判据只有一句：**真实用户在真实工作上用过，且有人 owns 下一次失败**。agent 与普通软件的差别在于它部署后仍在持续做新决定，所以清单偏向可观测与可控而非部署本身。五个前置条件：成本上限在代码里强制（`maxCostUsd` 到点停，不是 dashboard 不是 alert，先算清单次与单日最坏情况）、每次 run 可重建（步骤/工具调用/token/成本/**workflow 版本**/**模型版本**全落盘——质量下跌通常是两者之一变了）、失败对用户可见（说清发生了什么、重试有没有用，静默返回空和坏了无法区分）、护栏在 tool 层强制并对生产配置实测（拿 `should_fail` case 打真配置验证，不是只在测试里过）、**具名 owner**——不是「团队」是一个人，因为 agent 的退化在聚合指标里隐形、在使用者眼里明显。"},
+    {"p": "pilot 而非 launch：发给一个品牌、一个会说真话的人。测的不是转化，是「他们用它做了你没预料的事」「recipe 之后他们做了什么（交接是产品死因：没人能拍的 recipe 是失败品）」和「哪些输出被改写」——**每一次改写都是一条等着写的 eval case**，头两周每天收，这一个习惯是「持续改进」与「发布即封顶」的分水岭。回滚答案要在上线前就知道：prompt/tool schema 是一次 commit，模型升级必须是**不依赖部署的配置变更**，否则一次坏模型 rollout 变成坏一周。发布后循环不终结：pilot → 收改写 → 加 case → 回流 stage 2——这个循环本身就是产品，最初的 build 只是让循环转起来的东西。"},
+
+    {"h2": "配套纪律：票怎么落盘、词汇怎么统一"},
+    {"p": "工程流把「规格→票→词汇」三件事也制度化了。Issue tracker 用**本地 markdown**（`.scratch/<feature>/issues/`，一票一文件、按依赖序编号，blocker 在前）：票面固定四段——What to build（从用户视角的端到端行为，不是分层实现清单）、Blocked by、Status（`ready-for-agent`/`ready-for-human`/`needs-info`/`needs-triage`/`wontfix`）、验收标准。两个细节值得抄：标识符稳定——重编号会让所有 blocking edge 和引用它的 eval case 变孤儿；`ready-for-agent` 的判据是「只看票面就能做完，不需要一场对话」——做不完说明缺的决定才是真正的工作，标 `ready-for-human` 并把缺的决定写出来（`mas_router_method@962e064:docs/agents/issue-tracker.md`）。"},
+    {"p": "Domain docs 是单上下文布局：根目录一个 `GLOSSARY.md`（recipe/reference/analysis/run/workflow 各有确义，写任何用户可见内容前先读它——用词含糊产出的 spec 没人能实现）+ `docs/adr/`。ADR 门槛故意设高：难逆转、有可信替代项、将来会有人问为什么——三条都满足才写，四十篇 ADR 的目录帮不了任何人；写错了就 supersede 一篇新 ADR，**不改旧的**——「它曾经被相信过」本身就是信息（`mas_router_method@962e064:docs/agents/domain.md`）。"},
+
+    {"h2": "与 ANB 对照：同一仓库的两条流程"},
+    {"p": "同一仓库里还有第二条流程 ANB（Agent Native Builder），给**不会写代码的产品开发者**用：`.claude/skills/anb*` 共 16 个 skill，前提刻意写明——**是**让你判断「agent 做出来的东西是不是真的能用」，**不是**教你写代码，因为代码由 agent 写。不写代码的人不缺代码，缺的是判断：面对一个正在运行的东西，不知道哪里会坏、坏了看不出来、好了也不确定。两条流程的分工一句话：**native-agent-dev 面向工程师（人写代码、agent 辅助），anb 面向产品开发者（agent 写代码、人验收）**（`mas_router_method@962e064:ANB-README.md`、`.claude/skills/anb/SKILL.md`）。"},
+    {"table": {"head": ["维度", "native-agent-dev（工程师流）", "ANB（产品流）"], "rows": [
+      ["受众前提", "会读代码、能评审 diff 与契约", "不读代码；瓶颈是判断不是编码"],
+      ["代码分工", "人写代码，agent 在 skill 约束下辅助", "agent 写代码，人做验收与取舍"],
+      ["阶段", "6：clarify→spec→tickets→build→harden→ship", "7：需求→设计→能跑→能判断→能交付→运营→迭代"],
+      ["唯一硬门", "spec 的 eval set——没有它 spec 没完成", "「能判断」——判断标准建不起来不往下，其余都可回头"],
+      ["硬门形态", "一个**产物**：eval set + 人类确认「这就是好」", "一个**动作**：检查必须先证明自己拦得住东西（能失败一次才算数）"],
+      ["产物", "brief、eval set/scoring/tool contracts、.scratch 票、eval runs+baseline", "`work/designs/D-xxx`、checks 证据、四页文档"],
+      ["验证手段", "eval case（调真模型、花钱）+ 单测 + CI 回归门", "七个两分钟级人工动作：弄坏/断网/逐条念/换设备/看三输出/对账/换算法"],
+      ["管理层", "`.scratch` issue tracker + GLOSSARY/ADR 随票沉淀", "`anb-manage` 贯穿七阶段，不算第八阶段"],
+      ["迭代回路", "用户改写 → 新 eval case → 回流 spec 阶段", "「能复用」把实际用过三次以上的部分抽成下个产品起点"]
+    ]}},
+    {"p": "两条流程共享同一条深层规则——**「测试通过」不许回答「好不好用」**（ANB 路由 skill 把它列为头号禁令：Never answer “is it working?” with “yes, the tests pass”）。差别在验证基质：工程师能直接审 eval set、tool contract、schema，所以硬门长成可执行产物、前置在写码之前；非工程师读不了这些产物，硬门只能长成他自己能做的动作（「故意弄坏一次看红不红」），位置也只能在「能跑」之后。"},
+
+    {"h2": "为什么是两条而不是一条"},
+    {"p": "三点理由。其一，**瓶颈不同**：工程师的稀缺品是「把质量变成可执行约束」的速度，eval set 前置正是为此；非工程师的稀缺品是对运行中事物的判断力，ANB 的全部设计——每个阶段以「这一步的验收是什么」开场、每条路由终于一个自己能做的动作——都在给判断力补支点。其二，**可读的中间产物不同**：工程师流在 spec 与 build 之间切出 tickets/harden，是因为 ticket、eval case、baseline 对工程师可读可审；ANB 把中间压成 runnable→judgeable→shipable 的结果管线，因为对目标受众那些中间物不可读。其三，**阶段数不同反映工作分解不同**：6 vs 7 不是谁更细，是两边把「需求到上线」切给了不同的可验证单元。合并成一条流的代价是双向的：让不会写代码的人去评审 eval set 等于没门，让工程师去做七个动作检查等于把 CI 重复一遍。"},
+
+    {"h2": "与本站其他单元的关系"},
+    {"p": "本轨五个单元拼起来是一条完整链路：[F1 决策杠杆序](af-order.html) 排的是「做什么」——from zero 按 decision leverage 排工序；本页（F5）规定「按什么纪律推进」——每站的门禁、产出物与跳门规则；[F2 评估纪律](af-eval.html) 定义「怎么知道做对」——eval set 内部的 case 结构、失败归因层、基线与产品级指标；[F3 失败图鉴](af-failures.html) 是 ANB 侧的深挖——七个检查的细节与六个真实事故；[F4 编排实证](af-capgraph.html) 解剖这套纪律在一个生产系统（consult 顾问）里的落地。节点级构建方法论见 [Agent Playbook](../agent-playbook/index.html)；框架定位见 [Agent Field Guide 总纲](index.html)。"},
+
+    {"h2": "边界与未尽事项"},
+    {"list": [
+      "**SKILL.md 是路由器**：六阶段的判据细节在六个 stage skill 原文里，本文以 `mas_router_method@962e064` 基线 commit 蒸馏；仓库演进中阶段内容可能更新。",
+      "**数字类细节不在本页**：eval case 构成、成本区间、baseline 管理属 F2；ANB 七检查与六事故属 F3——本页只做阶段级对照，不重复检查细节。",
+      "**「agent-shaped」是入口筛子不是质量保证**：满足四判据之一才进流程；进流程后 clarify 第一步的四条论证（路径可变 / 步骤运行时可发现 / 有工具面 / 错误可恢复、少于四条就提非 agent 方案）才是真正的「该不该做 agent」判断——它是全流程省钱最多的一问。",
+      "**跳门禁的弹性是设计**：允许跳过但必须具名记录——门禁防的是「无声跳过」，不是「有记录的取舍」；评审时「skipped evals」是最高频的烂尾原因。",
+      "**ANB 侧证据强度**：七阶段按「能拦下什么错误」切分而非真实使用数据（方法自报不足）；75% 外部验证等数字属 F3 口径，本页不展开。"
+    ]},
+    {"note": "原文对照（均在 `mas_router_method` 仓库，基线 commit `962e064`）：`.claude/skills/native-agent-dev/SKILL.md`（路由器、两规则、agent-shaped 判据）、`.claude/skills/native-agent-dev-{clarify,spec,tickets,build,eval,release}/SKILL.md`（六阶段退出测试与检查清单）、`.claude/skills/anb/SKILL.md` 与 `ANB-README.md`（ANB 七阶段、硬门与分工前提）、`CLAUDE.md`「Project process」、`docs/agents/issue-tracker.md`、`docs/agents/domain.md`。本文为原创中文蒸馏。"}
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "slug": "af-discipline",
+  "no": "F6",
+  "title": "工程纪律：ADR 精选与架构经验",
+  "status": "published",
+  "minutes": 12,
+  "lead": "mas_router_method 把工程纪律写成可执行约束而不是口号——单向依赖、schema 边界、失败即值、SDK 反直觉配置、ADR 体裁与 skill 选型自觉；姊妹页记录纪律缺位的代价，本页蒸馏纪律本身。",
+  "sources": ["docs/adr/", "CLAUDE.md", "SKILL-MAP.md", "docs/skills/skill-catalog.md", "packages/core/src/run-agent.ts", "GLOSSARY.md"],
+  "sections": [
+    {"h2": "定位：纪律不是口号，是可执行约束"},
+    {"p": "前面几页讲项目怎么跑、怎么验收、怎么编排；本页收尾，回答最底层的问题：**代码层面怎么写才不翻车**。这个仓库的做法是把纪律落成可执行约束——依赖方向、schema 归属、错误返回类型、SDK 配置参数——违反它们的方式会被编译器、测试套件或运行时当场拦下，而不是等 review 时被人肉发现。"},
+    {"quote": "Because an unrecorded decision is one that gets re-litigated, or worse, silently changed.", "cite": "mas_router_method@962e064:docs/adr/README.md"},
+    {"p": "纪律在仓库里有三个载体：`CLAUDE.md` 把架构约束写成给 agent 读的规则；`docs/adr/` 用 10 篇决策记录保存难逆转的选择及其被否方案；`SKILL-MAP.md` 示范另一种纪律——**选型笔记的诚实标注**。本页按这三条线索蒸馏，所有规则均可在 `mas_router_method@962e064` 源码中指认。"},
+
+    {"h2": "架构纪律五条：规则、理由、违反的代价"},
+    {"p": "五条纪律都不是风格偏好，每一条对应一个真实会发生的失败模式："},
+    {"table": {"head": ["纪律", "规则", "为什么", "违反的代价"], "rows": [
+      ["**单向依赖**", "`apps → packages/core → packages/shared`；`shared` 不 import 本仓任何东西", "shared 是 schema 层——领域类型的唯一定义处；两个包需要同一类型时只能放这里", "同一类型两处定义：schema 一变要协同编辑全仓库，编译器帮不上；「type 说是 recipe 但没有 beats」从类型错误变成生产 bug"],
+      ["**seed 数据单一来源**", "四个品牌档案只在 `packages/core/src/seed/brands.ts`；evals 依赖 core，不在 fixture 里复制", "evals 依赖 core，所以 fixture 里的第二份拷贝会在 guardrail 变更时漂移——而 guardrail 正是 `should_fail` case 的地基", "eval 测的是过期 fixture 而不是 agent；与 [F3](af-failures.html)「假环境比真环境宽松」事故同族"],
+      ["**tools 对 ports 不对 clients**", "`BrandStore`/`ReferenceStore`/`RecipeStore`/`VisionAnalyzer` 是接口；生产传真实现，eval 传 fake", "tool 的 prompt 可见契约两边完全一致 → 没有飞书租户也能测 agent 行为", "对 client 编程：eval 只能 mock HTTP 层，测不到真实工具契约；接口一变全链路跟着疼"],
+      ["**失败是值不是异常**", "每个 tool 返回 `ok(text, data)` 或 `err(text, retryable)`，`guard()` 兜底意外 throw", "handler throw 杀整 run——而多数失败是预期的（URL 404、guardrail 未配置、vision 超时），一个已花 $1、20 轮上下文的 run 不该为一次坏链接陪葬", "TikTok 链接 404 = 整个 run 死亡；用户看到沉默或报错，而不是模型换个方法继续"],
+      ["**model output 是不可信输入**", "`packages/shared` 用 Zod 在持久化边界校验模型产出", "模型产出被 workbench 渲染、eval 断言、runtime 持久化；各层自定义形状则 schema 变更没有编译器帮助", "畸形 recipe 不报错，变成 review queue 里的怪卡片——错误从「响亮失败」降级为「奇怪数据」"]
+    ]}},
+    {"p": "ADR 0002 给 schema 纪律加了两条可操作细则：**每个字段必须被某物读取**——没人读的字段是投机字段，删掉它，因为将来会有代码因为它有类型而信任它；以及保留 `exactOptionalPropertyTypes`——「字段缺席」和「字段存在但为 undefined」是两回事，模型省略一个字段和把它显式设成 null 含义不同。"},
+
+    {"h3": "单文件 loop：把不变量放在一处"},
+    {"p": "`packages/core/src/run-agent.ts` 故意是一个文件。文件头注释写得很直白："},
+    {"quote": "Everything an agent product needs to get right — budget, cancellation, attribution, structured output — happens in one loop, and splitting that loop across modules is how the budget check ends up not running on the path that matters.", "cite": "mas_router_method@962e064:packages/core/src/run-agent.ts 文件头注释"},
+    {"p": "含义：预算、取消、归因、结构化输出这些「必须每次都跑」的不变量，只有放在同一个循环体里才保证覆盖所有路径；拆到多个模块后，某条路径漏掉检查是迟早的事。`index.ts` 只做组合——`createRuntime()` 把 tools 接进 in-process MCP server、设系统 prompt、交出单个 `run()` 方法，两个 app 共用。ADR 0001 的配套约束：**`run-agent.ts` 是唯一碰 SDK runtime API 的文件**——换 runtime 等于重写一个文件，不是重写产品。"},
+
+    {"h2": "SDK 反直觉配置三则"},
+    {"p": "bot 由飞书消息或 workbench 点击触发，**没有人坐在权限对话框前**。下面三条配置每一条单独看都反直觉，合起来定义 headless agent 的边界："},
+    {"olist": [
+      "**`permissionMode: 'dontAsk'`——不在 allow-list 的工具直接拒，不排队等人。** 被否方案是 `bypassPermissions`（所有工具放行，含没设计过的）和「在飞书里弹审批卡」（交互面还不支持）。无人应答的 prompt 是 hang：用户看到的不是错误是沉默——聊天产品最差的结局。被拒的 denial 文本会指名工具并说明不可用，把「缺工具」变成模型可见的干净失败。",
+      "**`settingSources: []`——SDK 默认就是空，不要「好心」加 `'project'`。** SDK 默认加载 `CLAUDE.md`、项目设置和 skills；客户面 bot 里任何仓库文本进入 system brief 都是注入面——一段恶意或过期的仓库指令可以压过产品 prompt。workflow prompt 是整个 brief，prompt 因此成为可评审产物。**eval run 用同一套配置**——ambient config 不同的 eval 测的就不是产品。",
+      "**`maxBudgetUsd` + 循环内 cost check 双保险，记账读 `modelUsage`。** 设计意图：SDK 上限在「贵的那个 turn」结束后才触发，循环内检查在下一个 turn 之前 `q.interrupt()`；`result.usage` 只算主循环且按 turn 计，`modelUsage` 是按模型累计的真相（含 subagents 和 compaction），记账必须读后者。"
+    ]},
+    {"note": "**诚实注记**：F3 失败图鉴记录了这条双保险在基线 commit 上的真实失效——`costUsd` 只在 `result` 消息到达时赋值，而循环检查读到的永远是 0，保护实际从未启动（`mas_router_method@962e064:packages/core/src/run-agent.ts`）。设计写在 CLAUDE.md 和 ADR 0005 里，代码里却是死检查——「纪律写了」和「纪律生效」之间隔着一次验证，详见 [F3 失败图鉴](af-failures.html) 的「保护机制恒假」。"},
+    {"p": "预算上限本身也走了 ADR 流程：代码审计发现 `config.ts` 默认 `$0.50`、`PLAYBOOK.md` 写 `$2.00` 两个上限并存——「预算行为取决于读者信哪份文档」。ADR 0005 裁决为**单一上限 $2.00/次**：`config.ts` 默认 2.0，`PLAYBOOK.md` 只引用 ADR 不复述数字。文档与配置不允许各写一遍。"},
+
+    {"h2": "allow-list 陷阱：两处登记，漏一处是静默 no-op"},
+    {"p": "新增一个 tool 要在**两个地方**登记：`createBrandTools` 的返回数组，和 `brandToolNames()` 的名字列表（集中登记、自动加 `mcp__<server>__` 前缀）。漏掉后者的后果不是报错，而是工具存在却被 permission 拒绝——模型可能无效重试，在 run timeline 上看起来像模型失败。CLAUDE.md 的原话是这类 bug「the hardest class of agent bug to notice」。ADR 0004 的缓解措施：denial 文本指名工具；eval 套件覆盖 workflow 依赖的全部工具。"},
+
+    {"h2": "ADR 体裁：难逆转的决定才配占一篇"},
+    {"p": "`docs/adr/` 共 10 篇（0001–0010），README 同时充当索引和「决策清单」：9 篇 Accepted，0010 是 Proposed，清单另单列 Implicit / Missing / Deferred——**没记录的决定会被重新争论，或更糟，被悄悄改掉**。体裁固定为 Context → Decision → Consequences（Easier / Harder / Accepted）→ What we would revisit。"},
+    {"list": [
+      "**一篇一个决定**——「标题需要 and 就拆开」。",
+      "**记录被否方案及其代价**——Context 里写清当时放弃了什么，才知道什么条件下该推翻它；Decision 之外的部分才是 ADR 的价值。",
+      "**Supersede，不 rewrite**——旧 ADR 状态改为 `Superseded by NNNN`，历史可追溯。",
+      "**代码里可见但没记录的决定 = 本目录的 bug**——实现细节不等于可以不留记录。",
+      "**审计是常态操作**——README 的「Findings from the code」把 `sessionDir` 死配置、两个预算上限、未持久化的 Run 当 finding 记下，随后各自促成 ADR 0005/0006。"
+    ]},
+
+    {"h3": "精选六篇：规则、被否方案与真实战果"},
+    {"olist": [
+      "**0003 tool-failures-are-values**——规则：`ToolOutcome = ok | err`，`retryable` 是错误类型的一部分而非消息约定：`false` = 输入错了原样重试必败，`true` = 换个方法可能行；模型据此决定重试，workbench 据此决定是否给重试按钮。被否方案：让 throw 直接杀 run。附带规则：tool 里想 throw 之前先回答「这个失败可重试吗」——答不出就说明还没理解这个失败。取舍：自己代码的 bug（TypeError）也降级为可见 tool error 而非响亮崩溃，用开发期可发现性换生产期韧性；mitigation 是 `guard()` 统一加 `Tool crashed:` 前缀，可在 run log 里 grep。",
+      "**0004 headless-permission-model**——规则：`dontAsk` + `settingSources: []` + allow-list 三件套，eval 同规则。Context 写清两个失败模式：无人应答的 prompt 是 hang；ambient config 是注入面（仓库文本进入 system brief 可压过产品 prompt）。被否方案：`bypassPermissions` 放行一切，含没设计过的工具。",
+      "**0005 model-and-budget-policy**——模型钉死 `claude-sonnet-4-6`，每个 Run 记录模型字符串可归因；`AGENT_MODEL` 仅本地实验，部署环境禁止设置。升级门禁五条：14 个 case 全跑、确定性检查全过、`should_fail` 全拒、rubric 按维度不低于旧基线、重录基线且保留旧档——任一不过模型不当默认；「有意的取舍」要写 superseding ADR，不是悄悄改配置。理由：模型升级是静默行为变更，没有基线时「感觉更好」是唯一判断，回归会当改进上线。",
+      "**0002 schema-layer-owns-the-domain**——`packages/shared` 用 Zod 定义全部领域对象且不 import 本仓任何东西；一处定义产出三份消费：TS type、runtime validator、JSON schema（模型 structured-output 契约）。验证放在持久化边界和模型输出入口——模型产出默认不可信。代价是有意摩擦：加字段 = 改所有人依赖的包，这正是阻止投机字段的机制。",
+      "**0009 brand-isolation**——`brandId` 是每个 store 方法的第一个参数、来自 request 闭包、永不出现在 tool schema（模型不能选 scope——prompt 注入无法读别家 guardrails）；adapter 每条 SQL 必须带 brand 谓词；隔离**靠测试不靠约定**——共享 adapter 契约测试套件对 SQLite 和 eval fake 同跑。真实战果：建 suite 时一次抓出 eval fake 比 SQLite 宽松的 4 处（`list()` 恒空导致 `analyze_reference_video` 每次 eval 必败、未知 brand id 被编造而非返回 null、非法 recipe/run 不校验、reference id 由 URL 派生使两品牌同视频撞 id），外加 1 个真 SQLite bug（`created_at` 毫秒并列导致 newest-first 错）。「enforcement is a test, not a convention」的最硬证据。",
+      "**0008 workflow-versioning**——workflow = 系统 prompt + 工具集 + 每个工具的描述/schema + 模型的元组，name/version 必填并持久化到每个 Run；**任何变更 bump 版本，包括看似文案的措辞**——prompt 措辞是行为不是文档；bump 前必须先跑 eval；prompt 文本像代码一样 review（命名常量，不散落在调用点）；旧版本保留直到无 run 引用。理由：「recipe 上周二变差了」在没有版本时无法回答——run 不知道哪个 prompt 产的，基线不知道测的是哪个。"
+    ]},
+    {"p": "其余四篇一行带过："},
+    {"list": [
+      "**0001** Agent SDK as runtime——手写 loop 约 1500 行「人人写得略错」，只自留 tools/prompts/schemas/eval/产品面；`run-agent.ts` 是唯一碰 SDK runtime API 的文件（换 runtime = 重写一文件）；`total_cost_usd` 是客户端估算不是账单。",
+      "**0006** SQLite now, Postgres before the bot——ports 是迁移 seam，一切 SQL 只允许在 adapter 内（adapter 外的方言查询是 bug）；retention 显式列表（Recipe 无限期 / Run+steps 90 天 / Reference+Analysis 365 天 / 源视频永不存）；写入时脱敏（截断 + secret pattern 替换 `<REDACTED>`）；删掉承诺了不存在持久化的 `sessionDir`——「什么都不做的 config key 比没有 key 更糟」。",
+      "**0007** vision provider behind the port——vendor SDK 不得在 adapter 外 import；provider 选择是 spike 不是猜测（3 参考 × 2 候选打分表：schema 有效率、时间戳精度、无声视频处理、成本、p95）；失败返回 `err` 绝不编造 Analysis；`provider`+`modelVersion` 进 cache key。Addendum 已临时选定 vod gateway + `gemini-3.1-flash-lite`（约 $0.04/次分析）。",
+      "**0010**（Proposed）main agent shared state——第二个 gateway 实例之前，sessions / idempotency / queue 三态迁共享 Postgres：幂等是数据库 insert 不是进程内 set，`FOR UPDATE SKIP LOCKED` 做队列，SQLite 留本地开发。状态 Proposed——没批准的不装成已决定。"
+    ]},
+
+    {"h2": "skill 选型自觉：清单不是方法，验证才是"},
+    {"p": "`SKILL-MAP.md` 是一份**选型笔记**而非现状清单——它回答「为什么这样选、哪里会坑」；现在实际有什么、每个从哪来，以 `docs/skills/skill-catalog.md` 的「来源」列为准。背景是 skill 有**三个来源、三个位置**，混为一谈代价很高："},
+    {"table": {"head": ["来源", "数量（CLAUDE.md 口径）", "位置", "调用方式"], "rows": [
+      ["仓库 vendored", "34", "`.claude/skills/`，随仓库走", "直接按名，如 `/implement`"],
+      ["客户端插件", "38", "不在仓库，由客户端提供", "需前缀，如 `anthropic-skills:agent-browser`"],
+      ["Agent Native Builder", "13", "`.claude/skills/anb*`", "按名，如 `/anb`"]
+    ]}},
+    {"p": "数量本身在漂移：SKILL-MAP 头部警告「数字写两遍必有一遍是错的」，`skill-catalog.md` 干脆不写死条目数、以 `scripts/site/map.py` 为准——它记录的仓库口径是 36 个 git 跟踪 + 19 个新增 = 55 个目录，插件侧另有 pstack 63 个。本页采用 CLAUDE.md 的三源表述，精确数字以 catalog 和脚本为准——**连「有多少 skill」这个问题，这个仓库都拒绝手写**。"},
+    {"p": "选型笔记沉淀了四条元教训，每条都是一次真实翻车："},
+    {"olist": [
+      "**`.claude/skills/` 里找不到 ≠ 不存在。** 插件 skill 要带前缀调用；第一次盘点只查仓库目录，就把 42 个 skill 误报成「不存在」——catalog 给每个条目标「来源」列就是为此。判断一个 skill 在不在，先查来源列再下结论。",
+      "**网站列表会过期。** 6 个 skill 在 skills.sh 列出但上游仓库根本不存在（`to-prd`、`to-issues`、`resolving-merge-conflicts`、`zoom-out`、`ubiquitous-language`、`request-refactor-plan`）——作者 `git clone` 上游 + `find -type d` 实测确认，不是搜索推测。",
+      "**壳与实要分清。** `grill-me` 全文 7 行、只是转调 `grilling`；只装壳不装被调者 = 空操作。同理 6 个 skill 依赖 `setup-matt-pocock-skills` 的 tracker 配置才算全功能（但有本地 markdown fallback）。",
+      "**诚实标注是传统，不是美德表演。** SKILL-MAP「诚实说明」自报：部分 skill 装量未知；`wshobson` 两个装量偏低、保留只因 LLM 评测主题几乎没有别的选择，「用前自己读」；**「我没有实测任何一个 skill 的实际效果」**——验证过的是文件存在、SKILL.md 可读、frontmatter 完整、依赖关系、6 个幻影；效果必须使用者自己跑过才知道。同名冲突也写明：插件也提供 `tdd`/`teach`，仓库版胜出，`build_skills.py` 检查重叠即构建失败——因为这类覆盖是**静默的行为差异**，不报错就没人发现自己用的是另一套。"
+    ]},
+    {"p": "选型还包括「删什么」：SKILL-MAP 给了带理由的删除清单——`test-driven-development`（obra 版）裁决为参考实现不默认调用，理由不是篇幅而是**前提不同**（它要求「明确要求 TDD 或有便宜测试目标」，仓库 `tdd` 要求任何功能先写失败测试）；三个重复主题的调试 skill 留最短的一个；「装了不等于要用」。skill 与本仓库治理的冲突也列表化：票据 schema、证据分级、subagent 上下文假设、tracker、语言五处会打架，处理原则是「以你的 schema 为准，用它的拆法」。"},
+
+    {"h2": "与本站关系：纪律本身 vs 纪律缺位的代价"},
+    {"p": "**[F3 失败图鉴](af-failures.html) 是纪律缺位的代价**——保护机制恒假、假环境比真环境宽松、截断超限，每一条都是「约束没写成可执行形式」的样子；本页是纪律本身。同一条线索的另一面：F2 的 eval 门禁在 ADR 0005/0008 里有对应物（升级门禁、workflow 版本门禁）。教程版对照：[N3 工具与能力层](../agent-playbook/pb-n3-gongju-nengli.html) 讲 ports/工具协议的通用做法，[N5 运行时 Harness](../agent-playbook/pb-n5-yunxing-harness.html) 讲 loop 工程化，[N6 安全治理](../agent-playbook/pb-n6-anquan-zhi-li.html) 讲权限与沙箱——那边是「应该怎么做」，这边是「一个生产仓库实际把哪些做成了不可绕过的约束」。项目层排序见 [F1 决策杠杆序](af-order.html)，编排对象解剖见 [F4 编排实证](af-capgraph.html)，总纲见 [框架总纲](index.html)。"},
+
+    {"h2": "边界与未尽事项"},
+    {"list": [
+      "ADR 是单仓库（n=1）的复盘记录，不是对照实验；纪律「有效」的证据是它拦住过什么（0009 的契约测试抓出 5 个真实问题），不是没人违反过。",
+      "0007 的 provider 选择是 spike 后的临时选定（vod gateway + `gemini-3.1-flash-lite`），三样本双候选的完整 spike 与留存条款仍是欠账；0010 整篇 Proposed、未实施——多实例部署在它落地前不安全。",
+      "$2.00 预算上限是起始值不是实测值：ADR 0005 自己写明 10 次真 run 后要重议——天花板远高于实际花费就拦不住任何东西。",
+      "本页所有引用以基线 commit `962e064` 为准；仓库演进中 ADR 会 supersede、skill 数量会漂移，精确状态以 `docs/adr/` 与 `docs/skills/skill-catalog.md` 当时内容为准。",
+      "工具链版本同样按依赖约束钉死：TypeScript 锁 5.9.3 而非 7.x，因为 `typescript-eslint@8` 声明 `typescript: \">=4.8.4 <6.1.0\"`——连 linter 的 peer 范围都成为版本决策的输入。"
+    ]},
+    {"note": "原文对照（均在 `mas_router_method` 仓库，基线 commit `962e064`）：`docs/adr/`（10 篇 + README 索引与决策清单）、`CLAUDE.md`（Architecture / SDK 配置 / 两种测试 / TS 约束各节）、`SKILL-MAP.md`（选型笔记与诚实说明）、`docs/skills/skill-catalog.md`（来源列与同名冲突检查）、`packages/core/src/run-agent.ts`、`packages/core/src/tools/result.ts`、`packages/core/src/tools/brand.ts`。本文为原创中文蒸馏，未搬运原文。"}
+  ]
+}

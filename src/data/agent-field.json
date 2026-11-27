@@ -63,7 +63,7 @@
    "no": "F5",
    "slug": "af-process",
    "title": "过程序：六阶段门禁流与 ANB 对照",
-   "status": "planned",
+   "status": "published",
    "essence": "clarify→spec→tickets→build→eval→release",
    "sources": [
     ".claude/skills/native-agent-dev/"
@@ -73,7 +73,7 @@
    "no": "F6",
    "slug": "af-discipline",
    "title": "工程纪律：ADR 精选与架构经验",
-   "status": "planned",
+   "status": "published",
    "essence": "10 ADR 精选 + ports/failures-as-values/budget 等模式",
    "sources": [
     "docs/adr/",
@@ -168,16 +168,16 @@
       "已发布"
      ],
      [
-      "F5 过程序",
+      "[F5 过程序](af-process.html)",
       "六阶段门禁流",
       "clarify→spec→tickets→build→eval→ship",
-      "规划中"
+      "已发布"
      ],
      [
-      "F6 工程纪律",
+      "[F6 工程纪律](af-discipline.html)",
       "ADR 与架构经验",
       "10 个晶化决策 + 可迁移模式清单",
-      "规划中"
+      "已发布"
      ]
     ]
    }
