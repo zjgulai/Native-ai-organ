@@ -9,3 +9,4 @@ scripts/.cache
 *.pem
 key_*.pem
 .DS_Store
+._*
