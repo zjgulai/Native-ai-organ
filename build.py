@@ -51,6 +51,8 @@ def verify() -> list[str]:
             url = m.group(1)
             if url.startswith(("http", "mailto:", "data:", "javascript:")):
                 continue
+            if url.startswith("/kb/"):
+                continue  # 宿主机 nginx 反代的独立应用，不在 dist 内
             target = ((hf.parent / url) if not url.startswith("/")
                       else (DIST / url.lstrip("/"))).resolve()
             if not target.exists():
@@ -105,6 +107,10 @@ def build(check: bool = False) -> int:
         write_page(f"tools/{t['slug']}.html", P.render_tool_page(t, "../"))
 
     copy_assets()
+
+    # /kb/ 为 nginx 反代的独立应用（kb-nativo workbench），不进入索引
+    (DIST / "robots.txt").write_text(
+        "User-agent: *\nAllow: /\nDisallow: /kb/\n", encoding="utf-8")
 
     n_html = len(list(DIST.rglob("*.html")))
     n_img = len(list((DIST / "assets/figures").glob("*.webp")))

@@ -203,11 +203,13 @@ def nav_html(base: str, current: str) -> str:
             f'<div class="nav-dropdown">{"".join(parts)}</div></div>'
         )
 
-    # top-level order: 首页 | 读书笔记▾ | 实战方案▾ | 产品规划 | 站点▾
+    # top-level order: 首页 | 读书笔记▾ | 实战方案▾ | 产品规划 | 知识库 | 站点▾
     items = [link("index.html", "首页", "index")]
     items.append(group_html(*groups[0]))
     items.append(group_html(*groups[1]))
     items.append(link("product.html", "产品规划", "product"))
+    # /kb/ 由宿主机 nginx 反代到 kb-nativo workbench 容器，不在 dist 内，故为绝对路径
+    items.append('<a href="/kb/">知识库</a>')
     items.append(group_html(*groups[2]))
     items = "".join(items)
     return (
