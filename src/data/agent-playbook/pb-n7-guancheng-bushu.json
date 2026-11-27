@@ -244,6 +244,9 @@
   },
   {
    "p": "上游：运行时与事件溯源见 N5——[pb-n5-yunxing-harness.html](pb-n5-yunxing-harness.html)；安全评估与红队在 N6——[pb-n6-anquan-zhi-li.html](pb-n6-anquan-zhi-li.html)。纵深阅读：[书4 · 评估方法论](../book4/b4-07-pinggu.html)（Pass@k/Pass^k、Rubric 四准则、失败归因、统计显著性——比本节点更工程化）；[ToyAgent 原理文章 step18 全流程智能体](../toyagent-steps.html) 的生产差距清单；[语义底座](../semantic.html) 提供评估所需的业务语义坐标；[实验场](../experiments.html) 有对应场景映射，回看 [Playbook 框架页](index.html)。"
+  },
+  {
+   "p": "**生产参照**：项目级验收纪律见 [F2 评估纪律](../agent-field/af-eval.html)——eval set is the spec、失败归因到层（eval→data→tool→prompt）、模型升级重录基线。"
   }
  ]
 }

@@ -1,0 +1,228 @@
+{
+ "title": "Agent Field Guide：一个真实生产级 Agent 的工程实录",
+ "short_title": "Agent Field Guide",
+ "lead": "把 mas_router_method 生产仓库的方法论资产蒸馏为第二参照系：决策杠杆排序、六阶段门禁流、评估纪律、失败图鉴、编排实证、工程纪律。与 Agent Playbook 的 P0–P8 构建脊柱互补——那边回答「Agent 内部怎么装」，这边回答「建 Agent 的项目怎么跑」。",
+ "thesis": "教程告诉你零件怎么造，生产仓库告诉你项目怎么活——本轨蒸馏一手工程证据：ADR、评测门禁、事故图鉴与真实架构。",
+ "source_url": "https://github.com/zjgulai/mas_router_method",
+ "source_note": "素材为 mas_router_method（github.com/zjgulai/mas_router_method，公开仓库，蒸馏基线 commit 962e064）。产品为 TikTok 品牌内容 Recipe Engine + capability-graph 顾问双 agent，pnpm/turbo monorepo。本站全部为原创中文蒸馏：方法论、ADR 决策理由、架构模式可公开；产品实现只做结构级描述并链回源码；eval 原始数据、飞书租户细节、seed 数据与事故业务上下文不搬运。",
+ "baseline_commit": "962e0648561ce9f71aeb681a45798fbbcec2586e",
+ "pages": [
+  {
+   "no": "F0",
+   "slug": "index",
+   "title": "框架总纲：第二参照系与边界",
+   "kind": "framework",
+   "status": "published",
+   "essence": "定位、与 P0-P8 关系、单元地图、公开边界"
+  },
+  {
+   "no": "F1",
+   "slug": "af-order",
+   "title": "决策杠杆序：from zero 的正确顺序",
+   "status": "published",
+   "essence": "十步序——每步消除一个后续步骤在压力下必须做的决定",
+   "sources": [
+    "docs/from-zero.md"
+   ]
+  },
+  {
+   "no": "F2",
+   "slug": "af-eval",
+   "title": "评估纪律：eval set is the spec",
+   "status": "published",
+   "essence": "eval 门禁、分层归因、基线重录、双测试纪律",
+   "sources": [
+    "docs/evals/",
+    "CLAUDE.md",
+    "PLAYBOOK.md"
+   ]
+  },
+  {
+   "no": "F3",
+   "slug": "af-failures",
+   "title": "失败图鉴：机制可信 ≠ 产出可用",
+   "status": "published",
+   "essence": "ANB 七阶段七检查 + 六类失败模式",
+   "sources": [
+    "ANB-README.md",
+    "docs/site/failure-atlas.html"
+   ]
+  },
+  {
+   "no": "F4",
+   "slug": "af-capgraph",
+   "title": "编排实证：capability-graph 顾问解剖",
+   "status": "published",
+   "essence": "20 节点 15 路由、grounded answer 契约、150 例评测",
+   "sources": [
+    "packages/consult/",
+    "docs/product/main-agent-capability-graph.md"
+   ]
+  },
+  {
+   "no": "F5",
+   "slug": "af-process",
+   "title": "过程序：六阶段门禁流与 ANB 对照",
+   "status": "planned",
+   "essence": "clarify→spec→tickets→build→eval→release",
+   "sources": [
+    ".claude/skills/native-agent-dev/"
+   ]
+  },
+  {
+   "no": "F6",
+   "slug": "af-discipline",
+   "title": "工程纪律：ADR 精选与架构经验",
+   "status": "planned",
+   "essence": "10 ADR 精选 + ports/failures-as-values/budget 等模式",
+   "sources": [
+    "docs/adr/",
+    "CLAUDE.md",
+    "SKILL-MAP.md"
+   ]
+  }
+ ],
+ "blocks": [
+  {
+   "h2": "这是什么：第二参照系"
+  },
+  {
+   "p": "本站现在有两条 Agent 工程内容轨，回答的是**不同对象**的问题："
+  },
+  {
+   "table": {
+    "head": [
+     "轨",
+     "回答的问题",
+     "素材来源",
+     "体裁"
+    ],
+    "rows": [
+     [
+      "[Agent Playbook](index.html)",
+      "Agent **内部**怎么装：P0–P8 构建脊柱、13 节点、模型边界矩阵",
+      "小傅哥《AI Agent 通识教程》30 章蒸馏",
+      "教程 → 工程路线"
+     ],
+     [
+      "Agent Field Guide（本轨）",
+      "建 Agent 的**项目**怎么跑：决策顺序、阶段门禁、评估纪律、失败模式",
+      "mas_router_method 生产仓库方法论资产",
+      "生产证据 → 工程实录"
+     ]
+    ]
+   }
+  },
+  {
+   "p": "Playbook 的节点页告诉你「最小循环该有哪些件、模型白送什么、Harness 必建什么」。本轨告诉你「一个真跑起来的 Agent 项目，决策按什么顺序做、质量怎么验收、失败怎么归因」——它来自一个有真实用户、真实部署、真实事故的 monorepo，而不是教程。"
+  },
+  {
+   "h2": "为什么需要第二参照系"
+  },
+  {
+   "p": "教程蒸馏的天然边界：它能给出**模式**（loop 怎么转、tool 怎么注册、context 怎么裁），给不出**决策**（runtime 选型为什么是它、eval 集怎么才算 spec、预算检查为什么在循环内、失败该归因到哪一层）。这些恰恰是生产仓库里用 ADR、事故和评测换来的东西。"
+  },
+  {
+   "p": "本轨的核心论点只有一句：**机制可信 ≠ 产出可用**。单元测试全绿、eval 全过、部署成功——这些都不等于 agent 在真实场景里好用。Field Guide 的每一页都在给这个论点的不同侧面找证据。"
+  },
+  {
+   "h2": "单元地图"
+  },
+  {
+   "table": {
+    "head": [
+     "页",
+     "主题",
+     "核心论点",
+     "状态"
+    ],
+    "rows": [
+     [
+      "F0 本页",
+      "框架总纲",
+      "定位、边界、单元地图",
+      "已发布"
+     ],
+     [
+      "[F1 决策杠杆序](af-order.html)",
+      "from zero 的正确顺序",
+      "按「消除后续决定」而非依赖排序做项目",
+      "已发布"
+     ],
+     [
+      "[F2 评估纪律](af-eval.html)",
+      "eval set is the spec",
+      "质量靠 eval 门禁不靠感觉；失败先归因到层",
+      "已发布"
+     ],
+     [
+      "[F3 失败图鉴](af-failures.html)",
+      "机制可信 ≠ 产出可用",
+      "六类失败模式 + ANB 七检查验收法",
+      "已发布"
+     ],
+     [
+      "[F4 编排实证](af-capgraph.html)",
+      "capability-graph 解剖",
+      "20 节点 15 路由的生产级多能力 agent",
+      "已发布"
+     ],
+     [
+      "F5 过程序",
+      "六阶段门禁流",
+      "clarify→spec→tickets→build→eval→ship",
+      "规划中"
+     ],
+     [
+      "F6 工程纪律",
+      "ADR 与架构经验",
+      "10 个晶化决策 + 可迁移模式清单",
+      "规划中"
+     ]
+    ]
+   }
+  },
+  {
+   "h2": "公开边界"
+  },
+  {
+   "p": "本轨蒸馏自公开仓库，但按三档规则处理素材："
+  },
+  {
+   "olist": [
+    "**方法论层全公开**：from-zero 排序、六阶段门禁、eval 纪律、ANB 方法、ADR 决策与理由、架构模式——这些与产品无关，是通用工程知识。",
+    "**产品实现结构级公开**：run-agent 单 loop、tool 契约、capability-graph 路由——讲模式并链回 `mas_router_method` 源码路径，不贴大段实现。",
+    "**不搬运**：eval 原始数据与分数、飞书租户细节、seed 品牌数据、deploy 配置、事故的具体业务上下文（只提炼失败模式类）。"
+   ]
+  },
+  {
+   "note": "引用规范：一手事实标注 `mas_router_method@<commit>` 与文件路径（基线 commit `962e064`）。本站文风为原创中文蒸馏，不整段翻译或搬运。"
+  },
+  {
+   "h2": "怎么读"
+  },
+  {
+   "p": "三条路径，按你的处境选："
+  },
+  {
+   "list": [
+    "**正在 0→1 建 Agent**：先读 [Playbook 框架页](../agent-playbook/index.html) 拿构建脊柱，再回本轨 F1/F2 学项目怎么跑——两者是同一件事的两面。",
+    "**已有 Agent 在跑但不稳定**：直奔 [F3 失败图鉴](af-failures.html)——先学会把「不好用」归因到正确的层，再谈修。",
+    "**要做多能力/多入口 Agent**：[F4 编排实证](af-capgraph.html) 是唯一的生产级参照——capability-graph 路由 + grounded answer 契约的完整解剖。"
+   ]
+  },
+  {
+   "h2": "原站与源码"
+  },
+  {
+   "p": "素材仓库本身还带一套 32 页参考文档站（architecture / failure-atlas / practices / prompts / verify 等），是给仓库读者的参考文档——本轨只取其方法论内核重新蒸馏，页面结构不复制。需要原文对照时："
+  },
+  {
+   "list": [
+    "仓库：[github.com/zjgulai/mas_router_method](https://github.com/zjgulai/mas_router_method)（公开）",
+    "仓库内文档站源码：`docs/site/`（32 页静态站，随仓库发布）",
+    "蒸馏基线：commit `962e064`（2026-11-27）；仓库演进中，例行以 `git ls-remote` 比对 commit 漂移"
+   ]
+  }
+ ]
+}

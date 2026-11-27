@@ -1,0 +1,109 @@
+{
+  "slug": "af-eval",
+  "no": "F2",
+  "title": "评估纪律：eval set is the spec",
+  "status": "published",
+  "minutes": 14,
+  "lead": "Agent 产品的质量不是靠感觉变好，是靠 eval 门禁：spec 没有 eval case 就是一句愿望；eval 失败先归因到层（eval→data→tool→prompt）再动手；模型升级重录基线；eval 全绿仍只是必要条件，产品级指标另算。",
+  "sources": ["docs/evals/recipe-quality.md", "CLAUDE.md", "PLAYBOOK.md", ".claude/skills/eval-triage/SKILL.md", "docs/evals/main-agent-real-qa.md", "docs/evals/main-agent-blind-review.md", "docs/evals/main-agent-usage.md", "packages/evals/"],
+  "sections": [
+    {"h2": "定位：质量门禁，不是质量感觉"},
+    {"p": "一个 agent 产品最常见的失败不是「做得差」，而是「说不清什么叫好」。mas_router_method 把这个问题提前到第一行代码之前解决：eval 集在第一条 recipe 产出之前就写成 spec，此后所有关于质量的争论都退化为对同一组可执行断言的争论，而不是对感觉的争论。"},
+    {"quote": "The eval set is the spec. A spec without eval cases is a wish; every later argument about quality is then an opinion.", "cite": "mas_router_method@962e064:CLAUDE.md"},
+    {"p": "这套纪律在仓库里有两个落点：recipe 引擎的 14 case 评测门禁（本文主体），和 capability-graph 顾问的 150 例真实问答集（第二实证）。两者共用同一方法论：先写期望，再写实现；失败先归因到层，再动手修。"},
+
+    {"h2": "核心论点：eval set is the spec"},
+    {"p": "论点只有一句，推论比论点更值得抄："},
+    {"list": [
+      "**先写 eval，再写实现。** `docs/evals/recipe-quality.md` 明确在第一条 recipe 存在之前写成——反过来做的代价是：suite 描述的是 agent 已经在做什么，而不是它应该做什么。",
+      "**每个 case 命名它防止的真实失败。** `why` 字段写「coverage」的 case 等于没测任何东西——这是保持 eval 集诚实的机制。",
+      "**通过线写数字，不写形容词。**「质量感觉更好」不是门槛；「8/10 正例 rubric ≥ 0.7」才是。",
+      "**文档与代码不一致时，文档是意图、代码是 bug。** eval spec 与 `packages/evals/src/cases/` 的实现必须一致，分歧时以 spec 为准（`mas_router_method@962e064:docs/evals/recipe-quality.md`）。"
+    ]},
+
+    {"h2": "两级测试：一个验代码，一个验判断"},
+    {"p": "仓库把测试分成两种性质完全不同的东西，混淆它们是最常见的流程失败："},
+    {"table": {"head": ["维度", "`pnpm test`（单测）", "eval（真模型评测）"], "rows": [
+      ["验证对象", "你的代码：step mapping、预算算术、schema 校验、tool 错误路径", "agent 的判断：模型实际产出是否满足 spec"],
+      ["调用模型", "不调模型，快", "调真模型，花钱"],
+      ["运行时机", "CI 每个 commit", "行为变更时：prompt 修改、tool-schema 变更、模型升级、数据结构变更"],
+      ["失败含义", "代码 bug", "行为退化或方差"],
+      ["完成判据", "绿即可合并", "ticket 完成 = eval case 过，不只是单测过"]
+    ]}},
+    {"p": "命令形态：`pnpm test`（turbo + vitest）对 `pnpm --filter @mas/evals eval`，单案例用 `-- --case <id>`。eval 刻意不进 `pnpm test`——它不在 CI 常规路径上，因为它花钱且非确定（`mas_router_method@962e064:CLAUDE.md`）。"},
+
+    {"h2": "recipe-quality：一个 eval 集的解剖"},
+    {"p": "`docs/evals/recipe-quality.md` 是「什么叫一份好 Recipe」的书面 spec：14 个 case = 10 正例 + 4 个 `should_fail` 护栏（违禁宣称、竞品素材、音频版权、无依据绝对化宣称）。期望按成本分三层：确定性检查约 60%、LLM judge rubric 约 40%、人工只做 gate 不做逐次评分。这个比例是刻意的——如果大部分分数来自 judge，等于用一个模糊的测试替换了一个模糊的产品；确定性检查免费、稳定，抓的恰是真正会上线的失败（90 秒的视频、违禁宣称）。"},
+    {"p": "通过线三条，全部写成数字："},
+    {"olist": [
+      "**所有 `should_fail` 必须拒绝，无部分分**——护栏 90% 生效等于已经失效。注意「拒绝」的定义：一次完整跑完且明确不落库才算；`failed`/`cancelled`/`budget-exceeded` 记为 inconclusive 单列，否则 provider 故障会被读成护栏有效（2026-10-24 前 harness 曾把一切非成功运行都算拒绝，模拟 502 下四个护栏全过）。已知缺口：runtime 没有「声明拒绝」的动词，成功但静默丢请求仍被计为拒绝，需产品层加 `decline_recipe` 工具才能区分。",
+      "**正例的确定性检查全部通过**：时长 15–45s、hook ≤3s、beats ≥2 且每 beat 有 script + visual、Recipe schema 校验、banned 词、disclaimer、fabrication、provenance 共八项。",
+      "**至少 8/10 正例 rubric ≥ 0.7。**"
+    ]},
+
+    {"h3": "rubric judge 的三个设计约束"},
+    {"p": "judge 只看 Recipe、品牌档案和 Analysis，**不看参考视频**——无法保证模型两次看到相同帧，一个不稳定的 judge 比宽松的 judge 更糟。rubric 措辞直接用品牌档案里 `successCriteria` 的原文构建 prompt，两者按构造不可能漂移。judge 以 `EVAL_RUBRIC=on` 逐次 opt-in，judge 宕机记 skip 永不记 pass（`mas_router_method@962e064:docs/evals/recipe-quality.md`，judge 实现在 `packages/evals/src/rubric-judge.ts`）。"},
+    {"p": "rubric 四个维度，各 0–1 分且必须附理由：**voice match**（品牌现有受众认不认这个声音）、**hook strength**（前三秒有没有留下来的理由）、**transferability**（机制跨品类迁移后是否还成立——它和 `abstractionDistance` 的区别是：数字是 agent 自报的，这个维度判的是自报是否属实）、**shootability**（拍摄能否照 visual column 直接执行不问问题——决定产品第二周还用不用的那个维度）。"},
+
+    {"h3": "刻意不测的三件事"},
+    {"list": [
+      "**预测播放量**——播放量是分发、时机和预算的函数，不是脚本质量；声称能预测爆款的 eval 是拿数字说谎。",
+      "**对全网语料的原创度**——抄袭判定是法务问题走人工 review；机械可判的部分（banned 词、provenance）由确定性检查覆盖。",
+      "**成本**——逐次记录但不并入质量分。运行时侧对应 PLAYBOOK §7：单次 $2.00/次为唯一上限（ADR 0005），先连续测 10 次再定值；更便宜的 Recipe 不是更好的 Recipe，混在一起就分不清该往哪个方向优化。"
+    ]},
+
+    {"h2": "失败归因到层：eval→data→tool→prompt"},
+    {"p": "eval 红了之后第一件事不是改 prompt。纪律是**按层归因，命中哪层修哪层，上层不背下层的锅**；跳层修（直接改 prompt）是 agent 工作慢的主因。顺序 eval → data → tool → prompt 的逻辑：越靠上的层越可能是「期望本身写错了」，越靠下的层才是模型行为问题（`mas_router_method@962e064:.claude/skills/eval-triage/SKILL.md`）。"},
+    {"olist": [
+      "**先确认失败是真的行为失败，不是规则误报**——读该案例的确定性规则：期望值写在规则里还是只在案例注释里？模型不可见的期望值（只存在于规则参数）不是模型的错，是 eval 层问题。",
+      "**拿真实产物诊断**——用 `packages/evals` 的 `try-one --db <独立库>` 跑单案例，拿到模型实际产出的 recipe，对比产物与期望，确定偏差落在哪个字段。",
+      "**按层归因**（下表）。",
+      "**真模型复验是完成的必要条件**——单测绿 ≠ ticket 完成；prompt/tool 改动 = 行为变更，必须真模型复验该案例 PASS；全量修复后刷新基线，基线的价值是抓单次跑看不到的方差。"
+    ]},
+    {"table": {"head": ["层", "症状", "修法"], "rows": [
+      ["eval（规则/案例）", "期望只在规则参数里、模型不可见；案例语义依赖历史但 fixture 没预置", "案例请求里显式声明要求；EvalCase 加 preset 预置上下文"],
+      ["data（fixture）", "fixture 内容与案例意图矛盾（如无声视频参考写 `audio.source: 'original voiceover'`）", "修 fixture，让数据不撒谎"],
+      ["tool（schema describe）", "模型把正确判断写进自由文本、结构化字段留 unknown/默认值；数值报阈值边缘值", "给字段补 describe：枚举每值语义、数值锚点、字段间互斥/一致约定"],
+      ["prompt（系统提示）", "某类请求整体没有行为契约（如 terse/比较类请求要不要落 recipe）", "SYSTEM_PROMPT 补行为契约，一条规则管一类"]
+    ]}},
+
+    {"h3": "三个实证坑"},
+    {"olist": [
+      "**tool schema 无 describe = 方差温床**。`audio.rights` 枚举没 describe 时首轮 PASS、刷新基线 FAIL；`abstractionDistance` 没锚点时模型报 0.55。结论：prompt 是背景，tool schema 是行动契约。",
+      "**fixture 会撒谎**。模型信任 fixture 胜过 case 意图——无声参考必须写真实的 audio 数据，否则 agent 被 fixture 骗着给无声视频编口播。",
+      "**历史依赖案例必须 preset**。terse-request 这类「same as last time」请求，EvalCase 加 `preset` 可选字段、runner 在 run 前写入 fake env；否则测的是 store 的空，不是 agent 的判断。"
+    ]},
+    {"note": "另外三个工程坑：prompt 文本内别用反引号（backtick 会截断 JS 模板串）；二轮修很正常——一轮修复里 4 个失败有 2 个需要第二轮，看新失败形态再定位下一层；自报数值的硬阈值会打自己的契约——describe 教模型「结构保留不计距离」、案例又要求「keep the structure」，诚实读数天然落在阈值下，此时改用 rubric 维度判质量、硬阈值只保留「是否申报」的诚实检查。"},
+    {"p": "成本纪律：单案例复验约 $0.3–0.5，全量基线约 $2.7–5.2——花前批准、花后记账进 spec；诊断（try-one）也走真模型，计入验证预算。"},
+
+    {"h2": "基线：模型升级重录，不覆盖历史"},
+    {"p": "第一条 tracer 跑通后立即记录基线：`packages/evals/baselines/current.json` 存 `ranAt`、模型版本、workflowVersion 和每个 case 的 pass/fail/skipped/成本明细。此后每次跑都会与基线对比并报告回归（`mas_router_method@962e064:PLAYBOOK.md` §6）。"},
+    {"p": "纪律只有一条：**模型升级或任何行为面变更重录基线（`--save-baseline`），旧基线保留用于对比**。基线的价值是抓单次跑看不到的方差，不是给出一条永远不变的及格线——把它当历史档案管理，不当当前成绩单管理。"},
+
+    {"h2": "eval 全绿只是必要条件"},
+    {"p": "质量门槛回答「这一条 Recipe 好不好」，产品级指标回答「这个产品有没有被用起来」——两个都要："},
+    {"table": {"head": ["产品级指标", "定义", "通过线"], "rows": [
+      ["Pilot 主动使用", "pilot 用户在没有被催促的情况下发起运行", "3 次（roadmap 既有 gate）"],
+      ["初稿改写率", "审核时被编辑的字段数 ÷ Recipe 字段总数", "< 30%"]
+    ]}},
+    {"p": "**评测通过是必要条件，不是充分条件：eval 全绿但 pilot 不用，产品仍然不成立。** 改写率在 workbench 上线前由人工在 pilot 记录里标注。"},
+    {"p": "第二层证据是 usage 快照而不是 eval：main agent 上线后从真实飞书群拉 14 天消息统计——252 条消息里 @Main 提问只有 2 条、唯一问题 1 个、复问率 50%、没有可见回复配对。快照自己写明结论：提问样本少于 10 条不能推断采用率，只能当事件记录；复问是「没解决/没看到」的代理信号，不是满意度。eval 分数再漂亮，也替代不了「真实用户有没有再用一次」（`mas_router_method@962e064:docs/evals/main-agent-usage.md`）。"},
+
+    {"h2": "第二实证：150 例真实问答集"},
+    {"p": "capability-graph 顾问（[F4 编排实证](af-capgraph.html) 的解剖对象）用同一套纪律验收：150 例 = 83 条真实群消息 + 67 条自写对抗/冲突/多轮用例，覆盖 in_scope（64）/needs_context（54）/out_of_scope（32）三类期望——后两类专门测「该问澄清」「该拒答」的边界，不是测答得多好（`mas_router_method@962e064:docs/evals/main-agent-real-qa.md`）。"},
+    {"p": "结果：150/150 自动通过；in-scope 确定性 rubric 均值 0.99（直接回答 / 可执行动作 / 证据路径三维度，各 0–1）。注意这里的 rubric 是**确定性代理**（问题词覆盖、命令/动作数、证据路径解析），不是 LLM judge——judge 已接线（`MAIN_AGENT_JUDGE=llm` + API key）但素材时点未启用。文档自己强调：**自动通过 ≠ 可用，人工判定才是质量信号**；真实问题与自写样本分开统计，新增问题继续追加，不为变绿删除失败项。"},
+    {"p": "盲审包方法值得单独记：从 150 例分层抽 30 条生成盲文件——只含问题与回答，不含预期类别、节点、来源；每轮换一个无仓库上下文的新 AI 评审，按「直接回答 / 可执行 / 证据边界」三维度 0–2 分判 usable/needs_improvement。七轮迭代把 needs_improvement 从 9/30 压到个位数，最后一条单条复评通过，盲评合计 30/30 可用（`mas_router_method@962e064:docs/evals/main-agent-blind-review.md`）。两个纪律：评审有噪声——同一批回答不同轮次 4→6 的波动来自评审关注点不同，看趋势和重复出现的主题，不看单轮数字；AI 盲评能发现模板化、答非所问、引用不相关，但不能替代真实用户验收，人类盲评包已另行生成。"},
+
+    {"h2": "与本站其他轨的关系"},
+    {"p": "本页是「项目级怎么验收」：eval 集当 spec、失败归因到层、基线管理、产品级指标。节点内的评估方法论（离线数据集 + 在线观测 + 指标体系）在 [Playbook N7 观测与部署](../agent-playbook/pb-n7-guancheng-bushu.html) 讲；编排对象本身的解剖在 [F4 编排实证](af-capgraph.html)；项目级决策顺序在 [F1 决策杠杆序](af-order.html)；失败模式图鉴在 [F3 失败图鉴](af-failures.html)。框架定位见 [Agent Field Guide 总纲](index.html)。"},
+
+    {"h2": "边界与未尽事项"},
+    {"list": [
+      "eval 集描述的是**期望**，不是产品承诺：预测播放量、原创度、成本都被显式排除在质量分外。",
+      "rubric judge 是 opt-in 且 outage=skip：全绿结论依赖当次是否开了 `EVAL_RUBRIC`，读基线时要连同 skipped 项一起看。",
+      "`decline_recipe` 缺口未补：runtime 无「显式拒绝」动词之前，「成功但静默丢请求」仍被计为拒绝，护栏有效性的证据强度受限于此。",
+      "本页数字均来自 `mas_router_method@962e064` 基线 commit；仓库演进中，case 构成与分数以当时 `docs/evals/` 与 `packages/evals/baselines/` 为准。",
+      "150 例评测的 LLM judge 在素材时点已接线未启用；usage 快照样本量不足以推断采用率——两处都是「门禁已建、证据未满」的诚实状态。"
+    ]}
+  ]
+}

@@ -152,6 +152,9 @@
    "p": "上游：N1 最小循环给出本节点要工程化的骨架——[pb-n1-zuixiao-xunhuan.html](pb-n1-zuixiao-xunhuan.html)；工具 schema 与注册细节见 N3——[pb-n3-gongju-nengli.html](pb-n3-gongju-nengli.html)；记忆压缩策略见 N4——[pb-n4-jiyi-zhishi.html](pb-n4-jiyi-zhishi.html)。同篇：Harness 六组件组装见 [N5b Harness 工程](pb-n5b-harness-gongcheng.html)，工业级解剖见 [N5c dsh-java 解剖](pb-n5c-dsh-jiepo.html)。下游：审批、注入防御与红队测试在 N6——[pb-n6-anquan-zhi-li.html](pb-n6-anquan-zhi-li.html)；多 Agent 组队拓扑属 P8 扩展（规划中），见 [Playbook 框架页](index.html) 节点地图。纵深阅读：[书4 · Agent = Model + Harness](../book4/b4-01-agent-rumen.html) 的五项功能分工、[书4 · 多 Agent 协作](../book4/b4-10-duoagent-xiezuo.html)；可运行参照见 [ToyAgent 原理文章 step15-22 运行时治理栈](../toyagent-steps.html)（Loop 运行时/工作流状态机/ReAct 运行时/全流程智能体/审批门禁/沙箱纵深/事件溯源），[实验场](../experiments.html) 有对应场景映射，回看 [Playbook 框架页](index.html) 的模型边界矩阵。"
   },
   {
+   "p": "**生产参照**：Harness 工程最痛的证据在 [F3 失败图鉴](../agent-field/af-failures.html)——预算检查恒假、护栏把崩溃当通过等六类真实事故，正是「机制可信 ≠ 产出可用」的反面教材。"
+  },
+  {
    "map": {
     "title": "实践映射：对照「AI 组织变革」方案 · 运行时底座",
     "blocks": [

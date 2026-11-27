@@ -192,6 +192,9 @@
    "p": "本节点是整条脊柱的地基：[任务定义 N0](pb-n0-renwu-dingyi.html) 决定循环为谁服务、边界在哪；[上下文工程 N2](pb-n2-shangxiawen.html) 决定循环每轮喂什么、何时压缩；[工具与能力层 N3](pb-n3-gongju-nengli.html) 把 tool_calls 背后的工具注册、路由、MCP、Skills、CLI 建成体系；[运行时与 Harness N5](pb-n5-yunxing-harness.html) 把本节点的循环骨架工程化为 Loop 引擎；[toyagent-steps](../toyagent-steps.html) 可对照 step01–04 的最小实现；[书 4·工具章](../book4/b4-04-gongju.html) 从原理视角做纵深。官方原章：[第3章 你的第一个 Agent](https://ai-agent-guide.xiaofuge.cn/chapters/ch03-weather-agent.html)、[第6章 ReAct](https://ai-agent-guide.xiaofuge.cn/chapters/ch04-react-pattern.html)、[第8章 意图识别与决策中枢](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-brain-intent-router.html)、[第14章 Function Calling](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-tools.html)。"
   },
   {
+   "p": "**生产参照**：一个真实 Agent 产品仓库的「从零到能跑」排序见 [F1 决策杠杆序](../agent-field/af-order.html)——它排的是项目级工作顺序，与本轨 P0–P8 的内部构造序互补。"
+  },
+  {
    "map": {
     "title": "实践映射：对照「AI 组织变革」方案",
     "blocks": [

@@ -168,6 +168,9 @@
    "p": "工具层是循环的「手脚」：[最小循环 N1](pb-n1-zuixiao-xunhuan.html) 提供 tool_calls 的调用机制，本节点把它规模化；[上下文工程 N2](pb-n2-shangxiawen.html) 的裁剪策略与本节点的 JIT/Tool RAG/结果压缩是同一枚硬币的两面；[记忆与知识 N4](pb-n4-jiyi-zhishi.html) 的向量检索与 Tool RAG 共用基础设施；[运行时与 Harness N5](pb-n5-yunxing-harness.html) 承载路由管线与执行面；[安全治理 N6](pb-n6-anquan-zhi-li.html) 承接五层权限与沙箱的深防部分；[toyagent-steps](../toyagent-steps.html) 的 step09–11 对应工具进化实践；[书 4·工具章](../book4/b4-04-gongju.html) 从原理视角纵深；[experiments](../experiments.html) 可对照实验。官方原章：[第14章 Function Calling](https://ai-agent-guide.xiaofuge.cn/chapters/ch06-tools.html)、[第15章 MCP](https://ai-agent-guide.xiaofuge.cn/chapters/ch07-mcp.html)、[第16章 Skills](https://ai-agent-guide.xiaofuge.cn/chapters/ch08-skills.html)、[第17章 CLI 能力](https://ai-agent-guide.xiaofuge.cn/chapters/ch09-cli-capability.html)。"
   },
   {
+   "p": "**生产参照**：生产级 Agent 的工具契约（ports 定义、失败即值、allow-list 陷阱）在 [Agent Field Guide](../agent-field/index.html) 有完整解剖，编排实证见 [F4 capability-graph](../agent-field/af-capgraph.html)。"
+  },
+  {
    "map": {
     "title": "实践映射：对照「AI 组织变革」方案",
     "blocks": [

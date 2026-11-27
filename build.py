@@ -98,6 +98,9 @@ def build(check: bool = False) -> int:
         write_page(f"book4/{c['deep']}.html", P.render_b4_chapter_page(c["deep"], "../"))
     for n in D.AGENT_PLAYBOOK_NODES:
         write_page(f"agent-playbook/{n['slug']}.html", P.render_pb_node_page(n["slug"], "../"))
+    write_page("agent-field/index.html", P.render_agent_field("../"))
+    for p in D.AGENT_FIELD_PAGES:
+        write_page(f"agent-field/{p['slug']}.html", P.render_af_page(p["slug"], "../"))
     for t in D.TOOLS:
         write_page(f"tools/{t['slug']}.html", P.render_tool_page(t, "../"))
 

@@ -9,10 +9,10 @@ from site_data import (BOOK, BOOK2, BOOK3, BOOK4, AGENT_LAB, STACK, BRAND2_CONTE
                        PRODUCT, EXPERIMENTS, TOYAGENT_STEPS,
                        SYNTHESIS, TRILOGY, FIG_SRC, SITE_NAME, BOOK3_CONTENT, BOOK3_DEEP,
                        BOOK4_CONTENT, BOOK4_DEEP, AGENT_PLAYBOOK, AGENT_PLAYBOOK_CONTENT,
-                       AGENT_PLAYBOOK_NODES)
+                       AGENT_PLAYBOOK_NODES, AGENT_FIELD, AGENT_FIELD_CONTENT, AGENT_FIELD_PAGES)
 from site_render import (inline, render_blocks, page_shell, reader_page,
                          sidebar_html_b2, sidebar_html_b3, sidebar_html_b4,
-                         sidebar_html_pb)
+                         sidebar_html_pb, sidebar_html_af)
 
 
 def chapter_headings(blocks: list) -> list[tuple[str, str]]:
@@ -543,6 +543,83 @@ def render_agent_playbook(base: str) -> str:
                        sidebar=sidebar_html_pb(base, ""))
 
 
+def _af_page_meta(slug: str) -> dict:
+    for p in AGENT_FIELD.get("pages", []):
+        if p.get("slug") == slug:
+            return p
+    return {}
+
+
+def render_af_page(slug: str, base: str) -> str:
+    doc = AGENT_FIELD_CONTENT[slug]
+    p = _af_page_meta(slug)
+    blocks = doc["sections"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    idx = next(i for i, x in enumerate(AGENT_FIELD_PAGES) if x["slug"] == slug)
+    prev_p = AGENT_FIELD_PAGES[idx - 1] if idx > 0 else None
+    next_p = AGENT_FIELD_PAGES[idx + 1] if idx + 1 < len(AGENT_FIELD_PAGES) else None
+    pager = '<nav class="pager">'
+    pager += (f'<a href="{base}agent-field/{prev_p["slug"]}.html"><span class="dir-label">← 上一页</span>'
+              f'<span class="ttl">{prev_p.get("no", "")} · {escape(prev_p["title"])}</span></a>' if prev_p
+              else f'<a href="{base}agent-field/index.html"><span class="dir-label">← 框架总纲</span>'
+                   f'<span class="ttl">第二参照系与边界</span></a>')
+    pager += (f'<a class="next" href="{base}agent-field/{next_p["slug"]}.html"><span class="dir-label">下一页 →</span>'
+              f'<span class="ttl">{next_p.get("no", "")} · {escape(next_p["title"])}</span></a>' if next_p
+              else '<span></span>')
+    pager += '</nav>'
+    chars = sum(len(str(v)) for b in blocks for v in b.values())
+    minutes = max(8, round(chars / 900))
+    srcs = "、".join(doc.get("sources", p.get("sources", [])))
+    inner = (
+        f'<div class="crumb"><a href="{base}index.html">首页</a><span>/</span>'
+        f'<a href="{base}agent-field/index.html">Agent Field Guide</a><span>/</span>'
+        f'<span>{p.get("no", "")}</span></div>'
+        f'<div class="cat">FIELD · {p.get("no", "")} · {escape(p.get("essence", "")[:40])}</div>'
+        f'<h1>{escape(p.get("title", doc.get("title", "")))}</h1>'
+        f'<p class="lead">{inline(doc.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>编号 <b>{escape(p.get("no", ""))}</b></span>'
+        f'<span>素材 <b>{escape(srcs)}</b></span>'
+        f'<span>约 <b>{minutes}</b> 分钟读完</span>'
+        '<span>性质 <b>原创蒸馏 · mas_router_method@962e064</b></span></div></div>'
+        + body_html + pager
+    )
+    title = f'{p.get("no", "")} {p.get("title", doc.get("title", ""))}'
+    return reader_page(base, slug, inner, heads, title,
+                       doc.get("lead", "")[:120], nav_current="agent-field",
+                       sidebar=sidebar_html_af(base, slug))
+
+
+def render_agent_field(base: str) -> str:
+    f = AGENT_FIELD
+    blocks = f["blocks"]
+    counters = {"h2": 0, "h3": 0}
+    body_html = render_blocks(blocks, base, counters)
+    heads = chapter_headings(blocks)
+    n_pub = len(AGENT_FIELD_PAGES)
+    n_total = len([p for p in f.get("pages", []) if p.get("slug") != "index"])
+    inner = (
+        '<div class="crumb"><a href="' + base + 'index.html">首页</a><span>/</span><span>Agent Field Guide</span></div>'
+        '<div class="cat">AGENT FIELD GUIDE · SECOND REFERENCE</div>'
+        f'<h1>{escape(f["title"])}</h1>'
+        f'<p class="lead">{inline(f.get("lead", ""))}</p>'
+        '<div class="page-head" style="padding:0 0 8px"><div class="facts">'
+        f'<span>来源 <b><a href="{f.get("source_url", "https://github.com/zjgulai/mas_router_method")}" style="color:var(--r-blue)">mas_router_method ↗</a></b></span>'
+        f'<span>页面 <b>{n_pub} / {n_total} 已发布</b></span>'
+        f'<span>基线 <b>commit {escape(f.get("baseline_commit", "962e064")[:7])}</b></span>'
+        '<span>性质 <b>原创蒸馏 · 非文档转载</b></span></div></div>'
+        + body_html
+        + f'<div class="cta-card" style="margin-top:14px"><div><span class="idx">SPINE</span>'
+        '<h3>Agent Playbook：P0–P8 构建脊柱</h3>'
+        '<p>同一主题的构造序版——本轨讲「建 Agent 项目怎么跑」，Playbook 讲「Agent 内部按什么顺序装」。</p></div>'
+        + f'<a class="go" href="{base}agent-playbook/index.html">打开 Playbook →</a></div>')
+    return reader_page(base, "", inner, heads, f["title"],
+                       f.get("lead", "")[:120], nav_current="agent-field",
+                       sidebar=sidebar_html_af(base, ""))
+
+
 def render_experiments(base: str) -> str:
     """Book4 companion experiments + skills index page."""
     repo = EXPERIMENTS["repo"]
@@ -752,6 +829,7 @@ def render_home(base: str) -> str:
 <div class="site-entry"><b>书三 · 本体驱动的AI数据管理</b><span>《{escape(BOOK3["short_title"])}》{escape(BOOK3["author"])} 著 · {len(BOOK3["chapters"])} 章框架 + {len(BOOK3_DEEP)} 篇精读</span><a href="{base}book3/index.html">本体书全书地图 →</a></div>
 <div class="site-entry"><b>书四 · 深入理解 AI Agent</b><span>《{escape(BOOK4["short_title"])}》{escape(BOOK4["author"])} 著 · Apache-2.0 开源书 · {len(BOOK4["chapters"])} 章框架 + {len(BOOK4_DEEP)} 篇精读</span><a href="{base}book4/index.html">Agent书全书地图 →</a></div>
 <div class="site-entry"><b>Agent Playbook · 0→1</b><span>AI Agent 通识教程 30 章蒸馏：P0–P8 构建脊柱 + 模型边界矩阵（DeepSeek 基线）</span><a href="{base}agent-playbook/index.html">打开 Playbook →</a></div>
+<div class="site-entry"><b>Agent Field Guide · 工程实录</b><span>mas_router_method 生产仓库方法论蒸馏：决策杠杆序 / 评估纪律 / 失败图鉴 / 编排实证（第二参照系）</span><a href="{base}agent-field/index.html">打开 Field Guide →</a></div>
 <div class="site-entry"><b>实战项目 · AI 组织变革</b><span>约 50 个 AI 岗位的组织变革方案公开版：20 场景规格、4 份 Skill 契约、语义底座方法、试点五件套、P0~P4 路线</span><a href="{base}brand-plan.html">实战路线图 →</a></div>
 </div>
 <a class="hero-sitemap" href="{base}sitemap.html">站点地图 · 不知从哪开始？→</a></div></div></section>"""

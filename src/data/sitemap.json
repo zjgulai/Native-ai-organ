@@ -37,6 +37,7 @@
    "[配套实验](experiments.html) 书4 的 110 个编号实验 + 22 份主题 Skill 索引",
    "[原理文章蒸馏](toyagent-steps.html) ToyAgent 27 篇原理文章的方法论提炼（定位/机制/边界）",
    "[Agent Playbook](agent-playbook/index.html) AI Agent 通识教程 30 章 → P0–P8 构建脊柱（想从 0 造 Agent 从这里进）",
+   "[Agent Field Guide](agent-field/index.html) 生产仓库方法论蒸馏 → 决策杠杆序 / 评估纪律 / 失败图鉴 / 编排实证（第二参照系）",
    "[三书合璧](triology.html) / [四层架构](stack.html) 收束到整合方案"]},
   {"h3": "路径③ 实战项目线（看方法论落地）"},
   {"olist": [
@@ -64,6 +65,7 @@
    ["配套实验", "书4 的 110 个编号实验、111 个代码目录与 22 份主题 SKILL.md", "想动手复现", "[experiments](experiments.html)"],
    ["原理文章蒸馏", "ToyAgent 27 篇原理文章蒸馏：每篇的定位/机制/边界/代码链接", "想读机制细节", "[toyagent-steps](toyagent-steps.html)"],
    ["Agent Playbook", "AI Agent 通识教程 30 章蒸馏：P0–P8 构建脊柱 + 模型边界矩阵（DeepSeek 基线）", "想从 0 造 Agent", "[agent-playbook](agent-playbook/index.html)"],
+   ["Agent Field Guide", "mas_router_method 生产仓库方法论蒸馏：决策杠杆序 / 评估纪律 / 失败图鉴 / 编排实证（第二参照系）", "想建 Agent 项目的人", "[agent-field](agent-field/index.html)"],
    ["四层架构", "组织×业务×语义×工程四层 + 0→1 设计路径", "看全局结构", "[stack](stack.html)"],
    ["两书合璧", "两书分工、五层结合点、FLOW-09 工程化", "看整合方案", "[synthesis](synthesis.html)"],
    ["三书合璧", "组织 × 品牌 × 语义三层支撑与试点汇合点", "看三书怎么拼", "[triology](triology.html)"],

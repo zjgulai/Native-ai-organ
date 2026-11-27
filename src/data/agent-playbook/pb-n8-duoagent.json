@@ -228,6 +228,9 @@
   },
   {
    "p": "上游：多 Agent 组队的运行时底座（Loop/Harness/HITL 审批）见 N5——[pb-n5-yunxing-harness.html](pb-n5-yunxing-harness.html)；沙箱隔离与注入防御细节见 N6——[pb-n6-anquan-zhi-li.html](pb-n6-anquan-zhi-li.html)；交接产物的验收与回执见 N7——[pb-n7-guancheng-bushu.html](pb-n7-guancheng-bushu.html)。下游：Agent 间交互的用户侧形态（转接、群聊、多模态）见 N9——[pb-n9-jiaohu-xingtai.html](pb-n9-jiaohu-xingtai.html)；多 Agent 之外的模型服务化与前沿见 N10——[pb-n10-moxing-fuwu.html](pb-n10-moxing-fuwu.html)。契约张力的系统级对照读 [书4 · 多 Agent 协作](../book4/b4-10-duoagent-xiezuo.html)（何时值得拆、怎么失败、拓扑分类框架）；可运行参照看 [ToyAgent 原理文章 step12–14](../toyagent-steps.html)（协作与派遣：固定流水线/子代理/A2A）；三方映射在 [Agent 实验场](../agent-lab.html)，配套实验见 [实验地图](../experiments.html)，组织×业务×语义×工程全貌回 [四层架构](../stack.html) 与 [语义底座](../semantic.html)，路线总览回 [Playbook 框架页](index.html)。"
+  },
+  {
+   "p": "**生产参照**：多 Agent 编排的生产实证见 [F4 capability-graph](../agent-field/af-capgraph.html)——20 节点 15 路由（文档口径 17）的显式能力图 + grounded answer 契约，是「保留方向但有条件」立场的活样本。"
   }
  ]
 }

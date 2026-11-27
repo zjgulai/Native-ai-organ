@@ -1,0 +1,147 @@
+{
+ "slug": "af-order",
+ "no": "F1",
+ "title": "决策杠杆序：from zero 的正确顺序",
+ "status": "published",
+ "minutes": 12,
+ "lead": "一个 agent 产品仓库从零开始的正确工序，不按依赖、也不按组件大小排，而按 decision leverage 排——每一步的存在意义，是消除一个后续步骤在压力下必须做的决定。",
+ "sources": ["docs/from-zero.md", "CLAUDE.md"],
+ "sections": [
+  {
+   "h2": "定位：排的是项目工序，不是 Agent 零件"
+  },
+  {
+   "p": "本页是 Agent Field Guide 的 F1 单元，蒸馏自 `mas_router_method@962e064` 的 `docs/from-zero.md`——一份生产仓库对自己从零起步过程的复盘。它排序的对象是**项目层**：一间 agent 产品仓库从空目录到能跑的应用，工作按什么顺序做。与 [Agent Playbook](../agent-playbook/index.html) 的 P0–P8 正好互补：那边排序的是 Agent **内部**该装哪些件（13 个节点页，从任务定义到模型服务化），这边排序的是**建 Agent 的项目**该先做哪件事。两者是同一件事的两面——Agent 内部怎么装，决定项目工序里哪几步最重。"
+  },
+  {
+   "p": "原计划是 `/init` → git → skills → 产品，作者评价为「close to right and wrong in one specific way that costs real time」。错不在细节，而在排序标准本身：原计划按依赖和手感排，本文主张按 **decision leverage** 排——每一步的存在意义，是让后续步骤少做一个必须在压力下临场决定的决定。"
+  },
+  {
+   "quote": "Order the work so that each step eliminates a decision that later steps would otherwise have to make under pressure. Not by dependency, not by component size — by decision leverage.",
+   "cite": "mas_router_method@962e064 · docs/from-zero.md"
+  },
+  {
+   "note": "证据边界：这是一份单一仓库的 retrospective（n=1），不是对照实验。它给出的是排序原则与四个具体纠错；步骤中的具体选型（Agent SDK / 自研 loop / 平台）依赖当时约束，不可照抄为通用答案。"
+  },
+  {
+   "h2": "九步序全景：每步消除一个决定"
+  },
+  {
+   "p": "原仓库实际走完的顺序共九步，按 decision leverage 排列。注意最后一步——应用层垫底不是疏忽，它是整条链的推论。"
+  },
+  {
+   "table": {
+    "head": ["#", "工序", "消除的决定", "做晚的代价"],
+    "rows": [
+     ["1", "决定 runtime 形态：Agent SDK、自研 loop 还是平台", "「怎么调模型」及其派生的文件布局、工具契约风格、可测试性边界", "事后反转 = 重写"],
+     ["2", "命名第一个真实场景：一个具体用户行为（本仓库 = 爆款参考视频 → 可拍摄 Recipe）", "「schema 长什么样」的猜测", "没有它 schemas are guesses——领域对象在无锚点时成形"],
+     ["3", "git init + 仓库卫生：仓库先于第一个脚手架文件存在", "「历史能否隔离每个架构决定」", "事后补 git → 首个 commit 是一团 blob，此后每个决定都难以归因"],
+     ["4", "schema 层：领域对象集中一个包，其余包只 import 不重定义", "「什么是 Recipe」这类领域定义分歧", "回填 = 正好在势头最高时做一次 wide refactor；原文称其为最高杠杆排序"],
+     ["5", "runtime + limits：单文件 loop——模型调用、step recording、budget enforcement、tool contracts against ports，跑通且有测试", "「预算、取消、记账在哪一层保证」", "loop 先拆模块 → budget check 最容易不在必经路径上"],
+     ["6", "skills 两套：vendored 工程流程 + 仓库自己的 agent flow", "「哪些 skill 是承重的」——有骨架可读才有筛选依据", "空仓库里装 = 掷硬币；由没人需要的 skill 组成的流程会被人停止遵守"],
+     ["7", "/init 对真实结构跑：让 agent 读真实仓库写「这里怎么运作」，如实写明哪些还不存在", "「下一个 agent 怎么理解这间仓库」", "早跑 = 产出关于虚无的文档，且成为没人重读的习惯"],
+     ["8", "决定工作的文档：thesis、ADRs、eval design、roadmap", "「为什么这样做、够不够好」的后续争论", "缺 eval set → 「这是回归吗 / 能发吗 / 模型升级有帮助吗」全部无解"],
+     ["9", "应用层最后且薄：bot-gateway 只验签投递，workbench 只观测审核，都不含 agent logic", "几乎不产生新决定", "表面先于地基存在，地基一动就返工"]
+    ]
+   }
+  },
+  {
+   "p": "两行值得展开。第 4 步 schema 层被原文自认是「单一最高杠杆排序」：领域对象集中在一个包（`packages/shared`），其余全部 import——等于把「什么是一个 Recipe」这类分歧在类型层消灭；拖到第十四做，代价是一次 wide refactor，而时机恰好是 momentum 最高、最不该停下重构的时候。第 5 步的 runtime 刻意收成单文件 `run-agent.ts`：模型调用、step recording、budget enforcement、cost accounting 全在同一个 loop 里——拆进多个模块，budget check 最容易落在非必经路径上，等于没有。"
+  },
+  {
+   "h2": "原计划错在哪：四个被纠正的顺序"
+  },
+  {
+   "p": "对照之下，原计划有四处错误：三处是「方向对、时机错」，一处是「整步缺失」——而且缺失的那步（eval set）被作者称为真正要命的那一个。"
+  },
+  {
+   "h3": "/init 不能先跑：产出比时机重要"
+  },
+  {
+   "p": "`/init` 读仓库、给下一个 agent 写「这里怎么运作」。在空目录里没有东西可读，它会**成功地产出一份关于虚无的文档**。更糟的是这份文档会变成习惯：没人重读它，等真实结构长出来时，它描述的是一个从未存在过的仓库。原文的判断是：要紧的不是它跑在第几步，而是它的输出描述的是否是真实存在的结构——这也解释了它在九步序里排第 7 位。"
+  },
+  {
+   "h3": "git 要在第一个脚手架文件之前"
+  },
+  {
+   "p": "原计划把 git 放对了大方向，但值得钉死：仓库必须先于第一个脚手架文件存在。事后 `git init` 的代价是首个 commit 成为一团 blob——没有故事，此后每个决定都难以隔离。正面证据是本仓库自身：首个 commit 在正文里携带了三个架构决定的理由，这只有在历史先于代码开始时才可能发生。"
+  },
+  {
+   "h3": "skills 在骨架之后装，才有筛选依据"
+  },
+  {
+   "p": "往空仓库装 skill，等于往一个对自己没有意见的仓库里装——没有任何东西告诉你二十几个 skill 里哪些是承重的。等骨架立起来再装，就能读骨架、把不相关的那一半扔掉。原计划把这条搞反了；后果不剧烈但真实：一个由没人需要的 skill 组成的流程，是人们会停止遵守的流程。"
+  },
+  {
+   "h3": "最大的漏洞：缺 eval set"
+  },
+  {
+   "p": "原计划走 requirement → build → deliver，对 agent 产品而言跳过了唯一能把质量钉死的工件。prose spec 说的是 agent 应该**感觉**怎样；eval set 说的是它必须**做**什么——「这是回归吗」「够不够格发布」「那次模型升级有帮助吗」，没有 eval set 这些问题全部无解。这也是仓库流程把 `spec` 排在 `tickets` 之前、并把「eval set 存在」设为两者之间门禁的原因。"
+  },
+  {
+   "quote": "The eval set is the spec. A spec without eval cases is a wish; every later argument about quality becomes an opinion.",
+   "cite": "mas_router_method@962e064 · README.md"
+  },
+  {
+   "h2": "应用层为什么最后、为什么薄"
+  },
+  {
+   "p": "九步序的收尾不是「应用不重要」，而是应用里几乎不含决策。两个 surface 的分工是刻意的："
+  },
+  {
+   "list": [
+    "**决策在哪**：runtime 形态、领域 schema、tool 契约、预算与取消、eval 门禁——全部沉淀在 `packages/core`、`packages/shared`、`packages/evals`。",
+    "**应用层剩什么**：请求怎么进来（Feishu event 进 bot-gateway、OAuth session 进 workbench）、结果怎么出去（reply / review UI）。是入口与出口，不是判断。",
+    "**推论**：先写应用 = 在未定的地基上做投影，地基一动就返工；放到最后，应用反而变薄——因为所有难的决定已在前八步被消除。"
+   ]
+  },
+  {
+   "p": "这解释了「薄」的准确含义：不是功能少，而是判断少。一个只做验签、幂等与投递的 gateway，和一个只做观测与审核界面的 workbench，代码量可以不小，但没有一行需要回答「agent 该怎么想」——那部分全在 runtime 里。"
+  },
+  {
+   "h2": "这套排序的适用边界"
+  },
+  {
+   "p": "原文自己承认了适用范围：foundations-first 是「对风险在质量而非速度的产品是正确的交易，对风险在需求的产品是错误的交易」。落到判断上："
+  },
+  {
+   "list": [
+    "**适用**：agent 产品——成败取决于输出质量能否验收（eval set 钉得住质量）、runtime 选型错了代价是重写、schema 分歧会污染所有下游。先把决定消灭干净再写表面。",
+    "**不适用**：需求风险大于质量风险的项目——正确顺序是先用最薄的东西验证需求是否存在，再回头补地基；按本序打地基，等于把「也许没人要」的风险留到最后才暴露。",
+    "**证据强度**：单仓库复盘（n=1），retrospective 而非对照实验；其中「tracer ticket 应先于 fixtures」这条自我批评也说明——即使按本序，仍会漏掉没被排进去的工序。"
+   ]
+  },
+  {
+   "h2": "仓库自己的两点反思"
+  },
+  {
+   "p": "文末「what this repo would do differently」只列了两条小改动，都是「对的顺序里仍留着缝」的证据："
+  },
+  {
+   "olist": [
+    "**/init 应再往后挪**：等应用存在之后再跑。它的 Current state 一节确实有用——如实写明「两个应用只是 manifest」比假装完整更有价值——但若描述的是一条端到端跑通的路径而非 manifest，会更有用。",
+    "**tracer ticket 应先于它需要的 fixtures 写**：roadmap 里规定了它，至今没人建。这个缺口是 foundations-first 的诚实成本——对质量风险大于速度风险的产品是对的交换，对需求风险的产品是错的交换。"
+   ]
+  },
+  {
+   "h2": "与 Agent Playbook P0–P8 的关系"
+  },
+  {
+   "p": "两条内容轨回答的是不同对象的问题，读法上是接力而非替代：Playbook 告诉你 Agent 内部该有哪些件、按什么次序装配；本页告诉你这些件在项目工序里排第几、每一步替后面挡掉什么决定。两者在第 5 步（runtime + limits）与第 8 步（eval 门禁）处直接相交——前者说 loop 里该有什么，后者说它在工序里的位置。"
+  },
+  {
+   "table": {
+    "head": ["维度", "Agent Playbook（P0–P8）", "Agent Field Guide · 本页（F1）"],
+    "rows": [
+     ["排序对象", "Agent 内部构造：零件与契约", "建 Agent 的项目：工序与门禁"],
+     ["排序依据", "playbook 节点依赖序（P0 任务定义 → P8 模型服务化，13 节点）", "decision leverage：每步消除一个后续决定"],
+     ["回答的问题", "「Agent 内部怎么装」", "「建 Agent 的项目怎么跑」"],
+     ["典型产物", "岗位契约、Playbook、Preset Blueprint", "仓库结构、schema 层、eval 门禁、ADR、薄应用层"]
+    ]
+   }
+  },
+  {
+   "p": "0→1 建 agent 项目的建议读法：先用 [Agent Playbook 框架页](../agent-playbook/index.html) 的 P0–P8 定 Agent 内部构造，再回本轨按 decision leverage 排项目工序；runtime 落地的工程边界可对照 [N5 运行时](../agent-playbook/pb-n5-yunxing-harness.html)。本轨框架总纲见 [Agent Field Guide](../agent-field/index.html)。"
+  }
+ ]
+}
